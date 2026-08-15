@@ -3,20 +3,52 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: AI Customer Support Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: organizations
+    description: Organization management
+  - name: users
+    description: User management
+  - name: contacts
+    description: Contact management
+  - name: companies
+    description: Company management
+  - name: conversations
+    description: Conversation management
+  - name: messages
+    description: Message management
+  - name: channels
+    description: Channel management
+  - name: notes
+    description: Note management
+  - name: tags
+    description: Tag management
+  - name: pipelines
+    description: Pipeline management
+  - name: deals
+    description: Deal management
+  - name: knowledge-base
+    description: Knowledge base management
+  - name: ai-settings
+    description: AI settings
+  - name: analytics
+    description: Analytics and dashboard
+  - name: integrations
+    description: Integration management
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +56,2232 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── AUTH ───────────────────────────────────────────────────────────────────
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResult"
+        "401":
+          description: Invalid credentials
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user and organization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResult"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current authenticated user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /auth/refresh:
+    post:
+      operationId: refreshToken
+      tags: [auth]
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshInput"
+      responses:
+        "200":
+          description: New tokens
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResult"
+
+  # ─── ORGANIZATIONS ──────────────────────────────────────────────────────────
+  /organizations:
+    get:
+      operationId: listOrganizations
+      tags: [organizations]
+      summary: List organizations for current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of organizations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Organization"
+    post:
+      operationId: createOrganization
+      tags: [organizations]
+      summary: Create a new organization
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrganizationInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Organization"
+
+  /organizations/{id}:
+    get:
+      operationId: getOrganization
+      tags: [organizations]
+      summary: Get organization by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Organization
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Organization"
+    patch:
+      operationId: updateOrganization
+      tags: [organizations]
+      summary: Update organization
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrganizationUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Organization"
+
+  # ─── USERS ──────────────────────────────────────────────────────────────────
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List users in the organization
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      operationId: inviteUser
+      tags: [users]
+      summary: Invite a user to the organization
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInviteInput"
+      responses:
+        "201":
+          description: Invited
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get user by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Update user role or info
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    delete:
+      operationId: deleteUser
+      tags: [users]
+      summary: Remove user from organization
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── CONTACTS ───────────────────────────────────────────────────────────────
+  /contacts:
+    get:
+      operationId: listContacts
+      tags: [contacts]
+      summary: List contacts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: companyId
+          in: query
+          schema:
+            type: number
+        - name: tagId
+          in: query
+          schema:
+            type: number
+      responses:
+        "200":
+          description: List of contacts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Contact"
+    post:
+      operationId: createContact
+      tags: [contacts]
+      summary: Create a contact
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contact"
+
+  /contacts/{id}:
+    get:
+      operationId: getContact
+      tags: [contacts]
+      summary: Get contact by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Contact
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contact"
+    patch:
+      operationId: updateContact
+      tags: [contacts]
+      summary: Update a contact
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contact"
+    delete:
+      operationId: deleteContact
+      tags: [contacts]
+      summary: Delete a contact
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── COMPANIES ──────────────────────────────────────────────────────────────
+  /companies:
+    get:
+      operationId: listCompanies
+      tags: [companies]
+      summary: List companies
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of companies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Company"
+    post:
+      operationId: createCompany
+      tags: [companies]
+      summary: Create a company
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompanyInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Company"
+
+  /companies/{id}:
+    get:
+      operationId: getCompany
+      tags: [companies]
+      summary: Get company by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Company
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Company"
+    patch:
+      operationId: updateCompany
+      tags: [companies]
+      summary: Update a company
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompanyUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Company"
+    delete:
+      operationId: deleteCompany
+      tags: [companies]
+      summary: Delete a company
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── CONVERSATIONS ──────────────────────────────────────────────────────────
+  /conversations:
+    get:
+      operationId: listConversations
+      tags: [conversations]
+      summary: List conversations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, resolved, pending, snoozed]
+        - name: channelId
+          in: query
+          schema:
+            type: number
+        - name: contactId
+          in: query
+          schema:
+            type: number
+        - name: assigneeId
+          in: query
+          schema:
+            type: number
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conversation"
+    post:
+      operationId: createConversation
+      tags: [conversations]
+      summary: Create a conversation
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConversationInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+
+  /conversations/{id}:
+    get:
+      operationId: getConversation
+      tags: [conversations]
+      summary: Get conversation by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+    patch:
+      operationId: updateConversation
+      tags: [conversations]
+      summary: Update a conversation
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConversationUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+    delete:
+      operationId: deleteConversation
+      tags: [conversations]
+      summary: Delete a conversation
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  /conversations/{id}/assign:
+    patch:
+      operationId: assignConversation
+      tags: [conversations]
+      summary: Assign conversation to an agent
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignInput"
+      responses:
+        "200":
+          description: Assigned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+
+  # ─── MESSAGES ───────────────────────────────────────────────────────────────
+  /conversations/{conversationId}/messages:
+    get:
+      operationId: listMessages
+      tags: [messages]
+      summary: List messages in a conversation
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+    post:
+      operationId: sendMessage
+      tags: [messages]
+      summary: Send a message in a conversation
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageInput"
+      responses:
+        "201":
+          description: Sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+
+  # ─── CHANNELS ───────────────────────────────────────────────────────────────
+  /channels:
+    get:
+      operationId: listChannels
+      tags: [channels]
+      summary: List channels
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of channels
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Channel"
+    post:
+      operationId: createChannel
+      tags: [channels]
+      summary: Create a channel
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChannelInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Channel"
+
+  /channels/{id}:
+    get:
+      operationId: getChannel
+      tags: [channels]
+      summary: Get channel by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Channel
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Channel"
+    patch:
+      operationId: updateChannel
+      tags: [channels]
+      summary: Update a channel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChannelUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Channel"
+    delete:
+      operationId: deleteChannel
+      tags: [channels]
+      summary: Delete a channel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── NOTES ──────────────────────────────────────────────────────────────────
+  /notes:
+    get:
+      operationId: listNotes
+      tags: [notes]
+      summary: List notes
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: contactId
+          in: query
+          schema:
+            type: number
+        - name: conversationId
+          in: query
+          schema:
+            type: number
+      responses:
+        "200":
+          description: List of notes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Note"
+    post:
+      operationId: createNote
+      tags: [notes]
+      summary: Create a note
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NoteInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+
+  /notes/{id}:
+    patch:
+      operationId: updateNote
+      tags: [notes]
+      summary: Update a note
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NoteUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+    delete:
+      operationId: deleteNote
+      tags: [notes]
+      summary: Delete a note
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── TAGS ───────────────────────────────────────────────────────────────────
+  /tags:
+    get:
+      operationId: listTags
+      tags: [tags]
+      summary: List tags
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of tags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tag"
+    post:
+      operationId: createTag
+      tags: [tags]
+      summary: Create a tag
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TagInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tag"
+
+  /tags/{id}:
+    delete:
+      operationId: deleteTag
+      tags: [tags]
+      summary: Delete a tag
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── PIPELINES ──────────────────────────────────────────────────────────────
+  /pipelines:
+    get:
+      operationId: listPipelines
+      tags: [pipelines]
+      summary: List pipelines
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of pipelines
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pipeline"
+    post:
+      operationId: createPipeline
+      tags: [pipelines]
+      summary: Create a pipeline
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PipelineInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pipeline"
+
+  /pipelines/{id}:
+    get:
+      operationId: getPipeline
+      tags: [pipelines]
+      summary: Get pipeline by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Pipeline
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pipeline"
+    patch:
+      operationId: updatePipeline
+      tags: [pipelines]
+      summary: Update a pipeline
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PipelineUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pipeline"
+    delete:
+      operationId: deletePipeline
+      tags: [pipelines]
+      summary: Delete a pipeline
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── DEALS ──────────────────────────────────────────────────────────────────
+  /deals:
+    get:
+      operationId: listDeals
+      tags: [deals]
+      summary: List deals
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: pipelineId
+          in: query
+          schema:
+            type: number
+        - name: stage
+          in: query
+          schema:
+            type: string
+        - name: contactId
+          in: query
+          schema:
+            type: number
+      responses:
+        "200":
+          description: List of deals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Deal"
+    post:
+      operationId: createDeal
+      tags: [deals]
+      summary: Create a deal
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DealInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deal"
+
+  /deals/{id}:
+    get:
+      operationId: getDeal
+      tags: [deals]
+      summary: Get deal by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Deal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deal"
+    patch:
+      operationId: updateDeal
+      tags: [deals]
+      summary: Update a deal
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DealUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deal"
+    delete:
+      operationId: deleteDeal
+      tags: [deals]
+      summary: Delete a deal
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── KNOWLEDGE BASE ─────────────────────────────────────────────────────────
+  /knowledge-base:
+    get:
+      operationId: listKnowledgeBase
+      tags: [knowledge-base]
+      summary: List knowledge base documents
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/KnowledgeDoc"
+    post:
+      operationId: createKnowledgeDoc
+      tags: [knowledge-base]
+      summary: Upload a document to knowledge base
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KnowledgeDocInput"
+      responses:
+        "201":
+          description: Uploaded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeDoc"
+
+  /knowledge-base/{id}:
+    get:
+      operationId: getKnowledgeDoc
+      tags: [knowledge-base]
+      summary: Get knowledge base document
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeDoc"
+    delete:
+      operationId: deleteKnowledgeDoc
+      tags: [knowledge-base]
+      summary: Delete a knowledge base document
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+
+  /knowledge-base/search:
+    post:
+      operationId: searchKnowledgeBase
+      tags: [knowledge-base]
+      summary: Semantic search over knowledge base
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KnowledgeSearchInput"
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/KnowledgeSearchResult"
+
+  # ─── AI SETTINGS ────────────────────────────────────────────────────────────
+  /ai-settings:
+    get:
+      operationId: getAiSettings
+      tags: [ai-settings]
+      summary: Get AI settings for organization
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: AI settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiSettings"
+    put:
+      operationId: updateAiSettings
+      tags: [ai-settings]
+      summary: Update AI settings
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AiSettingsInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiSettings"
+
+  # ─── ANALYTICS ──────────────────────────────────────────────────────────────
+  /analytics/dashboard:
+    get:
+      operationId: getDashboardStats
+      tags: [analytics]
+      summary: Get dashboard statistics
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /analytics/conversations:
+    get:
+      operationId: getConversationAnalytics
+      tags: [analytics]
+      summary: Get conversation analytics over time
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [7d, 30d, 90d]
+            default: "30d"
+      responses:
+        "200":
+          description: Analytics data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationAnalytics"
+
+  /analytics/agents:
+    get:
+      operationId: getAgentPerformance
+      tags: [analytics]
+      summary: Get agent performance metrics
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Agent performance
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AgentPerformance"
+
+  # ─── INTEGRATIONS ────────────────────────────────────────────────────────────
+  /integrations:
+    get:
+      operationId: listIntegrations
+      tags: [integrations]
+      summary: List available integrations and their status
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of integrations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Integration"
+
+  /integrations/{provider}/configure:
+    post:
+      operationId: configureIntegration
+      tags: [integrations]
+      summary: Configure an integration provider
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [whatsapp_cloud, whatsapp_web, messenger, instagram, telegram, tiktok]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IntegrationConfig"
+      responses:
+        "200":
+          description: Configured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Integration"
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
     HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+
+    # ─── AUTH ─────────────────────────────────────────────────────────────────
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+
+        password:
+          type: string
+
+    RegisterInput:
+      type: object
+      required: [email, password, firstName, lastName, organizationName]
+      properties:
+        email:
+          type: string
+
+        password:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        organizationName:
+          type: string
+
+    RefreshInput:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+
+    AuthResult:
+      type: object
+      required: [accessToken, refreshToken, user]
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    # ─── ORGANIZATION ─────────────────────────────────────────────────────────
+    Organization:
+      type: object
+      required: [id, name, slug, createdAt]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        slug:
+          type: string
+        logoUrl:
+          type: ["string", "null"]
+        website:
+          type: ["string", "null"]
+        plan:
+          type: string
+          enum: [free, starter, pro, enterprise]
+        createdAt:
+          type: string
+          format: date-time
+
+    OrganizationInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        website:
+          type: string
+
+    OrganizationUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        website:
+          type: string
+        logoUrl:
+          type: string
+
+    # ─── USER ─────────────────────────────────────────────────────────────────
+    User:
+      type: object
+      required: [id, email, firstName, lastName, role, isActive, createdAt]
+      properties:
+        id:
+          type: number
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+        role:
+          type: string
+          enum: [owner, admin, agent]
+        isActive:
+          type: boolean
+        organizationId:
+          type: ["number", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    UserInviteInput:
+      type: object
+      required: [email, firstName, lastName, role]
+      properties:
+        email:
+          type: string
+
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+          enum: [admin, agent]
+
+    UserUpdate:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+          enum: [admin, agent]
+        isActive:
+          type: boolean
+
+    # ─── CONTACT ──────────────────────────────────────────────────────────────
+    Contact:
+      type: object
+      required: [id, firstName, lastName, createdAt]
+      properties:
+        id:
+          type: number
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        avatarUrl:
+          type: ["string", "null"]
+        companyId:
+          type: ["number", "null"]
+        companyName:
+          type: ["string", "null"]
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
+        lastActivityAt:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    ContactInput:
+      type: object
+      required: [firstName, lastName]
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        companyId:
+          type: number
+        tagIds:
+          type: array
+          items:
+            type: number
+
+    ContactUpdate:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        companyId:
+          type: ["number", "null"]
+        tagIds:
+          type: array
+          items:
+            type: number
+
+    # ─── COMPANY ──────────────────────────────────────────────────────────────
+    Company:
+      type: object
+      required: [id, name, createdAt]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        domain:
+          type: ["string", "null"]
+        industry:
+          type: ["string", "null"]
+        size:
+          type: ["string", "null"]
+        logoUrl:
+          type: ["string", "null"]
+        contactCount:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+
+    CompanyInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        domain:
+          type: string
+        industry:
+          type: string
+        size:
+          type: string
+
+    CompanyUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        domain:
+          type: string
+        industry:
+          type: string
+        size:
+          type: string
+
+    # ─── CONVERSATION ─────────────────────────────────────────────────────────
+    Conversation:
+      type: object
+      required: [id, status, channelType, createdAt]
+      properties:
+        id:
+          type: number
+        status:
+          type: string
+          enum: [open, resolved, pending, snoozed]
+        channelType:
+          type: string
+          enum: [whatsapp, messenger, instagram, telegram, tiktok, web]
+        channelId:
+          type: ["number", "null"]
+        contactId:
+          type: ["number", "null"]
+        contact:
+          $ref: "#/components/schemas/Contact"
+        assigneeId:
+          type: ["number", "null"]
+        assignee:
+          $ref: "#/components/schemas/User"
+        subject:
+          type: ["string", "null"]
+        lastMessageAt:
+          type: ["string", "null"]
+          format: date-time
+        lastMessage:
+          type: ["string", "null"]
+        unreadCount:
+          type: number
+        aiHandled:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    ConversationInput:
+      type: object
+      required: [channelType]
+      properties:
+        channelType:
+          type: string
+          enum: [whatsapp, messenger, instagram, telegram, tiktok, web]
+        channelId:
+          type: number
+        contactId:
+          type: number
+        subject:
+          type: string
+        assigneeId:
+          type: number
+
+    ConversationUpdate:
       type: object
       properties:
         status:
           type: string
-      required:
-        - status
+          enum: [open, resolved, pending, snoozed]
+        assigneeId:
+          type: ["number", "null"]
+        subject:
+          type: string
 
+    AssignInput:
+      type: object
+      required: [assigneeId]
+      properties:
+        assigneeId:
+          type: ["number", "null"]
+
+    # ─── MESSAGE ──────────────────────────────────────────────────────────────
+    Message:
+      type: object
+      required: [id, conversationId, content, senderType, createdAt]
+      properties:
+        id:
+          type: number
+        conversationId:
+          type: number
+        content:
+          type: string
+        senderType:
+          type: string
+          enum: [contact, agent, ai, system]
+        senderId:
+          type: ["number", "null"]
+        senderName:
+          type: ["string", "null"]
+        messageType:
+          type: string
+          enum: [text, image, file, audio, video]
+        status:
+          type: string
+          enum: [sent, delivered, read, failed]
+        isPrivate:
+          type: boolean
+        metadata:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    MessageInput:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+        messageType:
+          type: string
+          enum: [text, image, file, audio, video]
+          default: text
+        isPrivate:
+          type: boolean
+
+    # ─── CHANNEL ──────────────────────────────────────────────────────────────
+    Channel:
+      type: object
+      required: [id, name, channelType, provider, isActive, createdAt]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        channelType:
+          type: string
+          enum: [whatsapp, messenger, instagram, telegram, tiktok, web]
+        provider:
+          type: string
+          enum: [whatsapp_cloud, whatsapp_web, meta_graph, instagram_graph, telegram_bot, tiktok_dm, web_widget]
+        isActive:
+          type: boolean
+        phoneNumber:
+          type: ["string", "null"]
+        pageId:
+          type: ["string", "null"]
+        conversationCount:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+
+    ChannelInput:
+      type: object
+      required: [name, channelType, provider]
+      properties:
+        name:
+          type: string
+        channelType:
+          type: string
+          enum: [whatsapp, messenger, instagram, telegram, tiktok, web]
+        provider:
+          type: string
+          enum: [whatsapp_cloud, whatsapp_web, meta_graph, instagram_graph, telegram_bot, tiktok_dm, web_widget]
+
+    ChannelUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        isActive:
+          type: boolean
+
+    # ─── NOTE ─────────────────────────────────────────────────────────────────
+    Note:
+      type: object
+      required: [id, content, authorId, createdAt]
+      properties:
+        id:
+          type: number
+        content:
+          type: string
+        authorId:
+          type: number
+        authorName:
+          type: string
+        contactId:
+          type: ["number", "null"]
+        conversationId:
+          type: ["number", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    NoteInput:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+        contactId:
+          type: number
+        conversationId:
+          type: number
+
+    NoteUpdate:
+      type: object
+      properties:
+        content:
+          type: string
+
+    # ─── TAG ──────────────────────────────────────────────────────────────────
+    Tag:
+      type: object
+      required: [id, name, color]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        color:
+          type: string
+
+    TagInput:
+      type: object
+      required: [name, color]
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+
+    # ─── PIPELINE ─────────────────────────────────────────────────────────────
+    Pipeline:
+      type: object
+      required: [id, name, stages, createdAt]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        stages:
+          type: array
+          items:
+            $ref: "#/components/schemas/PipelineStage"
+        dealCount:
+          type: number
+        totalValue:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+
+    PipelineStage:
+      type: object
+      required: [id, name, order]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        order:
+          type: number
+        color:
+          type: ["string", "null"]
+
+    PipelineInput:
+      type: object
+      required: [name, stages]
+      properties:
+        name:
+          type: string
+        stages:
+          type: array
+          items:
+            type: object
+            required: [name, order]
+            properties:
+              name:
+                type: string
+              order:
+                type: number
+              color:
+                type: string
+
+    PipelineUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+
+    # ─── DEAL ─────────────────────────────────────────────────────────────────
+    Deal:
+      type: object
+      required: [id, title, pipelineId, stage, createdAt]
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        pipelineId:
+          type: number
+        pipelineName:
+          type: ["string", "null"]
+        stage:
+          type: string
+        value:
+          type: ["number", "null"]
+        currency:
+          type: string
+        contactId:
+          type: ["number", "null"]
+        contactName:
+          type: ["string", "null"]
+        assigneeId:
+          type: ["number", "null"]
+        assigneeName:
+          type: ["string", "null"]
+        expectedCloseDate:
+          type: ["string", "null"]
+
+        probability:
+          type: ["number", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    DealInput:
+      type: object
+      required: [title, pipelineId, stage]
+      properties:
+        title:
+          type: string
+        pipelineId:
+          type: number
+        stage:
+          type: string
+        value:
+          type: number
+        currency:
+          type: string
+          default: USD
+        contactId:
+          type: number
+        assigneeId:
+          type: number
+        expectedCloseDate:
+          type: string
+
+        probability:
+          type: number
+
+    DealUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        stage:
+          type: string
+        value:
+          type: ["number", "null"]
+        contactId:
+          type: ["number", "null"]
+        assigneeId:
+          type: ["number", "null"]
+        expectedCloseDate:
+          type: ["string", "null"]
+
+        probability:
+          type: ["number", "null"]
+
+    # ─── KNOWLEDGE BASE ───────────────────────────────────────────────────────
+    KnowledgeDoc:
+      type: object
+      required: [id, title, fileType, status, createdAt]
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        fileType:
+          type: string
+          enum: [pdf, docx, txt, url, faq]
+        status:
+          type: string
+          enum: [pending, processing, ready, failed]
+        fileSize:
+          type: ["number", "null"]
+        chunkCount:
+          type: ["number", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    KnowledgeDocInput:
+      type: object
+      required: [title, fileType]
+      properties:
+        title:
+          type: string
+        fileType:
+          type: string
+          enum: [pdf, docx, txt, url, faq]
+        content:
+          type: string
+        fileUrl:
+          type: string
+        url:
+          type: string
+
+    KnowledgeSearchInput:
+      type: object
+      required: [query]
+      properties:
+        query:
+          type: string
+        topK:
+          type: number
+          default: 5
+
+    KnowledgeSearchResult:
+      type: object
+      required: [docId, docTitle, chunk, score]
+      properties:
+        docId:
+          type: number
+        docTitle:
+          type: string
+        chunk:
+          type: string
+        score:
+          type: number
+
+    # ─── AI SETTINGS ──────────────────────────────────────────────────────────
+    AiSettings:
+      type: object
+      required: [id, organizationId, provider, model, autoReplyEnabled]
+      properties:
+        id:
+          type: number
+        organizationId:
+          type: number
+        provider:
+          type: string
+          enum: [ollama, openai_compatible]
+        model:
+          type: string
+        baseUrl:
+          type: ["string", "null"]
+        systemPrompt:
+          type: ["string", "null"]
+        autoReplyEnabled:
+          type: boolean
+        confidenceThreshold:
+          type: number
+        escalateOnLowConfidence:
+          type: boolean
+        contextWindowSize:
+          type: number
+        maxTokens:
+          type: number
+        temperature:
+          type: number
+
+    AiSettingsInput:
+      type: object
+      properties:
+        provider:
+          type: string
+          enum: [ollama, openai_compatible]
+        model:
+          type: string
+        baseUrl:
+          type: string
+        systemPrompt:
+          type: string
+        autoReplyEnabled:
+          type: boolean
+        confidenceThreshold:
+          type: number
+        escalateOnLowConfidence:
+          type: boolean
+        contextWindowSize:
+          type: number
+        maxTokens:
+          type: number
+        temperature:
+          type: number
+
+    # ─── ANALYTICS ────────────────────────────────────────────────────────────
+    DashboardStats:
+      type: object
+      required: [totalConversations, openConversations, resolvedToday, avgResponseTime, aiHandledPercent, totalContacts, totalDealsValue, recentActivity]
+      properties:
+        totalConversations:
+          type: number
+        openConversations:
+          type: number
+        resolvedToday:
+          type: number
+        avgResponseTime:
+          type: number
+          description: Average response time in minutes
+        aiHandledPercent:
+          type: number
+        totalContacts:
+          type: number
+        totalDealsValue:
+          type: number
+        recentActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivityItem"
+
+    ActivityItem:
+      type: object
+      required: [id, type, description, createdAt]
+      properties:
+        id:
+          type: number
+        type:
+          type: string
+          enum: [conversation_opened, conversation_resolved, contact_created, deal_created, message_sent]
+        description:
+          type: string
+        actorName:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    ConversationAnalytics:
+      type: object
+      required: [dataPoints, summary]
+      properties:
+        dataPoints:
+          type: array
+          items:
+            $ref: "#/components/schemas/AnalyticsDataPoint"
+        summary:
+          type: object
+          required: [total, resolved, avgResponseTime, aiHandled]
+          properties:
+            total:
+              type: number
+            resolved:
+              type: number
+            avgResponseTime:
+              type: number
+            aiHandled:
+              type: number
+
+    AnalyticsDataPoint:
+      type: object
+      required: [date, opened, resolved, aiHandled]
+      properties:
+        date:
+          type: string
+
+        opened:
+          type: number
+        resolved:
+          type: number
+        aiHandled:
+          type: number
+
+    AgentPerformance:
+      type: object
+      required: [userId, name, conversationsHandled, avgResponseTime, resolvedCount, satisfactionScore]
+      properties:
+        userId:
+          type: number
+        name:
+          type: string
+        avatarUrl:
+          type: ["string", "null"]
+        conversationsHandled:
+          type: number
+        avgResponseTime:
+          type: number
+        resolvedCount:
+          type: number
+        satisfactionScore:
+          type: ["number", "null"]
+
+    # ─── INTEGRATIONS ─────────────────────────────────────────────────────────
+    Integration:
+      type: object
+      required: [provider, channelType, displayName, isConfigured, isActive]
+      properties:
+        provider:
+          type: string
+          enum: [whatsapp_cloud, whatsapp_web, messenger, instagram, telegram, tiktok]
+        channelType:
+          type: string
+        displayName:
+          type: string
+        description:
+          type: string
+        isConfigured:
+          type: boolean
+        isActive:
+          type: boolean
+        iconUrl:
+          type: ["string", "null"]
+
+    IntegrationConfig:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        phoneNumberId:
+          type: string
+        businessAccountId:
+          type: string
+        pageId:
+          type: string
+        webhookVerifyToken:
+          type: string
+        apiKey:
+          type: string

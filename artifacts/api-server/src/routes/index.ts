@@ -1,8 +1,34 @@
-import { Router, type IRouter } from "express";
-import healthRouter from "./health";
+import { Router, type IRouter } from 'express';
+import healthRouter from './health.js';
+import authRouter from './auth.js';
+import usersRouter from './users.js';
+import contactsRouter from './contacts.js';
+import companiesRouter from './companies.js';
+import conversationsRouter from './conversations.js';
+import channelsRouter from './channels.js';
+import pipelinesRouter from './pipelines.js';
+import dealsRouter from './deals.js';
+import knowledgeBaseRouter from './knowledge-base.js';
+import aiSettingsRouter from './ai-settings.js';
+import analyticsRouter from './analytics.js';
+import tagsRouter from './tags.js';
+import notesRouter from './notes.js';
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use('/auth', authRouter);
+router.use('/users', usersRouter);
+router.use('/contacts', contactsRouter);
+router.use('/companies', companiesRouter);
+router.use('/conversations', conversationsRouter);
+router.use('/channels', channelsRouter);
+router.use('/pipelines', pipelinesRouter);
+router.use('/deals', dealsRouter);
+router.use('/knowledge-base', knowledgeBaseRouter);
+router.use('/ai-settings', aiSettingsRouter);
+router.use('/analytics', analyticsRouter);
+router.use('/tags', tagsRouter);
+router.use('/notes', notesRouter);
 
 export default router;
