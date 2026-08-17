@@ -1,1 +1,2 @@
 - [Development schema initialization](database-schema-push.md) — push the Drizzle schema before testing database-backed preview routes.
+- [WhatsApp QR connection](whatsapp-qr-connection.md) — WhatsApp Web uses a persisted unofficial QR session; message sync is separate.

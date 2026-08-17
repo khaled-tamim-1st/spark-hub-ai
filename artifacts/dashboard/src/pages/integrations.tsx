@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useListChannels, useCreateChannel, useDeleteChannel, getListChannelsQueryKey } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -7,20 +7,17 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { getToken } from '@/lib/auth';
 import { Plus, Trash2, CheckCircle2, Settings, Zap } from 'lucide-react';
 
 const INTEGRATION_TYPES = [
   {
-    name: 'WhatsApp Business',
+    name: 'WhatsApp Web',
     type: 'whatsapp',
-    provider: 'cloud_api',
-    description: 'Connect WhatsApp Business Cloud API to handle WhatsApp messages',
+    provider: 'whatsapp_web',
+    description: 'Scan a QR code with your WhatsApp mobile app',
     icon: '💬',
-    fields: [
-      { key: 'phoneNumberId', label: 'Phone Number ID' },
-      { key: 'accessToken', label: 'Access Token', type: 'password' },
-      { key: 'webhookSecret', label: 'Webhook Verify Token' },
-    ],
+    fields: [],
   },
   {
     name: 'Facebook Messenger',
@@ -58,6 +55,14 @@ const INTEGRATION_TYPES = [
   },
 ];
 
+type WhatsAppStatus = {
+  channelId?: number;
+  status: 'idle' | 'connecting' | 'qr' | 'connected' | 'disconnected' | 'error';
+  qrCode?: string;
+  phoneNumber?: string;
+  error?: string;
+};
+
 export default function Integrations() {
   const { data: channels, isLoading } = useListChannels({});
   const createChannel = useCreateChannel();
@@ -68,6 +73,44 @@ export default function Integrations() {
   const [configuring, setConfiguring] = useState<(typeof INTEGRATION_TYPES)[0] | null>(null);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [channelName, setChannelName] = useState('');
+  const [whatsappStatus, setWhatsappStatus] = useState<WhatsAppStatus>({ status: 'idle' });
+
+  const whatsappChannel = (channels ?? []).find((channel) => channel.provider === 'whatsapp_web');
+  const isWhatsApp = configuring?.provider === 'whatsapp_web';
+
+  const whatsappFetch = async (url: string, init?: RequestInit) => {
+    const token = getToken();
+    const response = await fetch(url, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...init?.headers,
+      },
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || 'WhatsApp Web request failed');
+    return data as WhatsAppStatus;
+  };
+
+  useEffect(() => {
+    if (!whatsappChannel) return;
+    let cancelled = false;
+    const refreshStatus = async () => {
+      try {
+        const status = await whatsappFetch(`/api/channels/whatsapp-web/${whatsappChannel.id}/status`);
+        if (!cancelled) setWhatsappStatus(status);
+      } catch {
+        // The channel can exist before its in-memory session is started.
+      }
+    };
+    void refreshStatus();
+    const timer = window.setInterval(refreshStatus, 2000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [whatsappChannel?.id]);
 
   const getChannelsOfType = (type: string) =>
     (channels ?? []).filter((c) => c.channelType === type);
@@ -76,10 +119,28 @@ export default function Integrations() {
     setConfiguring(integration);
     setFormData({});
     setChannelName(`${integration.name} #${(getChannelsOfType(integration.type).length + 1)}`);
+    if (integration.provider === 'whatsapp_web' && whatsappChannel) {
+      void whatsappFetch(`/api/channels/whatsapp-web/${whatsappChannel.id}/status`)
+        .then(setWhatsappStatus)
+        .catch(() => setWhatsappStatus({ status: 'idle' }));
+    }
   };
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!configuring) return;
+    if (configuring.provider === 'whatsapp_web') {
+      try {
+        const status = await whatsappFetch('/api/channels/whatsapp-web/start', {
+          method: 'POST',
+          body: JSON.stringify({ name: channelName || 'WhatsApp Web' }),
+        });
+        setWhatsappStatus(status);
+        queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey({}) });
+      } catch (e) {
+        toast({ title: 'Failed to start WhatsApp Web', description: (e as Error).message, variant: 'destructive' });
+      }
+      return;
+    }
     createChannel.mutate(
       {
         data: {
@@ -100,6 +161,18 @@ export default function Integrations() {
         },
       }
     );
+  };
+
+  const handleWhatsAppLogout = async () => {
+    if (!whatsappChannel) return;
+    try {
+      await whatsappFetch(`/api/channels/whatsapp-web/${whatsappChannel.id}/logout`, { method: 'POST' });
+      setWhatsappStatus({ status: 'disconnected' });
+      queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey({}) });
+      toast({ title: 'WhatsApp Web disconnected' });
+    } catch (e) {
+      toast({ title: 'Failed to disconnect', description: (e as Error).message, variant: 'destructive' });
+    }
   };
 
   const handleDelete = (id: number) => {
@@ -127,7 +200,9 @@ export default function Integrations() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {INTEGRATION_TYPES.map((integration) => {
             const activeChannels = getChannelsOfType(integration.type);
-            const isConnected = activeChannels.length > 0;
+            const isConnected = integration.provider === 'whatsapp_web'
+              ? whatsappStatus.status === 'connected'
+              : activeChannels.length > 0;
 
             return (
               <div key={integration.type} className="bg-card border border-card-border rounded-lg p-6">
@@ -141,7 +216,7 @@ export default function Integrations() {
                       {isConnected ? (
                         <Badge variant="secondary" className="text-xs mt-1 bg-green-500/10 text-green-600 border-0">
                           <CheckCircle2 className="w-3 h-3 mr-1" />
-                          {activeChannels.length} connected
+                          {integration.provider === 'whatsapp_web' ? 'Connected' : `${activeChannels.length} connected`}
                         </Badge>
                       ) : (
                         <Badge variant="secondary" className="text-xs mt-1 text-muted-foreground">
@@ -204,7 +279,27 @@ export default function Integrations() {
                 placeholder="e.g. Support WhatsApp"
               />
             </div>
-            {configuring?.fields.map((field) => (
+            {isWhatsApp ? (
+              <div className="rounded-lg border border-border bg-muted/30 p-4 text-center space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  افتح WhatsApp على هاتفك ثم Settings &gt; Linked devices &gt; Link a device
+                </p>
+                {whatsappStatus.qrCode ? (
+                  <img src={whatsappStatus.qrCode} alt="WhatsApp Web QR code" className="mx-auto w-64 h-64 rounded-lg bg-white p-2" />
+                ) : whatsappStatus.status === 'connected' ? (
+                  <div className="py-8 text-green-600 font-medium">
+                    WhatsApp connected {whatsappStatus.phoneNumber ? `(${whatsappStatus.phoneNumber})` : ''}
+                  </div>
+                ) : (
+                  <div className="py-8 text-sm text-muted-foreground">
+                    {whatsappStatus.status === 'error' ? whatsappStatus.error : 'Generating QR code...'}
+                  </div>
+                )}
+                {whatsappStatus.qrCode && (
+                  <p className="text-xs text-muted-foreground">Scan this code before it expires, then keep this page open.</p>
+                )}
+              </div>
+            ) : configuring?.fields.map((field) => (
               <div key={field.key} className="space-y-2">
                 <Label>{field.label}</Label>
                 <Input
@@ -214,9 +309,14 @@ export default function Integrations() {
                 />
               </div>
             ))}
-            <Button onClick={handleCreate} className="w-full" disabled={createChannel.isPending}>
-              {createChannel.isPending ? 'Connecting...' : 'Connect Channel'}
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={handleCreate} className="flex-1" disabled={createChannel.isPending || (isWhatsApp && whatsappStatus.status === 'connected')}>
+                {isWhatsApp ? (whatsappStatus.status === 'qr' ? 'Refresh QR' : 'Generate QR Code') : (createChannel.isPending ? 'Connecting...' : 'Connect Channel')}
+              </Button>
+              {isWhatsApp && whatsappStatus.status === 'connected' && (
+                <Button onClick={handleWhatsAppLogout} variant="outline">Disconnect</Button>
+              )}
+            </div>
           </div>
         </DialogContent>
       </Dialog>

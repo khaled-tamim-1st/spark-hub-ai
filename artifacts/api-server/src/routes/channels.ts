@@ -3,8 +3,74 @@ import { db } from '@workspace/db';
 import { channels } from '@workspace/db';
 import { eq, and, desc } from 'drizzle-orm';
 import { requireAuth } from '../middlewares/auth.js';
+import {
+  getWhatsAppWebStatus,
+  startWhatsAppWebSession,
+  stopWhatsAppWebSession,
+} from '../services/whatsapp-web.js';
 
 const router = Router();
+
+router.post('/whatsapp-web/start', requireAuth, async (req, res) => {
+  try {
+    const { name = 'WhatsApp Web' } = req.body ?? {};
+    let [channel] = await db.select().from(channels)
+      .where(and(eq(channels.organizationId, req.organizationId), eq(channels.provider, 'whatsapp_web')))
+      .limit(1);
+
+    if (!channel) {
+      [channel] = await db.insert(channels).values({
+        organizationId: req.organizationId,
+        name: String(name),
+        channelType: 'whatsapp',
+        provider: 'whatsapp_web',
+        config: JSON.stringify({ connectionMode: 'qr' }),
+        isActive: true,
+      }).returning();
+    }
+
+    const status = await startWhatsAppWebSession(channel.id);
+    res.status(201).json({ channelId: channel.id, ...status });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Unable to start WhatsApp Web session' });
+  }
+});
+
+router.get('/whatsapp-web/:id/status', requireAuth, async (req, res) => {
+  try {
+    const [channel] = await db.select({ id: channels.id }).from(channels)
+      .where(and(eq(channels.id, Number(req.params.id)), eq(channels.organizationId, req.organizationId), eq(channels.provider, 'whatsapp_web')))
+      .limit(1);
+    if (!channel) {
+      res.status(404).json({ error: 'WhatsApp Web channel not found' });
+      return;
+    }
+    res.json({ channelId: channel.id, ...getWhatsAppWebStatus(channel.id) });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Unable to read WhatsApp Web status' });
+  }
+});
+
+router.post('/whatsapp-web/:id/logout', requireAuth, async (req, res) => {
+  try {
+    const [channel] = await db.select({ id: channels.id }).from(channels)
+      .where(and(eq(channels.id, Number(req.params.id)), eq(channels.organizationId, req.organizationId), eq(channels.provider, 'whatsapp_web')))
+      .limit(1);
+    if (!channel) {
+      res.status(404).json({ error: 'WhatsApp Web channel not found' });
+      return;
+    }
+    await stopWhatsAppWebSession(channel.id);
+    await db.update(channels).set({ isActive: false, updatedAt: new Date() })
+      .where(eq(channels.id, channel.id));
+    res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Unable to disconnect WhatsApp Web' });
+  }
+});
 
 router.get('/', requireAuth, async (req, res) => {
   try {
@@ -67,6 +133,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
       .where(and(eq(channels.id, Number(req.params.id)), eq(channels.organizationId, req.organizationId)))
       .limit(1);
     if (!existing) { res.status(404).json({ error: 'Not found' }); return; }
+    if (existing.id) await stopWhatsAppWebSession(existing.id);
     await db.delete(channels).where(eq(channels.id, Number(req.params.id)));
     res.status(204).send();
   } catch (err) { console.error(err); res.status(500).json({ error: 'Internal server error' }); }
