@@ -1,0 +1,1 @@
+- [Development schema initialization](database-schema-push.md) — push the Drizzle schema before testing database-backed preview routes.
