@@ -1,0 +1,16 @@
+﻿FROM node:20-alpine AS base
+RUN corepack enable && corepack prepare pnpm@latest --activate
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY lib/ ./lib/
+COPY artifacts/ ./artifacts/
+COPY scripts/ ./scripts/
+COPY tsconfig*.json ./
+
+RUN pnpm install --frozen-lockfile
+RUN pnpm run build
+
+EXPOSE 3000 5000
+
+CMD [ "node", "./artifacts/api-server/dist/index.mjs" ]

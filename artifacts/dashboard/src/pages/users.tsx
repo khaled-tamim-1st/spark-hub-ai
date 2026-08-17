@@ -21,20 +21,26 @@ const ROLE_COLORS: Record<string, string> = {
 
 export default function Users() {
   const [isInviteOpen, setIsInviteOpen] = useState(false);
-  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', role: 'agent' });
+  const [form, setForm] = useState<{ firstName: string; lastName: string; email: string; password: string; role: 'owner' | 'admin' | 'agent' | 'viewer' }>({ 
+    firstName: '', 
+    lastName: '', 
+    email: '', 
+    password: '', 
+    role: 'agent' 
+  });
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: users, isLoading } = useListUsers({});
+  const { data: users, isLoading } = useListUsers();
   const createUser = useInviteUser();
   const deleteUser = useDeleteUser();
 
   const handleInvite = () => {
     createUser.mutate(
-      { data: form },
+      { data: form as any },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getListUsersQueryKey({}) });
+          queryClient.invalidateQueries({ queryKey: getListUsersQueryKey() });
           setIsInviteOpen(false);
           setForm({ firstName: '', lastName: '', email: '', password: '', role: 'agent' });
           toast({ title: 'Team member added' });
@@ -50,7 +56,7 @@ export default function Users() {
       { id },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getListUsersQueryKey({}) });
+          queryClient.invalidateQueries({ queryKey: getListUsersQueryKey() });
           toast({ title: 'Team member removed' });
         },
         onError: (e) => toast({ title: 'Failed', description: e.message, variant: 'destructive' }),
@@ -117,7 +123,7 @@ export default function Users() {
                 </div>
                 <div className="space-y-2">
                   <Label>Role</Label>
-                  <Select value={form.role} onValueChange={(v) => setForm(p => ({ ...p, role: v }))}>
+                  <Select value={form.role} onValueChange={(v) => setForm(p => ({ ...p, role: v as any }))}>
                     <SelectTrigger data-testid="select-role">
                       <SelectValue />
                     </SelectTrigger>

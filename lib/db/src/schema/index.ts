@@ -9,7 +9,12 @@ export const organizations = pgTable('organizations', {
   slug: varchar('slug', { length: 100 }).notNull().unique(),
   logoUrl: text('logo_url'),
   website: text('website'),
-  plan: varchar('plan', { length: 50 }).default('free').notNull(),
+  plan: varchar('plan', { length: 50 }).default('free').notNull(), // 'free' | 'starter' | 'pro' | 'enterprise'
+  status: varchar('status', { length: 50 }).default('active').notNull(), // 'active' | 'suspended' | 'trial' | 'cancelled'
+  maxUsers: integer('max_users').default(5).notNull(),
+  maxChannels: integer('max_channels').default(2).notNull(),
+  aiEnabled: boolean('ai_enabled').default(true).notNull(),
+  notes: text('notes'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
@@ -125,6 +130,7 @@ export const messages = pgTable('messages', {
     .references(() => users.id, { onDelete: 'set null' }),
   senderName: varchar('sender_name', { length: 200 }),
   content: text('content').notNull(),
+  mediaUrl: text('media_url'),  // URL for image/audio/video/sticker attachments
   messageType: varchar('message_type', { length: 20 }).default('text').notNull(),
   status: varchar('status', { length: 20 }).default('sent').notNull(),
   isPrivate: boolean('is_private').default(false).notNull(),

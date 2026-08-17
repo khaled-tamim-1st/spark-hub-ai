@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useListConversations, useListMessages, useSendMessage, getListConversationsQueryKey, getListMessagesQueryKey } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { StatusBadge } from '@/components/status-badge';
@@ -20,20 +20,36 @@ export default function Inbox() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // ─── Live polling: conversations list every 3s, messages every 2s ───────────
   const { data: conversations, isLoading } = useListConversations(
     statusFilter === 'all' ? {} : { status: statusFilter as any },
-    { query: { queryKey: getListConversationsQueryKey(statusFilter === 'all' ? {} : { status: statusFilter as any }) } }
+    { query: {
+      queryKey: getListConversationsQueryKey(statusFilter === 'all' ? {} : { status: statusFilter as any }),
+      refetchInterval: 3000,
+      refetchIntervalInBackground: true,
+    }}
   );
 
   const { data: messages } = useListMessages(
     selectedConversationId || 0,
-    { query: { enabled: !!selectedConversationId, queryKey: getListMessagesQueryKey(selectedConversationId || 0) } }
+    { query: {
+      enabled: !!selectedConversationId,
+      queryKey: getListMessagesQueryKey(selectedConversationId || 0),
+      refetchInterval: 2000,
+      refetchIntervalInBackground: false,
+    }}
   );
 
-  const sendMessage = useSendMessage();
+  // Auto-scroll to latest message whenever messages update
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const selectedConversation = conversations?.find((c) => c.id === selectedConversationId);
+
+  const sendMessage = useSendMessage();
 
   const handleSend = () => {
     if (!messageContent.trim() || !selectedConversationId) return;
@@ -203,13 +219,71 @@ export default function Inbox() {
                           AI
                         </div>
                       )}
-                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                      <p className={cn(
-                        'text-xs mt-1',
-                        msg.senderType === 'contact' || msg.senderType === 'ai' ? 'text-muted-foreground' : 'text-primary-foreground/70'
+                      {/* Rich media rendering */}
+                      {(msg as any).mediaUrl ? (
+                        (() => {
+                          const url = (msg as any).mediaUrl as string;
+                          const type = (msg as any).messageType as string;
+                          if (type === 'image') return (
+                            <div>
+                              <img
+                                src={url}
+                                alt="Image"
+                                className="max-w-[260px] max-h-[260px] rounded-lg object-cover cursor-pointer"
+                                onClick={() => window.open(url, '_blank')}
+                              />
+                              {msg.content && msg.content !== '📷 [Image / صورة]' && (
+                                <p className="text-sm mt-1 whitespace-pre-wrap">{msg.content}</p>
+                              )}
+                            </div>
+                          );
+                          if (type === 'sticker') return (
+                            <img src={url} alt="Sticker" className="w-20 h-20 object-contain" />
+                          );
+                          if (type === 'audio') return (
+                            <audio controls src={url} className="max-w-[260px]" />
+                          );
+                          if (type === 'video') return (
+                            <video controls src={url} className="max-w-[260px] max-h-[200px] rounded-lg" />
+                          );
+                          // Document / fallback
+                          return (
+                            <a href={url} target="_blank" rel="noreferrer" className="underline text-sm flex items-center gap-1">
+                              📄 {msg.content}
+                            </a>
+                          );
+                        })()
+                      ) : (
+                        <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                      )}
+                      <div className={cn(
+                        'flex items-center gap-1 mt-1',
+                        msg.senderType === 'contact' || msg.senderType === 'ai' ? 'justify-start' : 'justify-end'
                       )}>
-                        {formatTime(msg.createdAt)}
-                      </p>
+                        <span className={cn(
+                          'text-xs',
+                          msg.senderType === 'contact' || msg.senderType === 'ai' ? 'text-muted-foreground' : 'text-primary-foreground/70'
+                        )}>
+                          {formatTime(msg.createdAt)}
+                        </span>
+                        {/* WhatsApp-style tick marks - only for agent/ai outgoing messages */}
+                        {(msg.senderType === 'agent' || msg.senderType === 'ai') && (() => {
+                          const s = msg.status;
+                          if (s === 'read') return (
+                            <span title="Read" className="text-[11px] font-bold text-blue-300 leading-none select-none">✓✓</span>
+                          );
+                          if (s === 'delivered') return (
+                            <span title="Delivered" className="text-[11px] font-bold text-primary-foreground/60 leading-none select-none">✓✓</span>
+                          );
+                          if (s === 'sent') return (
+                            <span title="Sent" className="text-[11px] text-primary-foreground/50 leading-none select-none">✓</span>
+                          );
+                          // pending / default
+                          return (
+                            <span title="Sending..." className="text-[11px] text-primary-foreground/30 leading-none select-none">🕐</span>
+                          );
+                        })()}
+                      </div>
                     </div>
                     {msg.senderType === 'agent' && (
                       <Avatar className="w-8 h-8 flex-shrink-0">
@@ -221,6 +295,8 @@ export default function Inbox() {
                   </div>
                 ))
               )}
+              {/* Auto-scroll anchor */}
+              <div ref={messagesEndRef} />
             </div>
 
             {/* Send Message */}

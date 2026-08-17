@@ -26,8 +26,8 @@ function verifyPassword(pw: string, stored: string): boolean {
   }
 }
 
-async function signToken(userId: number, orgId: number): Promise<string> {
-  return new SignJWT({ sub: String(userId), organizationId: orgId })
+async function signToken(userId: number, orgId: number, role: string): Promise<string> {
+  return new SignJWT({ sub: String(userId), organizationId: orgId, role })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')
@@ -59,7 +59,19 @@ router.post('/login', async (req, res) => {
       res.status(401).json({ error: 'Invalid email or password' });
       return;
     }
-    const accessToken = await signToken(user.id, user.organizationId);
+
+    // Check organization status if not superadmin
+    let org = null;
+    if (user.organizationId) {
+      const [o] = await db.select().from(organizations).where(eq(organizations.id, user.organizationId)).limit(1);
+      org = o;
+      if (user.role !== 'superadmin' && org && org.status === 'suspended') {
+        res.status(403).json({ error: 'Your organization account is suspended. Please contact platform support.' });
+        return;
+      }
+    }
+
+    const accessToken = await signToken(user.id, user.organizationId, user.role);
     res.json({
       accessToken,
       user: {
@@ -67,6 +79,7 @@ router.post('/login', async (req, res) => {
         firstName: user.firstName, lastName: user.lastName,
         role: user.role, avatarUrl: user.avatarUrl,
         organizationId: user.organizationId,
+        organization: org,
       },
     });
   } catch (err) {
@@ -92,7 +105,15 @@ router.post('/register', async (req, res) => {
     const orgName = organizationName || `${firstName}'s Workspace`;
     const slug = orgName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
       + '-' + Math.random().toString(36).slice(2, 7);
-    const [org] = await db.insert(organizations).values({ name: orgName, slug }).returning();
+    const [org] = await db.insert(organizations).values({ 
+      name: orgName, 
+      slug,
+      plan: 'free',
+      status: 'active',
+      maxUsers: 5,
+      maxChannels: 2,
+      aiEnabled: true,
+    }).returning();
     const [user] = await db.insert(users).values({
       organizationId: org.id,
       email: String(email).toLowerCase(),
@@ -101,7 +122,7 @@ router.post('/register', async (req, res) => {
       lastName: String(lastName),
       role: 'owner',
     }).returning();
-    const accessToken = await signToken(user.id, org.id);
+    const accessToken = await signToken(user.id, org.id, user.role);
     res.status(201).json({
       accessToken,
       user: {
@@ -109,6 +130,7 @@ router.post('/register', async (req, res) => {
         firstName: user.firstName, lastName: user.lastName,
         role: user.role, avatarUrl: user.avatarUrl,
         organizationId: user.organizationId,
+        organization: org,
       },
     });
   } catch (err: any) {
@@ -131,7 +153,14 @@ router.get('/me', async (req, res) => {
     const [user] = await db.select(userPublicFields).from(users)
       .where(eq(users.id, userId)).limit(1);
     if (!user) { res.status(404).json({ error: 'User not found' }); return; }
-    res.json(user);
+    
+    let org = null;
+    if (user.organizationId) {
+      const [o] = await db.select().from(organizations).where(eq(organizations.id, user.organizationId)).limit(1);
+      org = o;
+    }
+
+    res.json({ ...user, organization: org });
   } catch {
     res.status(401).json({ error: 'Invalid token' });
   }
@@ -144,8 +173,10 @@ router.post('/refresh', async (req, res) => {
     if (!auth?.startsWith('Bearer ')) { res.status(401).json({ error: 'Unauthorized' }); return; }
     const { payload } = await jwtVerify(auth.slice(7), JWT_SECRET);
     const userId = Number(payload.sub);
-    const orgId = Number((payload as Record<string, unknown>).organizationId);
-    res.json({ accessToken: await signToken(userId, orgId) });
+    const [user] = await db.select({ role: users.role, organizationId: users.organizationId })
+      .from(users).where(eq(users.id, userId)).limit(1);
+    if (!user) { res.status(404).json({ error: 'User not found' }); return; }
+    res.json({ accessToken: await signToken(userId, user.organizationId, user.role) });
   } catch {
     res.status(401).json({ error: 'Invalid token' });
   }

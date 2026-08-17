@@ -1,8 +1,10 @@
 import { Router } from 'express';
 import { db } from '@workspace/db';
-import { conversations, contacts, messages, users } from '@workspace/db';
+import { conversations, contacts, messages, users, channels } from '@workspace/db';
 import { eq, and, desc, asc } from 'drizzle-orm';
 import { requireAuth } from '../middlewares/auth.js';
+import { sendWhatsAppMessage } from '../services/whatsapp-web.js';
+import { sendMetaMessage } from '../services/meta-messenger.js';
 
 const router = Router();
 
@@ -120,12 +122,21 @@ router.post('/:id/messages', requireAuth, async (req, res) => {
     const convId = Number(req.params.id);
     const { content, messageType = 'text', isPrivate = false } = req.body ?? {};
     if (!content) { res.status(400).json({ error: 'Content is required' }); return; }
-    const [conv] = await db.select({ id: conversations.id }).from(conversations)
+    
+    const [conv] = await db.select({ 
+      id: conversations.id,
+      channelType: conversations.channelType,
+      channelId: conversations.channelId,
+      contactId: conversations.contactId,
+    }).from(conversations)
       .where(and(eq(conversations.id, convId), eq(conversations.organizationId, orgId)))
       .limit(1);
+
     if (!conv) { res.status(404).json({ error: 'Not found' }); return; }
+    
     const [user] = await db.select({ firstName: users.firstName, lastName: users.lastName })
       .from(users).where(eq(users.id, req.userId)).limit(1);
+
     const [msg] = await db.insert(messages).values({
       conversationId: convId,
       senderType: 'agent',
@@ -134,12 +145,50 @@ router.post('/:id/messages', requireAuth, async (req, res) => {
       content: String(content),
       messageType: String(messageType),
       isPrivate: Boolean(isPrivate),
+      status: 'sent',
     }).returning();
+
     await db.update(conversations).set({
       lastMessage: String(content).substring(0, 200),
       lastMessageAt: new Date(),
+      unreadCount: 0,
       updatedAt: new Date(),
     }).where(eq(conversations.id, convId));
+
+    // Send through WhatsApp socket if not private and channel is WhatsApp
+    if (!isPrivate && conv.channelType === 'whatsapp' && conv.contactId) {
+      const [contact] = await db.select({ phone: contacts.phone }).from(contacts)
+        .where(eq(contacts.id, conv.contactId)).limit(1);
+      
+      if (contact?.phone) {
+        console.log(`[Conversations] Sending WhatsApp reply to ${contact.phone}...`);
+        await sendWhatsAppMessage(conv.channelId || 1, contact.phone, String(content));
+      }
+    }
+
+    // Send through Meta Graph API if channel is messenger or instagram
+    if (!isPrivate && (conv.channelType === 'messenger' || conv.channelType === 'instagram') && conv.contactId) {
+      const [contact] = await db.select({ phone: contacts.phone }).from(contacts)
+        .where(eq(contacts.id, conv.contactId)).limit(1);
+
+      if (contact?.phone) {
+        let metaChannelId = conv.channelId;
+        if (!metaChannelId) {
+          const [found] = await db.select({ id: channels.id }).from(channels)
+            .where(and(eq(channels.organizationId, req.organizationId), eq(channels.provider, 'meta_graph'), eq(channels.isActive, true)))
+            .limit(1);
+          metaChannelId = found?.id;
+        }
+
+        if (metaChannelId) {
+          console.log(`[Conversations] Sending Meta reply via channel ${metaChannelId} to ${contact.phone}...`);
+          await sendMetaMessage(metaChannelId, contact.phone, String(content));
+        } else {
+          console.warn(`[Conversations] Cannot send Meta reply: No active Meta channel found.`);
+        }
+      }
+    }
+
     res.status(201).json(msg);
   } catch (err) { console.error(err); res.status(500).json({ error: 'Internal server error' }); }
 });

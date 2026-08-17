@@ -9,10 +9,11 @@ interface StatCardProps {
     value: string;
     positive: boolean;
   };
+  description?: string;
   className?: string;
 }
 
-export function StatCard({ title, value, icon: Icon, trend, className }: StatCardProps) {
+export function StatCard({ title, value, icon: Icon, trend, description, className }: StatCardProps) {
   return (
     <div className={cn('bg-card border border-card-border rounded-lg p-5', className)} data-testid={`stat-${title.toLowerCase().replace(/\s+/g, '-')}`}>
       <div className="flex items-start justify-between">
@@ -25,6 +26,11 @@ export function StatCard({ title, value, icon: Icon, trend, className }: StatCar
               trend.positive ? 'text-green-600' : 'text-red-600'
             )}>
               {trend.positive ? '+' : ''}{trend.value}
+            </p>
+          )}
+          {description && (
+            <p className="text-xs text-muted-foreground mt-2">
+              {description}
             </p>
           )}
         </div>

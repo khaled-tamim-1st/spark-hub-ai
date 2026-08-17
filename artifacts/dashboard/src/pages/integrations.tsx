@@ -93,13 +93,20 @@ export default function Integrations() {
     return data as WhatsAppStatus;
   };
 
+  const activeWhatsAppId = whatsappChannel?.id || whatsappStatus?.channelId;
+
   useEffect(() => {
-    if (!whatsappChannel) return;
+    if (!activeWhatsAppId) return;
     let cancelled = false;
     const refreshStatus = async () => {
       try {
-        const status = await whatsappFetch(`/api/channels/whatsapp-web/${whatsappChannel.id}/status`);
-        if (!cancelled) setWhatsappStatus(status);
+        const status = await whatsappFetch(`/api/channels/whatsapp-web/${activeWhatsAppId}/status`);
+        if (!cancelled) {
+          setWhatsappStatus(status);
+          if (status.status === 'connected') {
+            queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey() });
+          }
+        }
       } catch {
         // The channel can exist before its in-memory session is started.
       }
@@ -110,14 +117,84 @@ export default function Integrations() {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [whatsappChannel?.id]);
+  }, [activeWhatsAppId]);
 
   const getChannelsOfType = (type: string) =>
     (channels ?? []).filter((c) => c.channelType === type);
 
+  const [metaAuthMode, setMetaAuthMode] = useState<'oauth' | 'manual'>('oauth');
+  const [metaUserToken, setMetaUserToken] = useState('');
+  const [metaPages, setMetaPages] = useState<Array<{
+    id: string;
+    name: string;
+    accessToken: string;
+    category?: string;
+    picture?: string;
+    instagram?: { id: string; username: string; name?: string; picture?: string } | null;
+  }>>([]);
+  const [loadingMetaPages, setLoadingMetaPages] = useState(false);
+
+  const fetchMetaPages = async (token: string) => {
+    if (!token.trim()) return;
+    setLoadingMetaPages(true);
+    try {
+      const res = await fetch('/api/channels/meta/list-pages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken') || localStorage.getItem('token') || ''}`,
+        },
+        body: JSON.stringify({ userAccessToken: token.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to retrieve Facebook pages');
+      setMetaPages(data.pages || []);
+      if ((data.pages || []).length === 0) {
+        toast({ title: 'No Pages Found', description: 'Make sure your account has admin access to Facebook pages.' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Connection Failed', description: e.message, variant: 'destructive' });
+    } finally {
+      setLoadingMetaPages(false);
+    }
+  };
+
+  const handleConnectMetaPage = async (page: any) => {
+    if (!configuring) return;
+    try {
+      const res = await fetch('/api/channels/meta/connect-page', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken') || localStorage.getItem('token') || ''}`,
+        },
+        body: JSON.stringify({
+          pageId: page.id,
+          pageName: page.name,
+          pageAccessToken: page.accessToken,
+          instagramAccountId: page.instagram?.id,
+          channelType: configuring.type,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to connect page');
+
+      queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey() });
+      setConfiguring(null);
+      setMetaPages([]);
+      setMetaUserToken('');
+      toast({ title: `Connected successfully`, description: `${page.name} is now connected to ${configuring.name}.` });
+    } catch (e: any) {
+      toast({ title: 'Connection Failed', description: e.message, variant: 'destructive' });
+    }
+  };
+
   const handleConfigure = (integration: (typeof INTEGRATION_TYPES)[0]) => {
     setConfiguring(integration);
     setFormData({});
+    setMetaPages([]);
+    setMetaUserToken('');
+    setMetaAuthMode('oauth');
     setChannelName(`${integration.name} #${(getChannelsOfType(integration.type).length + 1)}`);
     if (integration.provider === 'whatsapp_web' && whatsappChannel) {
       void whatsappFetch(`/api/channels/whatsapp-web/${whatsappChannel.id}/status`)
@@ -132,10 +209,10 @@ export default function Integrations() {
       try {
         const status = await whatsappFetch('/api/channels/whatsapp-web/start', {
           method: 'POST',
-          body: JSON.stringify({ name: channelName || 'WhatsApp Web' }),
+          body: JSON.stringify({ name: channelName || 'WhatsApp Web', force: true }),
         });
         setWhatsappStatus(status);
-        queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey({}) });
+        queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey() });
       } catch (e) {
         toast({ title: 'Failed to start WhatsApp Web', description: (e as Error).message, variant: 'destructive' });
       }
@@ -145,14 +222,14 @@ export default function Integrations() {
       {
         data: {
           name: channelName,
-          channelType: configuring.type,
-          provider: configuring.provider,
+          channelType: configuring.type as any,
+          provider: configuring.provider as any,
           config: formData,
-        },
+        } as any,
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey({}) });
+          queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey() });
           setConfiguring(null);
           toast({ title: `${configuring.name} connected` });
         },
@@ -168,7 +245,7 @@ export default function Integrations() {
     try {
       await whatsappFetch(`/api/channels/whatsapp-web/${whatsappChannel.id}/logout`, { method: 'POST' });
       setWhatsappStatus({ status: 'disconnected' });
-      queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey({}) });
+      queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey() });
       toast({ title: 'WhatsApp Web disconnected' });
     } catch (e) {
       toast({ title: 'Failed to disconnect', description: (e as Error).message, variant: 'destructive' });
@@ -181,7 +258,7 @@ export default function Integrations() {
       { id },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey({}) });
+          queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey() });
           toast({ title: 'Channel disconnected' });
         },
         onError: (e) => toast({ title: 'Failed', description: e.message, variant: 'destructive' }),
@@ -299,6 +376,106 @@ export default function Integrations() {
                   <p className="text-xs text-muted-foreground">Scan this code before it expires, then keep this page open.</p>
                 )}
               </div>
+            ) : configuring?.provider === 'meta_graph' ? (
+              <div className="space-y-4">
+                <div className="flex border-b border-border">
+                  <button
+                    type="button"
+                    onClick={() => setMetaAuthMode('oauth')}
+                    className={`pb-2 px-3 text-sm font-medium border-b-2 transition-colors ${
+                      metaAuthMode === 'oauth'
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    1-Click Connect (الربط التلقائي)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMetaAuthMode('manual')}
+                    className={`pb-2 px-3 text-sm font-medium border-b-2 transition-colors ${
+                      metaAuthMode === 'manual'
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    Manual Setup (يدوي)
+                  </button>
+                </div>
+
+                {metaAuthMode === 'oauth' ? (
+                  <div className="space-y-3">
+                    <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
+                      <Label className="text-xs">Facebook Access Token</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="password"
+                          value={metaUserToken}
+                          onChange={(e) => setMetaUserToken(e.target.value)}
+                          placeholder="Paste User Token from Facebook"
+                          className="text-sm"
+                        />
+                        <Button
+                          type="button"
+                          onClick={() => fetchMetaPages(metaUserToken)}
+                          disabled={!metaUserToken.trim() || loadingMetaPages}
+                          className="whitespace-nowrap"
+                        >
+                          {loadingMetaPages ? 'Loading...' : 'Fetch Pages'}
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Get your token with page permissions from Meta Graph Explorer or Facebook login.
+                      </p>
+                    </div>
+
+                    {metaPages.length > 0 && (
+                      <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                        <Label className="text-xs font-semibold">Select Page to Connect:</Label>
+                        {metaPages.map((page) => (
+                          <div
+                            key={page.id}
+                            className="flex items-center justify-between p-3 rounded-lg border border-border bg-card hover:bg-muted/40 transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              {page.picture ? (
+                                <img src={page.picture} alt={page.name} className="w-8 h-8 rounded-full object-cover" />
+                              ) : (
+                                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                                  {page.name.charAt(0)}
+                                </div>
+                              )}
+                              <div>
+                                <p className="text-sm font-medium leading-none">{page.name}</p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  ID: {page.id} {page.instagram ? `• IG: @${page.instagram.username}` : ''}
+                                </p>
+                              </div>
+                            </div>
+                            <Button
+                              size="sm"
+                              onClick={() => handleConnectMetaPage(page)}
+                            >
+                              Connect
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  configuring?.fields.map((field) => (
+                    <div key={field.key} className="space-y-2">
+                      <Label>{field.label}</Label>
+                      <Input
+                        type={field.type || 'text'}
+                        value={formData[field.key] ?? ''}
+                        onChange={(e) => setFormData((p) => ({ ...p, [field.key]: e.target.value }))}
+                      />
+                    </div>
+                  ))
+                )}
+              </div>
             ) : configuring?.fields.map((field) => (
               <div key={field.key} className="space-y-2">
                 <Label>{field.label}</Label>
@@ -309,10 +486,13 @@ export default function Integrations() {
                 />
               </div>
             ))}
+
             <div className="flex gap-2">
-              <Button onClick={handleCreate} className="flex-1" disabled={createChannel.isPending || (isWhatsApp && whatsappStatus.status === 'connected')}>
-                {isWhatsApp ? (whatsappStatus.status === 'qr' ? 'Refresh QR' : 'Generate QR Code') : (createChannel.isPending ? 'Connecting...' : 'Connect Channel')}
-              </Button>
+              {(!configuring || configuring.provider !== 'meta_graph' || metaAuthMode === 'manual') && (
+                <Button onClick={handleCreate} className="flex-1" disabled={createChannel.isPending || (isWhatsApp && whatsappStatus.status === 'connected')}>
+                  {isWhatsApp ? (whatsappStatus.status === 'qr' ? 'Refresh QR' : 'Generate QR Code') : (createChannel.isPending ? 'Connecting...' : 'Connect Channel')}
+                </Button>
+              )}
               {isWhatsApp && whatsappStatus.status === 'connected' && (
                 <Button onClick={handleWhatsAppLogout} variant="outline">Disconnect</Button>
               )}

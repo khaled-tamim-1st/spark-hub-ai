@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { db } from '@workspace/db';
-import { users } from '@workspace/db';
+import { users, organizations } from '@workspace/db';
 import { eq, and, desc } from 'drizzle-orm';
 import { scryptSync, randomBytes } from 'crypto';
 import { requireAuth } from '../middlewares/auth.js';
@@ -43,6 +43,24 @@ router.post('/', requireAuth, async (req, res) => {
     if (!email || !password || !firstName || !lastName) {
       res.status(400).json({ error: 'All fields are required' }); return;
     }
+
+    // Check organization user limits
+    const [org] = await db.select({ maxUsers: organizations.maxUsers })
+      .from(organizations)
+      .where(eq(organizations.id, req.organizationId))
+      .limit(1);
+
+    const activeUsers = await db.select({ id: users.id })
+      .from(users)
+      .where(and(eq(users.organizationId, req.organizationId), eq(users.isActive, true)));
+
+    if (org && activeUsers.length >= org.maxUsers) {
+      res.status(400).json({ 
+        error: `User limit of ${org.maxUsers} reached for your plan. Please upgrade your organization subscription.` 
+      });
+      return;
+    }
+
     const [row] = await db.insert(users).values({
       organizationId: req.organizationId,
       email: String(email).toLowerCase(),

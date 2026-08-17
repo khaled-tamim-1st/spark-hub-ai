@@ -1,17 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { Building2, User, Shield, Save } from 'lucide-react';
+import { Building2, User, Shield, Save, CheckCircle2, Zap, Users as UsersIcon } from 'lucide-react';
+import { adminApi } from '@/lib/admin-api';
 
 export default function Settings() {
   const { toast } = useToast();
 
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: adminApi.getMe,
+  });
+
   const [orgForm, setOrgForm] = useState({
-    name: 'My Organization',
+    name: '',
     website: '',
   });
 
@@ -21,6 +28,22 @@ export default function Settings() {
     email: '',
   });
 
+  useEffect(() => {
+    if (user) {
+      setProfileForm({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+      });
+      if (user.organization) {
+        setOrgForm({
+          name: user.organization.name || '',
+          website: user.organization.website || '',
+        });
+      }
+    }
+  }, [user]);
+
   const handleSaveOrg = () => {
     toast({ title: 'Organization settings saved' });
   };
@@ -29,19 +52,68 @@ export default function Settings() {
     toast({ title: 'Profile updated' });
   };
 
+  const org = user?.organization;
+
   return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="p-6 max-w-2xl space-y-8">
+    <div className="flex-1 overflow-y-auto bg-background">
+      <div className="p-6 max-w-3xl space-y-8">
         <div>
-          <h1 className="text-2xl font-bold">Settings</h1>
-          <p className="text-sm text-muted-foreground mt-1">Manage your organization and profile settings</p>
+          <h1 className="text-2xl font-bold text-foreground">Workspace & Account Settings</h1>
+          <p className="text-sm text-muted-foreground mt-1">Manage your organization profile, team quotas, and personal account.</p>
         </div>
 
-        {/* Organization */}
+        {/* Subscription & Quota Card */}
+        {org && (
+          <div className="bg-card border border-card-border rounded-lg p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Zap className="w-5 h-5 text-primary" />
+                <h2 className="text-lg font-semibold text-foreground">Current Subscription & Plan</h2>
+              </div>
+              <Badge variant="outline" className="text-xs uppercase font-bold px-2.5 py-1 bg-primary/10 text-primary border-primary/20">
+                {org.plan} Plan
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+              <div className="p-3.5 rounded-lg border bg-muted/20">
+                <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
+                  <UsersIcon className="w-4 h-4 text-primary" />
+                  Team Seats Quota
+                </div>
+                <div className="text-xl font-bold text-foreground mt-1">
+                  Up to {org.maxUsers} Members
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-lg border bg-muted/20">
+                <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
+                  <Building2 className="w-4 h-4 text-primary" />
+                  Channels Allowed
+                </div>
+                <div className="text-xl font-bold text-foreground mt-1">
+                  Up to {org.maxChannels} Channels
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-lg border bg-muted/20">
+                <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  AI & Auto-Reply
+                </div>
+                <div className="text-xl font-bold text-foreground mt-1">
+                  {org.aiEnabled ? 'Active' : 'Disabled'}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Organization Information */}
         <div className="bg-card border border-card-border rounded-lg p-6 space-y-6">
           <div className="flex items-center gap-2">
             <Building2 className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold">Organization</h2>
+            <h2 className="text-lg font-semibold text-foreground">Organization Details</h2>
           </div>
 
           <div className="space-y-4">
@@ -64,14 +136,6 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-2 border-t border-border">
-            <div>
-              <p className="text-sm font-medium">Current Plan</p>
-              <Badge variant="secondary" className="mt-1">Free</Badge>
-            </div>
-            <Button variant="outline" size="sm">Upgrade Plan</Button>
-          </div>
-
           <Button onClick={handleSaveOrg} data-testid="button-save-org">
             <Save className="w-4 h-4 mr-2" />
             Save Organization
@@ -82,7 +146,7 @@ export default function Settings() {
         <div className="bg-card border border-card-border rounded-lg p-6 space-y-6">
           <div className="flex items-center gap-2">
             <User className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold">Profile</h2>
+            <h2 className="text-lg font-semibold text-foreground">User Profile</h2>
           </div>
 
           <div className="space-y-4">
@@ -109,7 +173,8 @@ export default function Settings() {
               <Input
                 type="email"
                 value={profileForm.email}
-                onChange={(e) => setProfileForm(p => ({ ...p, email: e.target.value }))}
+                disabled
+                className="bg-muted"
                 data-testid="input-email"
               />
             </div>
@@ -125,7 +190,7 @@ export default function Settings() {
         <div className="bg-card border border-card-border rounded-lg p-6 space-y-4">
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold">Security</h2>
+            <h2 className="text-lg font-semibold text-foreground">Security</h2>
           </div>
           <Separator />
           <div className="space-y-2">
@@ -144,3 +209,4 @@ export default function Settings() {
     </div>
   );
 }
+

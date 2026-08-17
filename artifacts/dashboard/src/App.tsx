@@ -17,6 +17,7 @@ import Analytics from '@/pages/analytics';
 import Integrations from '@/pages/integrations';
 import Users from '@/pages/users';
 import Settings from '@/pages/settings';
+import AdminOrganizations from '@/pages/admin-organizations';
 import NotFound from '@/pages/not-found';
 
 const queryClient = new QueryClient({
@@ -38,6 +39,9 @@ function AppRoutes() {
     <Switch>
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
+      <Route path="/admin/organizations">
+        <Shell><AdminOrganizations /></Shell>
+      </Route>
       <Route path="/dashboard">
         <Shell><Dashboard /></Shell>
       </Route>

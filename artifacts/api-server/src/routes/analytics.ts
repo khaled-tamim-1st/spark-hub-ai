@@ -6,8 +6,8 @@ import { requireAuth } from '../middlewares/auth.js';
 
 const router = Router();
 
-// GET /api/analytics/dashboard-stats
-router.get('/dashboard-stats', requireAuth, async (req, res) => {
+// GET /api/analytics/dashboard and /api/analytics/dashboard-stats
+router.get(['/dashboard', '/dashboard-stats'], requireAuth, async (req, res) => {
   try {
     const orgId = req.organizationId;
 
@@ -94,8 +94,8 @@ router.get('/conversations', requireAuth, async (req, res) => {
   } catch (err) { console.error(err); res.status(500).json({ error: 'Internal server error' }); }
 });
 
-// GET /api/analytics/agent-performance
-router.get('/agent-performance', requireAuth, async (req, res) => {
+// GET /api/analytics/agents and /api/analytics/agent-performance
+router.get(['/agents', '/agent-performance'], requireAuth, async (req, res) => {
   try {
     res.json({ data: [] });
   } catch (err) { console.error(err); res.status(500).json({ error: 'Internal server error' }); }

@@ -1,5 +1,6 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { Link, useLocation } from 'wouter';
+import { useQuery } from '@tanstack/react-query';
 import { 
   LayoutDashboard, 
   Inbox, 
@@ -12,88 +13,241 @@ import {
   Puzzle, 
   Settings,
   LogOut,
-  MessageSquare
+  MessageSquare,
+  Shield,
+  Layers,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { clearToken } from '@/lib/auth';
+import { adminApi } from '@/lib/admin-api';
+import { Badge } from '@/components/ui/badge';
 
 interface AppShellProps {
   children: ReactNode;
 }
 
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Inbox', href: '/inbox', icon: Inbox },
-  { name: 'Contacts', href: '/contacts', icon: Users },
-  { name: 'Companies', href: '/companies', icon: Building2 },
-  { name: 'CRM', href: '/crm', icon: Target },
-  { name: 'Knowledge Base', href: '/knowledge-base', icon: BookOpen },
-  { name: 'AI Settings', href: '/ai-settings', icon: Bot },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-  { name: 'Integrations', href: '/integrations', icon: Puzzle },
-  { name: 'Team', href: '/users', icon: MessageSquare },
-  { name: 'Settings', href: '/settings', icon: Settings },
+const navSections = [
+  {
+    title: 'Support',
+    items: [
+      { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+      { name: 'Inbox', href: '/inbox', icon: Inbox, badge: true },
+      { name: 'Contacts', href: '/contacts', icon: Users },
+      { name: 'Companies', href: '/companies', icon: Building2 },
+    ]
+  },
+  {
+    title: 'Sales',
+    items: [
+      { name: 'CRM', href: '/crm', icon: Target },
+    ]
+  },
+  {
+    title: 'Intelligence',
+    items: [
+      { name: 'Knowledge Base', href: '/knowledge-base', icon: BookOpen },
+      { name: 'AI Settings', href: '/ai-settings', icon: Bot },
+      { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+    ]
+  },
+  {
+    title: 'Platform',
+    items: [
+      { name: 'Integrations', href: '/integrations', icon: Puzzle },
+      { name: 'Team', href: '/users', icon: MessageSquare },
+      { name: 'Settings', href: '/settings', icon: Settings },
+    ]
+  }
 ];
 
 export function AppShell({ children }: AppShellProps) {
   const [location, setLocation] = useLocation();
+  const [isPinned, setIsPinned] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: adminApi.getMe,
+    staleTime: 60_000,
+  });
+
+  const isSuperAdmin = user?.role === 'superadmin';
 
   const handleLogout = () => {
     clearToken();
     setLocation('/login');
   };
 
+  const isExpanded = isPinned || isHovered;
+
+  const initials = user ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}` : 'U';
+
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      {/* Sidebar */}
-      <aside className="w-64 flex-shrink-0 bg-sidebar border-r border-sidebar-border flex flex-col">
-        <div className="p-4 border-b border-sidebar-border">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded bg-sidebar-primary flex items-center justify-center">
-              <MessageSquare className="w-5 h-5 text-sidebar-primary-foreground" />
-            </div>
-            <span className="font-semibold text-sidebar-foreground text-lg">SupportAI</span>
+      <aside 
+        className={cn(
+          "flex-shrink-0 bg-sidebar border-r border-sidebar-border flex flex-col relative z-20",
+          "transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+        )}
+        style={{ width: isExpanded ? '220px' : '56px' }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {/* Logo Area */}
+        <div className="flex items-center h-16 px-3 border-b border-sidebar-border overflow-hidden shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-teal-500 flex items-center justify-center shrink-0 shadow-sm">
+            <MessageSquare className="w-5 h-5 text-white" />
+          </div>
+          <div 
+            className={cn(
+              "ml-3 flex flex-col transition-opacity duration-300 whitespace-nowrap",
+              isExpanded ? "opacity-100" : "opacity-0"
+            )}
+          >
+            <span className="font-bold text-sidebar-foreground text-sm tracking-tight leading-tight">SupportHub AI</span>
+            {user?.organization && (
+              <span className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wider truncate max-w-[120px]">
+                {user.organization.name}
+              </span>
+            )}
           </div>
         </div>
         
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-          {navigation.map((item) => {
-            const isActive = location === item.href;
-            const Icon = item.icon;
-            
-            return (
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 space-y-6 scrollbar-thin">
+          
+          {isSuperAdmin && (
+            <div className="px-2 space-y-1">
+              {isExpanded && (
+                <div className="px-2 pb-1 text-[10px] font-bold text-amber-500 uppercase tracking-wider flex items-center gap-1.5 opacity-100 transition-opacity">
+                  <Shield className="w-3 h-3" />
+                  SaaS Admin
+                </div>
+              )}
               <Link
-                key={item.href}
-                href={item.href}
+                href="/admin/organizations"
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                    : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
+                  'group flex items-center px-2 py-2 rounded-md text-sm font-medium transition-all duration-200 relative',
+                  location.startsWith('/admin')
+                    ? 'bg-amber-500/10 text-amber-500 shadow-sm'
+                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                 )}
-                data-testid={`nav-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
+                data-testid="nav-saas-organizations"
               >
-                <Icon className="w-4 h-4" />
-                {item.name}
+                <div className="flex items-center justify-center w-6 h-6 shrink-0">
+                  <Layers className="w-4.5 h-4.5" />
+                </div>
+                <span className={cn("ml-2 whitespace-nowrap transition-opacity", isExpanded ? "opacity-100" : "opacity-0 w-0 hidden")}>
+                  Companies
+                </span>
+                {!isExpanded && (
+                  <div className="nav-tooltip bg-popover text-popover-foreground px-2 py-1 rounded text-xs shadow-md border border-border whitespace-nowrap">
+                    Manage Companies
+                  </div>
+                )}
               </Link>
-            );
-          })}
+            </div>
+          )}
+
+          {navSections.map((section, idx) => (
+            <div key={idx} className="px-2 space-y-1">
+              <div className={cn(
+                "px-2 pb-1 text-[10px] font-bold text-sidebar-foreground/50 uppercase tracking-wider transition-opacity whitespace-nowrap",
+                isExpanded ? "opacity-100 h-auto" : "opacity-0 h-0 overflow-hidden"
+              )}>
+                {section.title}
+              </div>
+              {section.items.map((item) => {
+                const isActive = location === item.href;
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      'group flex items-center px-2 py-2 rounded-md text-sm font-medium transition-all duration-200 relative',
+                      isActive
+                        ? 'bg-primary text-primary-foreground shadow-[0_0_12px_rgba(var(--primary),0.3)]'
+                        : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                    )}
+                    data-testid={`nav-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    <div className="flex items-center justify-center w-6 h-6 shrink-0 relative">
+                      <Icon className="w-4.5 h-4.5" />
+                      {item.badge && (
+                        <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500 ring-2 ring-sidebar" />
+                      )}
+                    </div>
+                    <span className={cn("ml-2 whitespace-nowrap transition-opacity", isExpanded ? "opacity-100" : "opacity-0 w-0 hidden")}>
+                      {item.name}
+                    </span>
+                    {!isExpanded && (
+                      <div className="nav-tooltip bg-popover text-popover-foreground px-2 py-1 rounded text-xs shadow-md border border-border whitespace-nowrap flex items-center gap-2">
+                        {item.name}
+                        {item.badge && <div className="w-1.5 h-1.5 rounded-full bg-red-500" />}
+                      </div>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
         
-        <div className="p-3 border-t border-sidebar-border">
+        {/* Footer Area */}
+        <div className="border-t border-sidebar-border p-2 flex flex-col gap-2 bg-sidebar relative">
+          <button
+            onClick={() => setIsPinned(!isPinned)}
+            className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-sidebar border border-sidebar-border rounded-full flex items-center justify-center text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground z-30 shadow-sm transition-transform hover:scale-110"
+          >
+            {isPinned ? <ChevronLeft className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+          </button>
+
+          {user && (
+            <div className={cn(
+              "flex items-center rounded-md transition-all duration-300",
+              isExpanded ? "p-2 bg-sidebar-accent/30" : "p-1 justify-center"
+            )}>
+              <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold shrink-0">
+                {initials}
+              </div>
+              <div className={cn(
+                "ml-2 flex flex-col min-w-0 transition-opacity",
+                isExpanded ? "opacity-100" : "opacity-0 w-0 hidden"
+              )}>
+                <span className="text-sm font-semibold text-sidebar-foreground truncate">
+                  {user.firstName} {user.lastName}
+                </span>
+                <span className="text-[10px] text-muted-foreground truncate">{user.email}</span>
+              </div>
+            </div>
+          )}
+
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground transition-colors"
+            className={cn(
+              "group flex items-center rounded-md text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 relative",
+              isExpanded ? "px-3 py-2 w-full" : "justify-center p-2"
+            )}
             data-testid="button-logout"
           >
-            <LogOut className="w-4 h-4" />
-            Logout
+            <div className="flex items-center justify-center w-5 h-5 shrink-0">
+              <LogOut className="w-4.5 h-4.5" />
+            </div>
+            <span className={cn("ml-2 whitespace-nowrap transition-opacity", isExpanded ? "opacity-100" : "opacity-0 w-0 hidden")}>
+              Logout
+            </span>
+            {!isExpanded && (
+              <div className="nav-tooltip bg-popover text-popover-foreground px-2 py-1 rounded text-xs shadow-md border border-border whitespace-nowrap">
+                Logout
+              </div>
+            )}
           </button>
         </div>
       </aside>
 
-      {/* Main content */}
-      <main className="flex-1 overflow-hidden flex flex-col">
+      <main className="flex-1 overflow-hidden flex flex-col relative z-10 bg-background">
         {children}
       </main>
     </div>

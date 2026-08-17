@@ -29,23 +29,24 @@ export default function AiSettings() {
 
   useEffect(() => {
     if (settings) {
+      const s = settings as any;
       setForm({
-        provider: settings.provider ?? 'ollama',
-        model: settings.model ?? 'llama3',
-        baseUrl: settings.baseUrl ?? 'http://localhost:11434',
-        apiKey: settings.apiKey ?? '',
-        systemPrompt: settings.systemPrompt ?? '',
-        temperature: settings.temperature ?? 0.7,
-        maxTokens: settings.maxTokens ?? 1000,
-        autoReply: settings.autoReply ?? false,
-        autoReplyConfidence: settings.autoReplyConfidence ?? 0.8,
+        provider: s.provider ?? 'ollama',
+        model: s.model ?? 'llama3',
+        baseUrl: s.baseUrl ?? 'http://localhost:11434',
+        apiKey: s.apiKey ?? '',
+        systemPrompt: s.systemPrompt ?? '',
+        temperature: s.temperature ?? 0.7,
+        maxTokens: s.maxTokens ?? 1000,
+        autoReply: s.autoReply ?? false,
+        autoReplyConfidence: s.autoReplyConfidence ?? 0.8,
       });
     }
   }, [settings]);
 
   const handleSave = () => {
     updateSettings.mutate(
-      { data: form },
+      { data: form as any },
       {
         onSuccess: () => toast({ title: 'AI settings saved' }),
         onError: (e) => toast({ title: 'Failed to save', description: e.message, variant: 'destructive' }),
