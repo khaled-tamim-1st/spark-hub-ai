@@ -67,7 +67,16 @@ export default function AiSettings() {
     try {
       const res = await fetchWithAuth<{ reply: string }>('/api/ai-settings/test', {
         method: 'POST',
-        body: JSON.stringify({ message: testInput }),
+        body: JSON.stringify({
+          message: testInput,
+          provider: form.provider,
+          model: form.model,
+          apiKey: form.apiKey,
+          baseUrl: form.baseUrl,
+          systemPrompt: form.systemPrompt,
+          temperature: form.temperature,
+          maxTokens: form.maxTokens,
+        }),
       });
       setTestReply(res.reply);
       toast({ title: 'AI Response Received', description: 'Model replied successfully!' });
