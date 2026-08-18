@@ -35,15 +35,7 @@ export default function Login() {
       }
 
       setToken(data.accessToken);
-
-      // If user belongs to multiple organizations, show the workspace selection screen
-      if (data.organizations && data.organizations.length > 1) {
-        setAvailableOrgs(data.organizations);
-        setSessionUser(data.user);
-        setSelectingOrg(true);
-      } else {
-        setLocation('/dashboard');
-      }
+      setLocation('/workspaces');
     } catch (error: any) {
       toast({
         title: 'Login failed',

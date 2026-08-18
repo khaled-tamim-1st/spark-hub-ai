@@ -42,6 +42,9 @@ async function getUserOrganizations(userId: number, isSuperAdmin: boolean) {
       logoUrl: o.logoUrl,
       plan: o.plan,
       status: o.status,
+      maxUsers: o.maxUsers,
+      maxChannels: o.maxChannels,
+      aiEnabled: o.aiEnabled,
       role: 'superadmin',
     }));
   }
@@ -53,6 +56,9 @@ async function getUserOrganizations(userId: number, isSuperAdmin: boolean) {
     logoUrl: organizations.logoUrl,
     plan: organizations.plan,
     status: organizations.status,
+    maxUsers: organizations.maxUsers,
+    maxChannels: organizations.maxChannels,
+    aiEnabled: organizations.aiEnabled,
     role: organizationMembers.role,
   })
   .from(organizationMembers)
@@ -71,6 +77,9 @@ async function getUserOrganizations(userId: number, isSuperAdmin: boolean) {
           logoUrl: o.logoUrl,
           plan: o.plan,
           status: o.status,
+          maxUsers: o.maxUsers,
+          maxChannels: o.maxChannels,
+          aiEnabled: o.aiEnabled,
           role: user.role,
         }];
       }

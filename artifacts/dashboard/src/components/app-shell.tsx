@@ -206,19 +206,26 @@ export function AppShell({ children }: AppShellProps) {
                     );
                   })}
                 </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link
+                    href="/workspaces"
+                    className="flex items-center gap-2 px-2.5 py-2 text-xs text-primary font-medium cursor-pointer"
+                  >
+                    <Layers className="w-4 h-4" />
+                    All Companies Hub (شركاتي)
+                  </Link>
+                </DropdownMenuItem>
                 {isSuperAdmin && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href="/admin/organizations"
-                        className="flex items-center gap-2 px-2.5 py-2 text-xs text-amber-600 font-medium cursor-pointer"
-                      >
-                        <Shield className="w-4 h-4" />
-                        Manage All Companies
-                      </Link>
-                    </DropdownMenuItem>
-                  </>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/admin/organizations"
+                      className="flex items-center gap-2 px-2.5 py-2 text-xs text-amber-600 font-medium cursor-pointer"
+                    >
+                      <Shield className="w-4 h-4" />
+                      Manage All Companies
+                    </Link>
+                  </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
