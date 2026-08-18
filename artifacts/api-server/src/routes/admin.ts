@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { db } from '@workspace/db';
-import { organizations, users, conversations, messages, channels } from '@workspace/db';
+import { organizations, users, conversations, messages, channels, aiSettings } from '@workspace/db';
 import { eq, desc, ilike, sql, and } from 'drizzle-orm';
 import { scryptSync, randomBytes } from 'crypto';
 import { requireAuth, requireSuperAdmin } from '../middlewares/auth.js';
@@ -239,21 +239,77 @@ router.patch('/organizations/:id', async (req, res) => {
   }
 });
 
-// DELETE /api/admin/organizations/:id - Delete tenant organization
-router.delete('/organizations/:id', async (req, res) => {
+// GET /api/admin/organizations/:id/ai-settings - Get AI model & settings for tenant
+router.get('/organizations/:id/ai-settings', async (req, res) => {
   try {
     const orgId = Number(req.params.id);
-    const [existing] = await db.select({ id: organizations.id }).from(organizations)
-      .where(eq(organizations.id, orgId)).limit(1);
-    if (!existing) {
-      res.status(404).json({ error: 'Organization not found' });
+    const [row] = await db.select().from(aiSettings)
+      .where(eq(aiSettings.organizationId, orgId)).limit(1);
+    
+    if (!row) {
+      res.json({
+        organizationId: orgId,
+        provider: 'ollama',
+        model: 'llama3',
+        baseUrl: 'http://localhost:11434',
+        apiKey: '',
+        systemPrompt: 'You are a helpful customer support assistant. Be concise, friendly, and professional.',
+        temperature: 0.7,
+        maxTokens: 1000,
+        autoReply: false,
+        autoReplyConfidence: 0.8,
+      });
       return;
     }
 
-    await db.delete(organizations).where(eq(organizations.id, orgId));
-    res.status(204).send();
+    res.json({
+      ...row,
+      temperature: Number(row.temperature),
+      autoReplyConfidence: Number(row.autoReplyConfidence),
+    });
   } catch (err) {
-    console.error('Admin delete organization error:', err);
+    console.error('Admin get AI settings error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// PUT /api/admin/organizations/:id/ai-settings - Update AI model & provider for tenant
+router.put('/organizations/:id/ai-settings', async (req, res) => {
+  try {
+    const orgId = Number(req.params.id);
+    const { provider, model, baseUrl, apiKey, systemPrompt, temperature, maxTokens, autoReply, autoReplyConfidence } = req.body ?? {};
+
+    const values = {
+      organizationId: orgId,
+      ...(provider !== undefined && { provider: String(provider) }),
+      ...(model !== undefined && { model: String(model) }),
+      ...(baseUrl !== undefined && { baseUrl: String(baseUrl) }),
+      ...(apiKey !== undefined && { apiKey: apiKey ? String(apiKey) : null }),
+      ...(systemPrompt !== undefined && { systemPrompt: String(systemPrompt) }),
+      ...(temperature !== undefined && { temperature: String(temperature) }),
+      ...(maxTokens !== undefined && { maxTokens: Number(maxTokens) }),
+      ...(autoReply !== undefined && { autoReply: Boolean(autoReply) }),
+      ...(autoReplyConfidence !== undefined && { autoReplyConfidence: String(autoReplyConfidence) }),
+      updatedAt: new Date(),
+    };
+
+    const [existing] = await db.select({ id: aiSettings.id }).from(aiSettings)
+      .where(eq(aiSettings.organizationId, orgId)).limit(1);
+
+    let row;
+    if (existing) {
+      [row] = await db.update(aiSettings).set(values).where(eq(aiSettings.id, existing.id)).returning();
+    } else {
+      [row] = await db.insert(aiSettings).values(values).returning();
+    }
+
+    res.json({
+      ...row,
+      temperature: Number(row.temperature),
+      autoReplyConfidence: Number(row.autoReplyConfidence),
+    });
+  } catch (err) {
+    console.error('Admin update AI settings error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

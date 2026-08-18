@@ -78,62 +78,99 @@ export default function AiSettings() {
           </Button>
         </div>
 
-        {/* Provider */}
-        <div className="bg-card border border-card-border rounded-lg p-6 space-y-6">
-          <div className="flex items-center gap-2">
-            <Bot className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold">Provider Configuration</h2>
-          </div>
+        {/* Provider Configuration - SuperAdmin Only */}
+        {(settings as any)?.isSuperAdmin ? (
+          <div className="bg-card border border-card-border rounded-lg p-6 space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Bot className="w-5 h-5 text-primary" />
+                <h2 className="text-lg font-semibold">AI Model & Provider (SuperAdmin)</h2>
+              </div>
+              <span className="text-xs font-semibold px-2 py-0.5 rounded bg-primary/10 text-primary">
+                Global Control
+              </span>
+            </div>
 
-          <div className="space-y-2">
-            <Label>AI Provider</Label>
-            <Select value={form.provider} onValueChange={(v) => setForm(p => ({ ...p, provider: v }))}>
-              <SelectTrigger data-testid="select-provider">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ollama">Ollama (Local)</SelectItem>
-                <SelectItem value="openai_compat">OpenAI-Compatible API</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Model Name</Label>
-            <Input
-              value={form.model}
-              onChange={(e) => setForm(p => ({ ...p, model: e.target.value }))}
-              placeholder="llama3, gpt-4o, mistral..."
-              data-testid="input-model"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Base URL</Label>
-            <Input
-              value={form.baseUrl}
-              onChange={(e) => setForm(p => ({ ...p, baseUrl: e.target.value }))}
-              placeholder="http://localhost:11434"
-              data-testid="input-base-url"
-            />
-            <p className="text-xs text-muted-foreground">
-              {form.provider === 'ollama' ? 'Default: http://localhost:11434' : 'e.g. https://api.openai.com/v1'}
-            </p>
-          </div>
-
-          {form.provider === 'openai_compat' && (
             <div className="space-y-2">
-              <Label>API Key</Label>
+              <Label>AI Provider</Label>
+              <Select value={form.provider} onValueChange={(v) => {
+                let defaultBaseUrl = form.baseUrl;
+                let defaultModel = form.model;
+                if (v === 'openai') { defaultBaseUrl = 'https://api.openai.com'; defaultModel = 'gpt-4o-mini'; }
+                else if (v === 'groq') { defaultBaseUrl = 'https://api.groq.com/openai'; defaultModel = 'llama-3.3-70b-versatile'; }
+                else if (v === 'deepseek') { defaultBaseUrl = 'https://api.deepseek.com'; defaultModel = 'deepseek-chat'; }
+                else if (v === 'openrouter') { defaultBaseUrl = 'https://openrouter.ai/api'; defaultModel = 'anthropic/claude-3.5-sonnet'; }
+                else if (v === 'ollama') { defaultBaseUrl = 'http://localhost:11434'; defaultModel = 'llama3'; }
+                setForm(p => ({ ...p, provider: v, baseUrl: defaultBaseUrl, model: defaultModel }));
+              }}>
+                <SelectTrigger data-testid="select-provider">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="openai">OpenAI (GPT-4o, GPT-4o-mini)</SelectItem>
+                  <SelectItem value="groq">Groq (Ultra-Fast LLaMA 3.3, Mixtral)</SelectItem>
+                  <SelectItem value="deepseek">DeepSeek (DeepSeek V3 / R1)</SelectItem>
+                  <SelectItem value="openrouter">OpenRouter (Multi-Model Hub)</SelectItem>
+                  <SelectItem value="ollama">Ollama (Local VPS)</SelectItem>
+                  <SelectItem value="openai_compat">Custom OpenAI-Compatible API</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Model Name</Label>
               <Input
-                type="password"
-                value={form.apiKey}
-                onChange={(e) => setForm(p => ({ ...p, apiKey: e.target.value }))}
-                placeholder="sk-..."
-                data-testid="input-api-key"
+                value={form.model}
+                onChange={(e) => setForm(p => ({ ...p, model: e.target.value }))}
+                placeholder="gpt-4o, gpt-4o-mini, deepseek-chat, llama-3.3-70b-versatile..."
+                data-testid="input-model"
               />
             </div>
-          )}
-        </div>
+
+            <div className="space-y-2">
+              <Label>Base URL</Label>
+              <Input
+                value={form.baseUrl}
+                onChange={(e) => setForm(p => ({ ...p, baseUrl: e.target.value }))}
+                placeholder="https://api.openai.com or http://localhost:11434"
+                data-testid="input-base-url"
+              />
+            </div>
+
+            {form.provider !== 'ollama' && (
+              <div className="space-y-2">
+                <Label>API Key</Label>
+                <Input
+                  type="password"
+                  value={form.apiKey}
+                  onChange={(e) => setForm(p => ({ ...p, apiKey: e.target.value }))}
+                  placeholder="sk-..."
+                  data-testid="input-api-key"
+                />
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Tenant View: Read-only Engine Card */
+          <div className="bg-card border border-card-border rounded-lg p-5 flex items-center justify-between shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                <Bot className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-semibold text-foreground">AI Intelligence Engine</h3>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    Active &amp; Optimized
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  High-performance model managed and provisioned centrally by SupportHub AI.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Behavior */}
         <div className="bg-card border border-card-border rounded-lg p-6 space-y-6">

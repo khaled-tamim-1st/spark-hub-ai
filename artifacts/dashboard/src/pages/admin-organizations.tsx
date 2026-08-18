@@ -41,7 +41,8 @@ import {
   Sparkles, 
   Zap, 
   RefreshCw,
-  Sliders
+  Sliders,
+  Bot
 } from 'lucide-react';
 import { formatDateTime } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -173,6 +174,51 @@ export default function AdminOrganizations() {
     },
   });
 
+  const [aiConfigOrg, setAiConfigOrg] = useState<OrganizationTenant | null>(null);
+  const [aiConfigForm, setAiConfigForm] = useState({
+    provider: 'ollama',
+    model: 'llama3',
+    baseUrl: 'http://localhost:11434',
+    apiKey: '',
+    maxTokens: 1000,
+    temperature: 0.7,
+    autoReply: true,
+  });
+  const [loadingAi, setLoadingAi] = useState(false);
+
+  const handleOpenAiConfig = async (org: OrganizationTenant) => {
+    setAiConfigOrg(org);
+    setLoadingAi(true);
+    try {
+      const data = await adminApi.getOrgAiSettings(org.id);
+      setAiConfigForm({
+        provider: data.provider || 'ollama',
+        model: data.model || 'llama3',
+        baseUrl: data.baseUrl || (data.provider === 'openai' ? 'https://api.openai.com' : 'http://localhost:11434'),
+        apiKey: data.apiKey || '',
+        maxTokens: data.maxTokens || 1000,
+        temperature: data.temperature ?? 0.7,
+        autoReply: data.autoReply ?? true,
+      });
+    } catch {
+      // fallback
+    } finally {
+      setLoadingAi(false);
+    }
+  };
+
+  const updateAiMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) =>
+      adminApi.updateOrgAiSettings(id, data),
+    onSuccess: () => {
+      setAiConfigOrg(null);
+      toast({ title: 'AI Model & Provider Configured', description: 'Updated AI model for tenant.' });
+    },
+    onError: (err: Error) => {
+      toast({ title: 'Failed to configure AI', description: err.message, variant: 'destructive' });
+    }
+  });
+
   const handleOpenEdit = (org: OrganizationTenant) => {
     setEditingOrg(org);
     setEditForm({
@@ -205,7 +251,7 @@ export default function AdminOrganizations() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Building2 className="w-7 h-7 text-primary" />
-            SaaS Tenant Organizations (إدارة الشركات المشتركة)
+            SaaS Tenant Organizations
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Global management portal: monitor subscribers, plans, resource quotas, and activate/suspend companies.
@@ -404,6 +450,17 @@ export default function AdminOrganizations() {
                             onClick={() => handleOpenEdit(org)}
                           >
                             <Sliders className="w-4 h-4 text-primary" />
+                          </Button>
+
+                          {/* Configure AI Model & Provider */}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            title="Configure AI Model & Provider"
+                            onClick={() => handleOpenAiConfig(org)}
+                            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-950/50"
+                          >
+                            <Bot className="w-4 h-4" />
                           </Button>
 
                           {/* Delete Company */}
@@ -699,6 +756,127 @@ export default function AdminOrganizations() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal: Configure AI Model & Provider for Tenant */}
+      <Dialog open={!!aiConfigOrg} onOpenChange={(open) => !open && setAiConfigOrg(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Bot className="w-5 h-5 text-purple-600" />
+              Configure AI Model & Provider: {aiConfigOrg?.name}
+            </DialogTitle>
+          </DialogHeader>
+          {loadingAi ? (
+            <div className="py-8 text-center text-sm text-muted-foreground">Loading AI configuration...</div>
+          ) : (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!aiConfigOrg) return;
+                updateAiMutation.mutate({ id: aiConfigOrg.id, data: aiConfigForm });
+              }}
+              className="space-y-4 pt-2"
+            >
+              <div className="space-y-2">
+                <Label>AI Provider</Label>
+                <Select
+                  value={aiConfigForm.provider}
+                  onValueChange={(v) => {
+                    let defaultBaseUrl = aiConfigForm.baseUrl;
+                    let defaultModel = aiConfigForm.model;
+                    if (v === 'openai') { defaultBaseUrl = 'https://api.openai.com'; defaultModel = 'gpt-4o-mini'; }
+                    else if (v === 'groq') { defaultBaseUrl = 'https://api.groq.com/openai'; defaultModel = 'llama-3.3-70b-versatile'; }
+                    else if (v === 'deepseek') { defaultBaseUrl = 'https://api.deepseek.com'; defaultModel = 'deepseek-chat'; }
+                    else if (v === 'openrouter') { defaultBaseUrl = 'https://openrouter.ai/api'; defaultModel = 'anthropic/claude-3.5-sonnet'; }
+                    else if (v === 'ollama') { defaultBaseUrl = 'http://localhost:11434'; defaultModel = 'llama3'; }
+                    setAiConfigForm(p => ({ ...p, provider: v, baseUrl: defaultBaseUrl, model: defaultModel }));
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="openai">OpenAI (GPT-4o, GPT-4o-mini)</SelectItem>
+                    <SelectItem value="groq">Groq (Ultra-Fast LLaMA 3.3, Mixtral)</SelectItem>
+                    <SelectItem value="deepseek">DeepSeek (DeepSeek V3 / R1)</SelectItem>
+                    <SelectItem value="openrouter">OpenRouter (Multi-Model Hub)</SelectItem>
+                    <SelectItem value="ollama">Ollama (Local VPS)</SelectItem>
+                    <SelectItem value="openai_compat">Custom OpenAI-Compatible API</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Model Name</Label>
+                <Input
+                  value={aiConfigForm.model}
+                  onChange={(e) => setAiConfigForm({ ...aiConfigForm, model: e.target.value })}
+                  placeholder="e.g. gpt-4o, gpt-4o-mini, deepseek-chat, llama-3.3-70b-versatile..."
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Base URL</Label>
+                <Input
+                  value={aiConfigForm.baseUrl}
+                  onChange={(e) => setAiConfigForm({ ...aiConfigForm, baseUrl: e.target.value })}
+                  placeholder="https://api.openai.com or http://localhost:11434"
+                  required
+                />
+              </div>
+
+              {aiConfigForm.provider !== 'ollama' && (
+                <div className="space-y-2">
+                  <Label>API Key (Secret Token)</Label>
+                  <Input
+                    type="password"
+                    value={aiConfigForm.apiKey}
+                    onChange={(e) => setAiConfigForm({ ...aiConfigForm, apiKey: e.target.value })}
+                    placeholder="sk-..."
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    This key will be kept confidential on the server and hidden from the tenant company.
+                  </p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div className="space-y-2">
+                  <Label>Max Output Tokens</Label>
+                  <Input
+                    type="number"
+                    min="100"
+                    max="8000"
+                    value={aiConfigForm.maxTokens}
+                    onChange={(e) => setAiConfigForm({ ...aiConfigForm, maxTokens: Number(e.target.value) })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Default Temperature</Label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="2"
+                    value={aiConfigForm.temperature}
+                    onChange={(e) => setAiConfigForm({ ...aiConfigForm, temperature: Number(e.target.value) })}
+                  />
+                </div>
+              </div>
+
+              <DialogFooter className="pt-4">
+                <Button variant="outline" type="button" onClick={() => setAiConfigOrg(null)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={updateAiMutation.isPending}>
+                  {updateAiMutation.isPending ? 'Saving...' : 'Save AI Configuration'}
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
     </div>

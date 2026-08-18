@@ -54,7 +54,17 @@ Instructions:
 
     const provider = settings.provider || 'ollama';
     const model = settings.model || 'llama3';
-    const baseUrl = (settings.baseUrl || 'http://localhost:11434').replace(/\/+$/, '');
+    
+    // Resolve endpoint Base URL based on provider
+    let baseUrl = (settings.baseUrl || '').trim().replace(/\/+$/, '');
+    if (!baseUrl) {
+      if (provider === 'openai') baseUrl = 'https://api.openai.com';
+      else if (provider === 'groq') baseUrl = 'https://api.groq.com/openai';
+      else if (provider === 'deepseek') baseUrl = 'https://api.deepseek.com';
+      else if (provider === 'openrouter') baseUrl = 'https://openrouter.ai/api';
+      else baseUrl = 'http://localhost:11434';
+    }
+
     const temperature = Number(settings.temperature) || 0.7;
 
     // Handle Ollama
@@ -88,8 +98,8 @@ Instructions:
       return data.response ? data.response.trim() : null;
     }
 
-    // Handle OpenAI-compatible API
-    if (provider === 'openai' || settings.apiKey) {
+    // Handle OpenAI-compatible API (OpenAI, Groq, DeepSeek, OpenRouter, vLLM, etc.)
+    if (provider !== 'ollama' || settings.apiKey) {
       const messages = [
         { role: 'system', content: fullSystemInstruction },
         ...conversationHistory.map(h => ({
@@ -99,7 +109,9 @@ Instructions:
         { role: 'user', content: incomingText },
       ];
 
-      const res = await fetch(`${baseUrl}/v1/chat/completions`, {
+      const endpoint = baseUrl.endsWith('/v1') ? `${baseUrl}/chat/completions` : `${baseUrl}/v1/chat/completions`;
+
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +126,8 @@ Instructions:
       });
 
       if (!res.ok) {
-        console.warn(`OpenAI-compatible API call returned status ${res.status}`);
+        const errText = await res.text().catch(() => '');
+        console.warn(`[AI Service] API call to ${endpoint} returned status ${res.status}: ${errText}`);
         return null;
       }
 

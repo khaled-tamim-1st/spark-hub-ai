@@ -21,53 +21,80 @@ const DEFAULT_SETTINGS = {
 // GET /api/ai-settings
 router.get('/', requireAuth, async (req, res) => {
   try {
+    const isSuperAdmin = req.role === 'superadmin';
     const [row] = await db.select().from(aiSettings)
       .where(eq(aiSettings.organizationId, req.organizationId)).limit(1);
+
     if (!row) {
-      // Return defaults without persisting until they save
-      res.json({ ...DEFAULT_SETTINGS, organizationId: req.organizationId });
+      res.json({
+        ...DEFAULT_SETTINGS,
+        organizationId: req.organizationId,
+        isSuperAdmin,
+        apiKey: isSuperAdmin ? null : undefined,
+      });
       return;
     }
+
     res.json({
       ...row,
+      apiKey: isSuperAdmin ? row.apiKey : (row.apiKey ? '••••••••••••••••' : null),
       temperature: Number(row.temperature),
       autoReplyConfidence: Number(row.autoReplyConfidence),
+      isSuperAdmin,
     });
-  } catch (err) { console.error(err); res.status(500).json({ error: 'Internal server error' }); }
+  } catch (err) {
+    console.error('Get AI settings error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // PUT /api/ai-settings
 router.put('/', requireAuth, async (req, res) => {
   try {
+    const isSuperAdmin = req.role === 'superadmin';
     const { provider, model, baseUrl, apiKey, systemPrompt, temperature, maxTokens, autoReply, autoReplyConfidence } = req.body ?? {};
-    const values = {
+
+    // Tenants can ONLY modify prompt, temperature, autoReply, confidence
+    // SuperAdmin can modify everything including provider, model, keys, baseUrl
+    const values: Record<string, any> = {
       organizationId: req.organizationId,
-      ...(provider && { provider: String(provider) }),
-      ...(model && { model: String(model) }),
-      ...(baseUrl !== undefined && { baseUrl: String(baseUrl) }),
-      ...(apiKey !== undefined && { apiKey: apiKey ? String(apiKey) : null }),
       ...(systemPrompt !== undefined && { systemPrompt: String(systemPrompt) }),
       ...(temperature !== undefined && { temperature: String(temperature) }),
-      ...(maxTokens !== undefined && { maxTokens: Number(maxTokens) }),
       ...(autoReply !== undefined && { autoReply: Boolean(autoReply) }),
       ...(autoReplyConfidence !== undefined && { autoReplyConfidence: String(autoReplyConfidence) }),
       updatedAt: new Date(),
     };
+
+    if (isSuperAdmin) {
+      if (provider !== undefined) values.provider = String(provider);
+      if (model !== undefined) values.model = String(model);
+      if (baseUrl !== undefined) values.baseUrl = String(baseUrl);
+      if (apiKey !== undefined) values.apiKey = apiKey ? String(apiKey) : null;
+      if (maxTokens !== undefined) values.maxTokens = Number(maxTokens);
+    }
+
     // Upsert
     const [existing] = await db.select({ id: aiSettings.id }).from(aiSettings)
       .where(eq(aiSettings.organizationId, req.organizationId)).limit(1);
+    
     let row;
     if (existing) {
       [row] = await db.update(aiSettings).set(values).where(eq(aiSettings.id, existing.id)).returning();
     } else {
       [row] = await db.insert(aiSettings).values(values).returning();
     }
+
     res.json({
       ...row,
+      apiKey: isSuperAdmin ? row.apiKey : (row.apiKey ? '••••••••••••••••' : null),
       temperature: Number(row.temperature),
       autoReplyConfidence: Number(row.autoReplyConfidence),
+      isSuperAdmin,
     });
-  } catch (err) { console.error(err); res.status(500).json({ error: 'Internal server error' }); }
+  } catch (err) {
+    console.error('Update AI settings error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 export default router;

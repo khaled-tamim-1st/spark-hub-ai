@@ -105,5 +105,13 @@ export const adminApi = {
     fetchWithAuth<void>(`/api/admin/organizations/${id}`, {
       method: 'DELETE',
     }),
-  getMe: () => fetchWithAuth<any>('/api/auth/me'),
+  getOrgAiSettings: (id: number) =>
+    fetchWithAuth<any>(`/api/admin/organizations/${id}/ai-settings`),
+  updateOrgAiSettings: (id: number, data: any) =>
+    fetchWithAuth<any>(`/api/admin/organizations/${id}/ai-settings`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+  getMe: () =>
+    fetchWithAuth<any>('/api/auth/me'),
 };
