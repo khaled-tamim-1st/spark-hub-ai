@@ -224,13 +224,15 @@ export default function Workspaces() {
                 </div>
               )}
 
-              {/* Create New Company Button */}
-              <Button
-                onClick={() => setIsCreateOpen(true)}
-                className="gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-md shadow-indigo-600/20 font-semibold text-xs h-9 shrink-0"
-              >
-                <Plus className="w-4 h-4" /> Add Company
-              </Button>
+              {/* Create New Company Button (SuperAdmin only) */}
+              {isSuperAdmin && (
+                <Button
+                  onClick={() => setIsCreateOpen(true)}
+                  className="gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-md shadow-indigo-600/20 font-semibold text-xs h-9 shrink-0"
+                >
+                  <Plus className="w-4 h-4" /> Add Company
+                </Button>
+              )}
             </div>
           </div>
 

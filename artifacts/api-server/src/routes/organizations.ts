@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { db, organizations, organizationMembers, aiSettings } from '@workspace/db';
 import { sql } from 'drizzle-orm';
-import { requireAuth } from '../middlewares/auth.js';
+import { requireAuth, requireSuperAdmin } from '../middlewares/auth.js';
 
 const router = Router();
 
-// POST /api/organizations - Create a new company workspace by authenticated user
-router.post('/', requireAuth, async (req, res) => {
+// POST /api/organizations - Create a new company workspace (SuperAdmin only)
+router.post('/', requireAuth, requireSuperAdmin, async (req, res) => {
   try {
     const { name, website, industry } = req.body ?? {};
     if (!name || !String(name).trim()) {
