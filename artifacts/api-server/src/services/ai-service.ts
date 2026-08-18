@@ -10,7 +10,13 @@ export interface GenerateReplyOptions {
   forceGenerate?: boolean;
 }
 
-export async function generateAiReply(options: GenerateReplyOptions): Promise<string | null> {
+export interface AiServiceResult {
+  success: boolean;
+  reply?: string;
+  error?: string;
+}
+
+export async function generateAiReplyDetailed(options: GenerateReplyOptions): Promise<AiServiceResult> {
   const { organizationId, customerName = 'Customer', incomingText, conversationHistory = [], forceGenerate = false } = options;
 
   try {
@@ -21,8 +27,9 @@ export async function generateAiReply(options: GenerateReplyOptions): Promise<st
       .limit(1);
 
     if (org && !org.aiEnabled && !forceGenerate) {
-      console.log(`[AI Service] Org #${organizationId} has AI disabled globally.`);
-      return null;
+      const msg = `Organization #${organizationId} has AI disabled globally in SaaS Admin.`;
+      console.log(`[AI Service] ${msg}`);
+      return { success: false, error: msg };
     }
 
     // Get organization AI settings
@@ -31,13 +38,15 @@ export async function generateAiReply(options: GenerateReplyOptions): Promise<st
       .limit(1);
 
     if (!settings) {
-      console.log(`[AI Service] Org #${organizationId} has no AI settings row.`);
-      return null;
+      const msg = `Organization #${organizationId} has no AI configuration yet.`;
+      console.log(`[AI Service] ${msg}`);
+      return { success: false, error: msg };
     }
 
     if (!settings.autoReply && !forceGenerate) {
-      console.log(`[AI Service] Org #${organizationId} autoReply is set to false. Enable in AI Settings to auto-reply.`);
-      return null;
+      const msg = `Auto-reply is currently disabled in AI Settings.`;
+      console.log(`[AI Service] ${msg}`);
+      return { success: false, error: msg };
     }
 
     // Fetch knowledge base documents
@@ -61,12 +70,12 @@ Instructions:
 - If you do not know the answer, politely offer to connect them to a human agent.`;
 
     const provider = (settings.provider || 'ollama').toLowerCase().trim();
-    const model = (settings.model || 'llama3').trim();
+    const model = (settings.model || (provider === 'groq' ? 'llama-3.3-70b-versatile' : 'llama3')).trim();
     const temperature = Number(settings.temperature) || 0.7;
 
-    console.log(`[AI Service] Generating response for org #${organizationId} using provider: [${provider}], model: [${model}]`);
+    console.log(`[AI Service] Processing for org #${organizationId} -> Provider: [${provider}], Model: [${model}]`);
 
-    // Handle Ollama
+    // 1. Handle Ollama (Local VPS)
     if (provider === 'ollama') {
       const baseUrl = (settings.baseUrl || 'http://localhost:11434').trim().replace(/\/+$/, '');
       const historyPrompt = conversationHistory
@@ -75,31 +84,42 @@ Instructions:
 
       const fullPrompt = `${fullSystemInstruction}\n\n${historyPrompt ? `Recent conversation:\n${historyPrompt}\n` : ''}${customerName}: ${incomingText}\nAssistant:`;
 
-      const res = await fetch(`${baseUrl}/api/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model,
-          prompt: fullPrompt,
-          stream: false,
-          options: {
-            temperature,
-            num_predict: settings.maxTokens || 600,
-          },
-        }),
-      });
+      try {
+        const res = await fetch(`${baseUrl}/api/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model,
+            prompt: fullPrompt,
+            stream: false,
+            options: {
+              temperature,
+              num_predict: settings.maxTokens || 600,
+            },
+          }),
+        });
 
-      if (!res.ok) {
-        const errText = await res.text().catch(() => '');
-        console.warn(`[AI Service] Ollama API call returned status ${res.status}: ${errText}`);
-        return null;
+        if (!res.ok) {
+          const errText = await res.text().catch(() => '');
+          return { success: false, error: `Ollama error (${res.status}): ${errText || 'Is Ollama running on VPS?'}` };
+        }
+
+        const data = await res.json() as { response?: string };
+        return { success: true, reply: (data.response || '').trim() };
+      } catch (err: any) {
+        return { success: false, error: `Could not connect to local Ollama on ${baseUrl}: ${err.message}` };
       }
-
-      const data = await res.json() as { response?: string };
-      return data.response ? data.response.trim() : null;
     }
 
-    // Handle Cloud OpenAI-compatible API (Groq, OpenAI, DeepSeek, OpenRouter, Custom)
+    // 2. Cloud Providers (Groq, OpenAI, DeepSeek, OpenRouter, Custom)
+    const apiKey = (settings.apiKey || '').trim();
+    if (!apiKey) {
+      return { 
+        success: false, 
+        error: `Missing API Key for provider [${provider.toUpperCase()}]. Please open SaaS Admin -> Organizations -> Configure AI, and enter your API Token.` 
+      };
+    }
+
     let endpoint = '';
     if (provider === 'groq') {
       endpoint = 'https://api.groq.com/openai/v1/chat/completions';
@@ -110,7 +130,6 @@ Instructions:
     } else if (provider === 'openai') {
       endpoint = 'https://api.openai.com/v1/chat/completions';
     } else {
-      // Custom OpenAI Compatible or user custom URL
       const cleanUrl = (settings.baseUrl || '').trim().replace(/\/+$/, '');
       if (cleanUrl.endsWith('/v1')) {
         endpoint = `${cleanUrl}/chat/completions`;
@@ -130,32 +149,51 @@ Instructions:
       { role: 'user', content: incomingText },
     ];
 
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(settings.apiKey ? { Authorization: `Bearer ${settings.apiKey}` } : {}),
-      },
-      body: JSON.stringify({
-        model,
-        messages,
-        temperature,
-        max_tokens: settings.maxTokens || 800,
-      }),
-    });
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature,
+          max_tokens: settings.maxTokens || 800,
+        }),
+      });
 
-    if (!res.ok) {
-      const errText = await res.text().catch(() => '');
-      console.warn(`[AI Service] API call to ${endpoint} returned status ${res.status}: ${errText}`);
-      return null;
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '');
+        let parsedMessage = errText;
+        try {
+          const json = JSON.parse(errText);
+          parsedMessage = json.error?.message || json.message || errText;
+        } catch {}
+        console.warn(`[AI Service] API error from ${endpoint} [${res.status}]: ${parsedMessage}`);
+        return { success: false, error: `${provider.toUpperCase()} Error (${res.status}): ${parsedMessage}` };
+      }
+
+      const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
+      const reply = data.choices?.[0]?.message?.content?.trim();
+      if (!reply) {
+        return { success: false, error: 'Provider returned an empty response.' };
+      }
+
+      console.log(`[AI Service] Generated ${reply.length} chars successfully from [${model}]`);
+      return { success: true, reply };
+    } catch (fetchErr: any) {
+      console.error(`[AI Service] Network error calling ${endpoint}:`, fetchErr);
+      return { success: false, error: `Network error connecting to ${provider}: ${fetchErr.message}` };
     }
-
-    const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
-    const reply = data.choices?.[0]?.message?.content;
-    console.log(`[AI Service] Successfully generated reply (${reply?.length || 0} chars)`);
-    return reply ? reply.trim() : null;
   } catch (err: any) {
-    console.error('[AI Service] Error generating AI reply:', err.message || err);
-    return null;
+    console.error('[AI Service] Unexpected error:', err);
+    return { success: false, error: err.message || 'Internal AI service error' };
   }
+}
+
+export async function generateAiReply(options: GenerateReplyOptions): Promise<string | null> {
+  const res = await generateAiReplyDetailed(options);
+  return res.success ? (res.reply ?? null) : null;
 }

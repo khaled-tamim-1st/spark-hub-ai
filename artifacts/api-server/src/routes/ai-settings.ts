@@ -3,7 +3,7 @@ import { db } from '@workspace/db';
 import { aiSettings } from '@workspace/db';
 import { eq } from 'drizzle-orm';
 import { requireAuth } from '../middlewares/auth.js';
-import { generateAiReply } from '../services/ai-service.js';
+import { generateAiReply, generateAiReplyDetailed } from '../services/ai-service.js';
 
 const router = Router();
 
@@ -107,21 +107,21 @@ router.post('/test', requireAuth, async (req, res) => {
       return;
     }
 
-    const reply = await generateAiReply({
+    const result = await generateAiReplyDetailed({
       organizationId: req.organizationId!,
       customerName: 'Test Customer',
       incomingText: String(message),
       forceGenerate: true,
     });
 
-    if (!reply) {
-      res.status(502).json({ 
-        error: 'Failed to generate AI response. Please ensure provider, model, and API Key are valid in SuperAdmin.' 
+    if (!result.success) {
+      res.status(400).json({ 
+        error: result.error || 'Failed to generate AI response. Please ensure provider and API Key are valid in SuperAdmin.' 
       });
       return;
     }
 
-    res.json({ reply });
+    res.json({ reply: result.reply });
   } catch (err: any) {
     console.error('AI test error:', err);
     res.status(500).json({ error: err.message || 'Internal server error' });
