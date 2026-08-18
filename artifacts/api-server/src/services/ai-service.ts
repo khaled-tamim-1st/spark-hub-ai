@@ -87,17 +87,14 @@ export async function generateAiReplyDetailed(options: GenerateReplyOptions): Pr
       kbContext = docs.map(d => `### Document: ${d.title}\n${d.content}`).join('\n\n');
     }
 
-    const systemPrompt = overrideSettings?.systemPrompt || settings?.systemPrompt || 
-      'You are a helpful, professional, and friendly customer support AI assistant. Answer clearly and concisely using the provided Knowledge Base when relevant.';
+    const defaultPrompt = 'أنت مساعد ذكاء اصطناعي ذكي ومحترف، ودود ومتعاون. أجب على استفسارات المستخدم بذكاء وبشكل طبيعي وسلس وبحرية تامة.';
+    const systemPrompt = overrideSettings?.systemPrompt || settings?.systemPrompt || defaultPrompt;
 
     const fullSystemInstruction = `${systemPrompt}
-
-${kbContext ? `=== COMPANY KNOWLEDGE BASE ===\n${kbContext}\n==============================\n` : ''}
-Instructions:
-- Address the customer politely (Customer name: ${customerName}).
-- Use information from the Knowledge Base if available.
-- Keep the response concise, formatted for WhatsApp or live chat (bullet points if needed).
-- If you do not know the answer, politely offer to connect them to a human agent.`;
+${kbContext ? `\n=== قاعدة معرفة الشركة ومعلومات المنتجات (Knowledge Base) ===\n${kbContext}\n==============================\nاستخدم معلومات قاعدة المعرفة أعلاه للإجابة على الأسئلة المتعلقة بالشركة.` : ''}
+تعليمات الأسلوب:
+- تحدث بأسلوب محترف، ودود، ومرن، وأجب بذكاء وبحرية على أي سؤال يطرحه المستخدم.
+- خاطب المستخدم بلباقة واحترام (اسم العميل: ${customerName}).`;
 
     const provider = (overrideSettings?.provider || settings?.provider || 'groq').toLowerCase().trim();
     let model = (overrideSettings?.model || settings?.model || (provider === 'groq' ? 'openai/gpt-oss-120b' : 'llama3')).trim();
