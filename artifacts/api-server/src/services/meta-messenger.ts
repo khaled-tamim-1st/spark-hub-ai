@@ -11,6 +11,46 @@ export interface MetaConfig {
 }
 
 /**
+ * Auto-subscribe a Facebook Page to the App's Webhooks via Graph API
+ */
+export async function subscribePageToWebhooks(pageId: string, accessToken: string): Promise<boolean> {
+  try {
+    const res = await fetch(`https://graph.facebook.com/v19.0/${pageId}/subscribed_apps`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subscribed_fields: ['messages', 'messaging_postbacks', 'message_deliveries', 'message_reads', 'message_echoes'],
+        access_token: accessToken,
+      }),
+    });
+    const data = await res.json() as any;
+    console.log(`[Meta Webhook] Subscribed page ${pageId} to webhooks:`, data);
+    return data.success === true;
+  } catch (err: any) {
+    console.error(`[Meta Webhook] Failed to subscribe page ${pageId}:`, err.message || err);
+    return false;
+  }
+}
+
+export async function restoreMetaSubscriptions() {
+  try {
+    const metaChannels = await db.select().from(channels)
+      .where(and(eq(channels.provider, 'meta_graph'), eq(channels.isActive, true)));
+    for (const ch of metaChannels) {
+      if (ch.config) {
+        const parsed = (typeof ch.config === 'string' ? JSON.parse(ch.config) : ch.config) as MetaConfig;
+        if (parsed.pageId && parsed.accessToken) {
+          console.log(`[Meta Startup] Auto-subscribing Page ${parsed.pageId} (${ch.name}) to webhooks...`);
+          await subscribePageToWebhooks(parsed.pageId, parsed.accessToken);
+        }
+      }
+    }
+  } catch (err: any) {
+    console.error('[Meta Startup] Failed to restore subscriptions:', err.message || err);
+  }
+}
+
+/**
  * Send a message to Facebook Messenger or Instagram user via Meta Graph API
  */
 export async function sendMetaMessage(

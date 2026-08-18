@@ -1,6 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { restoreWhatsAppSessions } from "./services/whatsapp-web.js";
+import { restoreMetaSubscriptions } from "./services/meta-messenger.js";
 
 const rawPort = process.env["PORT"] || "5000";
 const port = Number(rawPort);
@@ -12,4 +13,5 @@ if (Number.isNaN(port) || port <= 0) {
 app.listen(port, "0.0.0.0", () => {
   logger.info({ port }, "Server listening on 0.0.0.0");
   restoreWhatsAppSessions();
+  restoreMetaSubscriptions();
 });
