@@ -1,13 +1,22 @@
 import { db } from '@workspace/db';
 import { aiSettings, knowledgeDocs, organizations } from '@workspace/db';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, isNotNull } from 'drizzle-orm';
 
 export interface GenerateReplyOptions {
-  organizationId: number;
+  organizationId?: number;
   customerName?: string;
   incomingText: string;
   conversationHistory?: Array<{ sender: string; text: string }>;
   forceGenerate?: boolean;
+  overrideSettings?: {
+    provider?: string;
+    model?: string;
+    apiKey?: string;
+    baseUrl?: string;
+    systemPrompt?: string;
+    temperature?: number;
+    maxTokens?: number;
+  };
 }
 
 export interface AiServiceResult {
@@ -17,47 +26,68 @@ export interface AiServiceResult {
 }
 
 export async function generateAiReplyDetailed(options: GenerateReplyOptions): Promise<AiServiceResult> {
-  const { organizationId, customerName = 'Customer', incomingText, conversationHistory = [], forceGenerate = false } = options;
+  const { 
+    organizationId, 
+    customerName = 'Customer', 
+    incomingText, 
+    conversationHistory = [], 
+    forceGenerate = false,
+    overrideSettings 
+  } = options;
 
   try {
     // Check if organization has AI enabled
-    const [org] = await db.select({ aiEnabled: organizations.aiEnabled })
-      .from(organizations)
-      .where(eq(organizations.id, organizationId))
-      .limit(1);
+    if (organizationId) {
+      const [org] = await db.select({ aiEnabled: organizations.aiEnabled })
+        .from(organizations)
+        .where(eq(organizations.id, organizationId))
+        .limit(1);
 
-    if (org && !org.aiEnabled && !forceGenerate) {
-      const msg = `Organization #${organizationId} has AI disabled globally in SaaS Admin.`;
-      console.log(`[AI Service] ${msg}`);
-      return { success: false, error: msg };
+      if (org && !org.aiEnabled && !forceGenerate) {
+        const msg = `Organization #${organizationId} has AI disabled globally in SaaS Admin.`;
+        console.log(`[AI Service] ${msg}`);
+        return { success: false, error: msg };
+      }
     }
 
     // Get organization AI settings
-    const [settings] = await db.select().from(aiSettings)
+    let [settings] = organizationId ? await db.select().from(aiSettings)
       .where(eq(aiSettings.organizationId, organizationId))
-      .limit(1);
+      .limit(1) : [null];
 
-    if (!settings) {
-      const msg = `Organization #${organizationId} has no AI configuration yet.`;
+    // Fallback: If this org has no API key or is unconfigured, look for any configured org with an API key
+    if ((!settings || !settings.apiKey || settings.provider === 'ollama') && !overrideSettings?.apiKey) {
+      const [configured] = await db.select().from(aiSettings)
+        .where(isNotNull(aiSettings.apiKey))
+        .limit(1);
+      if (configured) {
+        settings = { ...(settings || {}), ...configured } as any;
+      }
+    }
+
+    if (!settings && !overrideSettings) {
+      const msg = `No AI configuration found. Please configure Groq or OpenAI in SaaS Admin -> Organizations.`;
       console.log(`[AI Service] ${msg}`);
       return { success: false, error: msg };
     }
 
-    if (!settings.autoReply && !forceGenerate) {
+    if (settings && !settings.autoReply && !forceGenerate && !overrideSettings) {
       const msg = `Auto-reply is currently disabled in AI Settings.`;
       console.log(`[AI Service] ${msg}`);
       return { success: false, error: msg };
     }
 
     // Fetch knowledge base documents
-    const docs = await db.select({ title: knowledgeDocs.title, content: knowledgeDocs.content })
-      .from(knowledgeDocs)
-      .where(and(eq(knowledgeDocs.organizationId, organizationId), eq(knowledgeDocs.status, 'ready')))
-      .limit(10);
+    let kbContext = '';
+    if (organizationId) {
+      const docs = await db.select({ title: knowledgeDocs.title, content: knowledgeDocs.content })
+        .from(knowledgeDocs)
+        .where(and(eq(knowledgeDocs.organizationId, organizationId), eq(knowledgeDocs.status, 'ready')))
+        .limit(10);
+      kbContext = docs.map(d => `### Document: ${d.title}\n${d.content}`).join('\n\n');
+    }
 
-    const kbContext = docs.map(d => `### Document: ${d.title}\n${d.content}`).join('\n\n');
-
-    const systemPrompt = settings.systemPrompt || 
+    const systemPrompt = overrideSettings?.systemPrompt || settings?.systemPrompt || 
       'You are a helpful, professional, and friendly customer support AI assistant. Answer clearly and concisely using the provided Knowledge Base when relevant.';
 
     const fullSystemInstruction = `${systemPrompt}
@@ -69,15 +99,21 @@ Instructions:
 - Keep the response concise, formatted for WhatsApp or live chat (bullet points if needed).
 - If you do not know the answer, politely offer to connect them to a human agent.`;
 
-    const provider = (settings.provider || 'ollama').toLowerCase().trim();
-    const model = (settings.model || (provider === 'groq' ? 'llama-3.3-70b-versatile' : 'llama3')).trim();
-    const temperature = Number(settings.temperature) || 0.7;
+    const provider = (overrideSettings?.provider || settings?.provider || 'groq').toLowerCase().trim();
+    let model = (overrideSettings?.model || settings?.model || (provider === 'groq' ? 'llama-3.1-8b-instant' : 'llama3')).trim();
+    
+    // Auto-normalize legacy or typo model names for Groq
+    if (provider === 'groq' && (model === 'llama3' || model === 'llama-3.3-70b-versatile')) {
+      model = 'llama-3.1-8b-instant';
+    }
 
-    console.log(`[AI Service] Processing for org #${organizationId} -> Provider: [${provider}], Model: [${model}]`);
+    const temperature = Number(overrideSettings?.temperature ?? settings?.temperature ?? 0.7);
+
+    console.log(`[AI Service] Processing request -> Provider: [${provider}], Model: [${model}]`);
 
     // 1. Handle Ollama (Local VPS)
     if (provider === 'ollama') {
-      const baseUrl = (settings.baseUrl || 'http://localhost:11434').trim().replace(/\/+$/, '');
+      const baseUrl = (overrideSettings?.baseUrl || settings?.baseUrl || 'http://localhost:11434').trim().replace(/\/+$/, '');
       const historyPrompt = conversationHistory
         .map(h => `${h.sender}: ${h.text}`)
         .join('\n');
@@ -94,7 +130,7 @@ Instructions:
             stream: false,
             options: {
               temperature,
-              num_predict: settings.maxTokens || 600,
+              num_predict: overrideSettings?.maxTokens || settings?.maxTokens || 600,
             },
           }),
         });
@@ -112,7 +148,7 @@ Instructions:
     }
 
     // 2. Cloud Providers (Groq, OpenAI, DeepSeek, OpenRouter, Custom)
-    const apiKey = (settings.apiKey || '').trim();
+    const apiKey = (overrideSettings?.apiKey || settings?.apiKey || '').trim();
     if (!apiKey) {
       return { 
         success: false, 
@@ -130,7 +166,7 @@ Instructions:
     } else if (provider === 'openai') {
       endpoint = 'https://api.openai.com/v1/chat/completions';
     } else {
-      const cleanUrl = (settings.baseUrl || '').trim().replace(/\/+$/, '');
+      const cleanUrl = (overrideSettings?.baseUrl || settings?.baseUrl || '').trim().replace(/\/+$/, '');
       if (cleanUrl.endsWith('/v1')) {
         endpoint = `${cleanUrl}/chat/completions`;
       } else if (cleanUrl.includes('/chat/completions')) {
@@ -160,7 +196,7 @@ Instructions:
           model,
           messages,
           temperature,
-          max_tokens: settings.maxTokens || 800,
+          max_tokens: overrideSettings?.maxTokens || settings?.maxTokens || 800,
         }),
       });
 

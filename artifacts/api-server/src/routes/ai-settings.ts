@@ -101,17 +101,28 @@ router.put('/', requireAuth, async (req, res) => {
 // POST /api/ai-settings/test - Test the AI model live
 router.post('/test', requireAuth, async (req, res) => {
   try {
-    const { message } = req.body ?? {};
+    const { message, provider, model, apiKey, baseUrl, systemPrompt, temperature, maxTokens } = req.body ?? {};
     if (!message) {
       res.status(400).json({ error: 'Test message is required' });
       return;
     }
+
+    const overrideSettings = (provider || apiKey || model) ? {
+      provider: provider ? String(provider) : undefined,
+      model: model ? String(model) : undefined,
+      apiKey: (apiKey && !apiKey.includes('••••')) ? String(apiKey) : undefined,
+      baseUrl: baseUrl ? String(baseUrl) : undefined,
+      systemPrompt: systemPrompt ? String(systemPrompt) : undefined,
+      temperature: temperature !== undefined ? Number(temperature) : undefined,
+      maxTokens: maxTokens !== undefined ? Number(maxTokens) : undefined,
+    } : undefined;
 
     const result = await generateAiReplyDetailed({
       organizationId: req.organizationId!,
       customerName: 'Test Customer',
       incomingText: String(message),
       forceGenerate: true,
+      overrideSettings,
     });
 
     if (!result.success) {
