@@ -100,11 +100,23 @@ Instructions:
 - If you do not know the answer, politely offer to connect them to a human agent.`;
 
     const provider = (overrideSettings?.provider || settings?.provider || 'groq').toLowerCase().trim();
-    let model = (overrideSettings?.model || settings?.model || (provider === 'groq' ? 'llama-3.1-8b-instant' : 'llama3')).trim();
+    let model = (overrideSettings?.model || settings?.model || (provider === 'groq' ? 'openai/gpt-oss-120b' : 'llama3')).trim();
     
-    // Auto-normalize legacy or typo model names for Groq
-    if (provider === 'groq' && (model === 'llama3' || model === 'llama-3.3-70b-versatile')) {
-      model = 'llama-3.1-8b-instant';
+    // Auto-normalize legacy or inactive model names for Groq to active GPT OSS models
+    if (provider === 'groq') {
+      if (
+        !model || 
+        model === 'llama3' || 
+        model === 'llama-3.3-70b-versatile' || 
+        model === 'llama-3.1-8b-instant' || 
+        model === 'llama3-70b-8192' || 
+        model === 'mixtral-8x7b-32768' ||
+        model.toLowerCase().includes('120b')
+      ) {
+        model = 'openai/gpt-oss-120b';
+      } else if (model.toLowerCase().includes('20b')) {
+        model = 'openai/gpt-oss-20b';
+      }
     }
 
     const temperature = Number(overrideSettings?.temperature ?? settings?.temperature ?? 0.7);

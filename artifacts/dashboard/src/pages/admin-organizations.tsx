@@ -881,17 +881,24 @@ export default function AdminOrganizations() {
                     <span className="text-[10px] text-muted-foreground self-center mr-1">Recommended:</span>
                     <button
                       type="button"
-                      onClick={() => setAiConfigForm(p => ({ ...p, model: 'llama-3.1-8b-instant' }))}
+                      onClick={() => setAiConfigForm(p => ({ ...p, model: 'openai/gpt-oss-120b' }))}
                       className="text-[10px] px-2 py-0.5 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 transition-colors"
                     >
-                      ⚡ llama-3.1-8b-instant
+                      ⚡ openai/gpt-oss-120b (Flagship 120B)
                     </button>
                     <button
                       type="button"
-                      onClick={() => setAiConfigForm(p => ({ ...p, model: 'llama-3.3-70b-versatile' }))}
+                      onClick={() => setAiConfigForm(p => ({ ...p, model: 'openai/gpt-oss-20b' }))}
                       className="text-[10px] px-2 py-0.5 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 transition-colors"
                     >
-                      🧠 llama-3.3-70b-versatile
+                      🚀 openai/gpt-oss-20b
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAiConfigForm(p => ({ ...p, model: 'allam-2-7b' }))}
+                      className="text-[10px] px-2 py-0.5 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 transition-colors"
+                    >
+                      🇸🇦 allam-2-7b (Arabic)
                     </button>
                   </div>
                 )}
