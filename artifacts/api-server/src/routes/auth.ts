@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { db } from '@workspace/db';
-import { users, organizations } from '@workspace/db';
+import { users, organizations, aiSettings } from '@workspace/db';
 import { eq } from 'drizzle-orm';
 import { SignJWT, jwtVerify } from 'jose';
 import { scryptSync, randomBytes, timingSafeEqual } from 'crypto';
@@ -122,6 +122,20 @@ router.post('/register', async (req, res) => {
       lastName: String(lastName),
       role: 'owner',
     }).returning();
+
+    // Automatically seed default AI Settings for the new tenant
+    await db.insert(aiSettings).values({
+      organizationId: org.id,
+      provider: 'ollama',
+      model: 'llama3',
+      baseUrl: 'http://localhost:11434',
+      systemPrompt: `You are a helpful customer support assistant for ${orgName}. Be concise, friendly, and professional.`,
+      temperature: '0.7',
+      maxTokens: 1000,
+      autoReply: false,
+      autoReplyConfidence: '0.8',
+    } as any).catch(() => {});
+
     const accessToken = await signToken(user.id, org.id, user.role);
     res.status(201).json({
       accessToken,

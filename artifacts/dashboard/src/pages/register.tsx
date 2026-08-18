@@ -50,21 +50,34 @@ export default function Register() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4">
-            <MessageSquare className="w-8 h-8 text-primary-foreground" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-600 mb-4 shadow-lg shadow-indigo-500/25">
+            <MessageSquare className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">SupportAI</h1>
-          <p className="text-muted-foreground">Create your account</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">SupportHub AI</h1>
+          <p className="text-muted-foreground">Register your Company Workspace</p>
         </div>
 
-        <div className="bg-card border border-card-border rounded-lg p-8">
+        <div className="bg-card border border-card-border rounded-xl p-8 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="organizationName">Company Name *</Label>
+              <Input
+                id="organizationName"
+                placeholder="e.g. Acme Corporation"
+                value={formData.organizationName}
+                onChange={(e) => handleChange('organizationName', e.target.value)}
+                required
+                disabled={register.isPending}
+                data-testid="input-organization-name"
+              />
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First name</Label>
+                <Label htmlFor="firstName">First name *</Label>
                 <Input
                   id="firstName"
-                  placeholder="Jordan"
+                  placeholder="John"
                   value={formData.firstName}
                   onChange={(e) => handleChange('firstName', e.target.value)}
                   required
@@ -73,10 +86,10 @@ export default function Register() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last name</Label>
+                <Label htmlFor="lastName">Last name *</Label>
                 <Input
                   id="lastName"
-                  placeholder="Chen"
+                  placeholder="Doe"
                   value={formData.lastName}
                   onChange={(e) => handleChange('lastName', e.target.value)}
                   required
@@ -87,24 +100,11 @@ export default function Register() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="organizationName">Organization name</Label>
-              <Input
-                id="organizationName"
-                placeholder="Acme Inc"
-                value={formData.organizationName}
-                onChange={(e) => handleChange('organizationName', e.target.value)}
-                required
-                disabled={register.isPending}
-                data-testid="input-organization-name"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Business Email *</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@company.com"
+                placeholder="owner@company.com"
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
                 required
@@ -114,7 +114,7 @@ export default function Register() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Password *</Label>
               <Input
                 id="password"
                 type="password"
@@ -129,12 +129,12 @@ export default function Register() {
 
             <Button
               type="submit"
-              className="w-full"
+              className="w-full h-11 text-base font-semibold"
               disabled={register.isPending}
               data-testid="button-submit"
             >
               {register.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Create account
+              Create Company Account
             </Button>
           </form>
 

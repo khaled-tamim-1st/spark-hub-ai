@@ -41,14 +41,14 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4">
-            <MessageSquare className="w-8 h-8 text-primary-foreground" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-600 mb-4 shadow-lg shadow-indigo-500/25">
+            <MessageSquare className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">SupportAI</h1>
-          <p className="text-muted-foreground">Sign in to your account</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">SupportHub AI</h1>
+          <p className="text-muted-foreground">Sign in to your company workspace</p>
         </div>
 
-        <div className="bg-card border border-card-border rounded-lg p-8">
+        <div className="bg-card border border-card-border rounded-xl p-8 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
