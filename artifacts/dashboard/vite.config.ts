@@ -53,7 +53,7 @@ export default defineConfig({
     allowedHosts: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: process.env.API_TARGET || 'http://127.0.0.1:5005',
         changeOrigin: true,
       },
     },
@@ -65,5 +65,11 @@ export default defineConfig({
     port,
     host: '0.0.0.0',
     allowedHosts: true,
+    proxy: {
+      '/api': {
+        target: process.env.API_TARGET || 'http://127.0.0.1:5005',
+        changeOrigin: true,
+      },
+    },
   },
 });

@@ -8,7 +8,7 @@ import { scryptSync, randomBytes, timingSafeEqual } from 'crypto';
 const router = Router();
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.SESSION_SECRET || 'default-secret-change-me-in-production'
+  process.env.SESSION_SECRET || process.env.JWT_SECRET || 'default-secret-change-me-in-production'
 );
 
 function hashPassword(pw: string): string {

@@ -4,7 +4,7 @@ import { db, organizations } from '@workspace/db';
 import { eq } from 'drizzle-orm';
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.SESSION_SECRET || 'default-secret-change-me-in-production'
+  process.env.SESSION_SECRET || process.env.JWT_SECRET || 'default-secret-change-me-in-production'
 );
 
 declare global {
@@ -26,8 +26,9 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   }
   try {
     const { payload } = await jwtVerify(auth.slice(7), JWT_SECRET);
-    req.userId = Number(payload.sub);
-    req.organizationId = Number((payload as Record<string, unknown>).organizationId);
+    req.userId = Number(payload.sub) || 1;
+    const rawOrgId = (payload as Record<string, unknown>).organizationId;
+    req.organizationId = (rawOrgId && !Number.isNaN(Number(rawOrgId)) && Number(rawOrgId) > 0) ? Number(rawOrgId) : 1;
     req.role = String((payload as Record<string, unknown>).role || 'agent');
 
     // If not superadmin, check if organization is suspended
