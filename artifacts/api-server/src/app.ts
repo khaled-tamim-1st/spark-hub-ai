@@ -37,10 +37,24 @@ app.use('/api/media', express.static(mediaDir, {
   immutable: true,
 }));
 
-app.get("/", (req, res) => {
-  res.json({ status: "ok", name: "SupportHub AI API Server", timestamp: new Date() });
-});
-
+// API Routes
 app.use("/api", router);
+
+// Serve dashboard static build files (SPA)
+const dashboardDist = path.join(process.cwd(), 'artifacts', 'dashboard', 'dist', 'public');
+app.use(express.static(dashboardDist));
+
+// Wildcard fallback for React Router SPA
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  const indexPath = path.join(dashboardDist, 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      res.json({ status: "ok", name: "SupportHub AI API Server", timestamp: new Date() });
+    }
+  });
+});
 
 export default app;
