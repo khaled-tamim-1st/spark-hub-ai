@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   adminApi, 
+  fetchWithAuth,
   OrganizationTenant, 
   CreateOrgPayload, 
   UpdateOrgPayload 
@@ -42,7 +43,8 @@ import {
   Zap, 
   RefreshCw,
   Sliders,
-  Bot
+  Bot,
+  Loader2
 } from 'lucide-react';
 import { formatDateTime } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -185,10 +187,35 @@ export default function AdminOrganizations() {
     autoReply: true,
   });
   const [loadingAi, setLoadingAi] = useState(false);
+  const [discoveredModels, setDiscoveredModels] = useState<string[]>([]);
+  const [fetchingModels, setFetchingModels] = useState(false);
+
+  const handleFetchModels = async () => {
+    if (!aiConfigForm.apiKey && aiConfigForm.provider !== 'ollama') {
+      toast({ title: 'API Key Required', description: 'Please enter an API key first.', variant: 'destructive' });
+      return;
+    }
+    setFetchingModels(true);
+    try {
+      const res = await fetchWithAuth<{ models: string[] }>('/api/ai-settings/fetch-models', {
+        method: 'POST',
+        body: JSON.stringify({ provider: aiConfigForm.provider, apiKey: aiConfigForm.apiKey }),
+      });
+      setDiscoveredModels(res.models || []);
+      if (res.models && res.models.length > 0) {
+        toast({ title: 'Models Discovered', description: `Found ${res.models.length} active models on your account!` });
+      }
+    } catch (err: any) {
+      toast({ title: 'Failed to fetch models', description: err.message, variant: 'destructive' });
+    } finally {
+      setFetchingModels(false);
+    }
+  };
 
   const handleOpenAiConfig = async (org: OrganizationTenant) => {
     setAiConfigOrg(org);
     setLoadingAi(true);
+    setDiscoveredModels([]);
     try {
       const data = await adminApi.getOrgAiSettings(org.id);
       setAiConfigForm({
@@ -809,36 +836,62 @@ export default function AdminOrganizations() {
               </div>
 
               <div className="space-y-2">
-                <Label>Model Name</Label>
-                <Input
-                  value={aiConfigForm.model}
-                  onChange={(e) => setAiConfigForm({ ...aiConfigForm, model: e.target.value })}
-                  placeholder="e.g. llama-3.1-8b-instant, llama3-70b-8192, gpt-4o-mini..."
-                  required
-                />
-                {aiConfigForm.provider === 'groq' && (
+                <div className="flex items-center justify-between">
+                  <Label>Model Name</Label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleFetchModels}
+                    disabled={fetchingModels}
+                    className="h-6 text-[11px] text-primary hover:text-primary px-2"
+                  >
+                    {fetchingModels ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Sparkles className="w-3 h-3 mr-1" />}
+                    Discover Live Models
+                  </Button>
+                </div>
+
+                {discoveredModels.length > 0 ? (
+                  <Select
+                    value={aiConfigForm.model}
+                    onValueChange={(v) => setAiConfigForm({ ...aiConfigForm, model: v })}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select an active model from your account" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60">
+                      {discoveredModels.map((m) => (
+                        <SelectItem key={m} value={m}>
+                          {m}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input
+                    value={aiConfigForm.model}
+                    onChange={(e) => setAiConfigForm({ ...aiConfigForm, model: e.target.value })}
+                    placeholder="e.g. llama-3.1-8b-instant, llama-3.3-70b-versatile, gpt-4o-mini..."
+                    required
+                  />
+                )}
+
+                {aiConfigForm.provider === 'groq' && discoveredModels.length === 0 && (
                   <div className="flex flex-wrap gap-1.5 pt-1">
-                    <span className="text-[10px] text-muted-foreground self-center mr-1">Recommended for Groq:</span>
+                    <span className="text-[10px] text-muted-foreground self-center mr-1">Recommended:</span>
                     <button
                       type="button"
                       onClick={() => setAiConfigForm(p => ({ ...p, model: 'llama-3.1-8b-instant' }))}
                       className="text-[10px] px-2 py-0.5 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 transition-colors"
                     >
-                      ⚡ llama-3.1-8b-instant (Fastest & Free)
+                      ⚡ llama-3.1-8b-instant
                     </button>
                     <button
                       type="button"
-                      onClick={() => setAiConfigForm(p => ({ ...p, model: 'llama3-70b-8192' }))}
+                      onClick={() => setAiConfigForm(p => ({ ...p, model: 'llama-3.3-70b-versatile' }))}
                       className="text-[10px] px-2 py-0.5 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 transition-colors"
                     >
-                      🧠 llama3-70b-8192
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAiConfigForm(p => ({ ...p, model: 'mixtral-8x7b-32768' }))}
-                      className="text-[10px] px-2 py-0.5 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 transition-colors"
-                    >
-                      mixtral-8x7b-32768
+                      🧠 llama-3.3-70b-versatile
                     </button>
                   </div>
                 )}

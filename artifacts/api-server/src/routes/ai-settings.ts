@@ -139,4 +139,59 @@ router.post('/test', requireAuth, async (req, res) => {
   }
 });
 
+// POST /api/ai-settings/fetch-models - Query provider for available models
+router.post('/fetch-models', requireAuth, async (req, res) => {
+  try {
+    const { provider = 'groq', apiKey } = req.body ?? {};
+    
+    // Look up API key
+    let key = (apiKey && !apiKey.includes('••••')) ? String(apiKey).trim() : '';
+    if (!key) {
+      const [settings] = await db.select().from(aiSettings).where(eq(aiSettings.organizationId, req.organizationId)).limit(1);
+      key = (settings?.apiKey || '').trim();
+    }
+    if (!key) {
+      const allRows = await db.select().from(aiSettings);
+      const configured = allRows.find(r => r.apiKey && r.apiKey.trim().length > 10 && !r.apiKey.includes('••••'));
+      key = (configured?.apiKey || '').trim();
+    }
+
+    if (!key && provider !== 'ollama') {
+      res.status(400).json({ error: 'API key is required to fetch models' });
+      return;
+    }
+
+    let url = 'https://api.groq.com/openai/v1/models';
+    if (provider === 'openai') url = 'https://api.openai.com/v1/models';
+    else if (provider === 'deepseek') url = 'https://api.deepseek.com/models';
+    else if (provider === 'openrouter') url = 'https://openrouter.ai/api/v1/models';
+    else if (provider === 'ollama') url = 'http://localhost:11434/api/tags';
+
+    const resp = await fetch(url, {
+      headers: {
+        ...(key ? { Authorization: `Bearer ${key}` } : {}),
+      },
+    });
+
+    if (!resp.ok) {
+      const text = await resp.text();
+      res.status(resp.status).json({ error: `Provider returned status ${resp.status}: ${text}` });
+      return;
+    }
+
+    const data = await resp.json() as any;
+    let modelList: string[] = [];
+    if (provider === 'ollama' && Array.isArray(data.models)) {
+      modelList = data.models.map((m: any) => m.name);
+    } else if (Array.isArray(data.data)) {
+      modelList = data.data.map((m: any) => m.id);
+    }
+
+    res.json({ models: modelList });
+  } catch (err: any) {
+    console.error('Fetch models error:', err);
+    res.status(500).json({ error: err.message || 'Failed to fetch models' });
+  }
+});
+
 export default router;
