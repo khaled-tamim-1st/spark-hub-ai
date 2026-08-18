@@ -18,7 +18,7 @@ router.get('/meta/oauth-config', requireAuth, async (req, res) => {
   });
 });
 
-// POST /api/channels/meta/list-pages - Fetch pages from Facebook user access token
+// POST /api/channels/meta/list-pages - Fetch pages from Facebook user or page access token
 router.post('/meta/list-pages', requireAuth, async (req, res) => {
   try {
     const { userAccessToken } = req.body ?? {};
@@ -27,35 +27,68 @@ router.post('/meta/list-pages', requireAuth, async (req, res) => {
       return;
     }
 
+    const token = String(userAccessToken).trim();
+
+    // 1. Try /me/accounts (works for User Access Tokens)
     const fbRes = await fetch(
-      `https://graph.facebook.com/v19.0/me/accounts?fields=id,name,access_token,category,picture,instagram_business_account{id,username,name,profile_picture_url}&access_token=${userAccessToken}`
+      `https://graph.facebook.com/v19.0/me/accounts?fields=id,name,access_token,category,picture,instagram_business_account{id,username,name,profile_picture_url}&access_token=${token}`
     );
 
-    if (!fbRes.ok) {
-      const err = await fbRes.json().catch(() => ({}));
-      console.error('[Meta OAuth] Failed to fetch accounts:', err);
-      res.status(400).json({ error: 'Failed to retrieve Facebook pages with this token', details: err });
+    if (fbRes.ok) {
+      const data = await fbRes.json() as { data?: Array<any> };
+      const pages = (data.data || []).map((p) => ({
+        id: p.id,
+        name: p.name,
+        accessToken: p.access_token,
+        category: p.category,
+        picture: p.picture?.data?.url,
+        instagram: p.instagram_business_account
+          ? {
+              id: p.instagram_business_account.id,
+              username: p.instagram_business_account.username,
+              name: p.instagram_business_account.name,
+              picture: p.instagram_business_account.profile_picture_url,
+            }
+          : null,
+      }));
+      res.json({ pages });
       return;
     }
 
-    const data = await fbRes.json() as { data?: Array<any> };
-    const pages = (data.data || []).map((p) => ({
-      id: p.id,
-      name: p.name,
-      accessToken: p.access_token,
-      category: p.category,
-      picture: p.picture?.data?.url,
-      instagram: p.instagram_business_account
-        ? {
-            id: p.instagram_business_account.id,
-            username: p.instagram_business_account.username,
-            name: p.instagram_business_account.name,
-            picture: p.instagram_business_account.profile_picture_url,
-          }
-        : null,
-    }));
+    // 2. Fallback: Try /me (works directly for Page Access Tokens)
+    const meRes = await fetch(
+      `https://graph.facebook.com/v19.0/me?fields=id,name,picture,instagram_business_account{id,username,name,profile_picture_url}&access_token=${token}`
+    );
 
-    res.json({ pages });
+    if (meRes.ok) {
+      const meData = await meRes.json() as any;
+      if (meData.id) {
+        console.log(`[Meta OAuth] Successfully resolved Page Access Token directly for Page: ${meData.name} (${meData.id})`);
+        res.json({
+          pages: [
+            {
+              id: meData.id,
+              name: meData.name,
+              accessToken: token,
+              picture: meData.picture?.data?.url,
+              instagram: meData.instagram_business_account
+                ? {
+                    id: meData.instagram_business_account.id,
+                    username: meData.instagram_business_account.username,
+                    name: meData.instagram_business_account.name,
+                    picture: meData.instagram_business_account.profile_picture_url,
+                  }
+                : null,
+            },
+          ],
+        });
+        return;
+      }
+    }
+
+    const err = await fbRes.json().catch(() => ({}));
+    console.error('[Meta OAuth] Failed to fetch accounts:', err);
+    res.status(400).json({ error: 'Failed to retrieve Facebook page with this token. Please make sure the token is valid.', details: err });
   } catch (err: any) {
     console.error('[Meta OAuth] Error listing pages:', err);
     res.status(500).json({ error: 'Internal server error' });
