@@ -44,10 +44,11 @@ app.use("/api", router);
 const dashboardDist = path.join(process.cwd(), 'artifacts', 'dashboard', 'dist', 'public');
 app.use(express.static(dashboardDist));
 
-// Wildcard fallback for React Router SPA
-app.get('*', (req, res, next) => {
+// Fallback for React Router SPA (Express 5 compatible)
+app.use((req, res) => {
   if (req.path.startsWith('/api')) {
-    return next();
+    res.status(404).json({ error: 'API route not found' });
+    return;
   }
   const indexPath = path.join(dashboardDist, 'index.html');
   res.sendFile(indexPath, (err) => {
