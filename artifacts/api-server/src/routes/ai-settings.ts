@@ -79,9 +79,9 @@ router.put('/', requireAuth, async (req, res) => {
     
     let row;
     if (existing) {
-      [row] = await db.update(aiSettings).set(values).where(eq(aiSettings.id, existing.id)).returning();
+      [row] = await db.update(aiSettings).set(values as any).where(eq(aiSettings.id, existing.id)).returning();
     } else {
-      [row] = await db.insert(aiSettings).values(values).returning();
+      [row] = await db.insert(aiSettings).values(values as any).returning();
     }
 
     res.json({
