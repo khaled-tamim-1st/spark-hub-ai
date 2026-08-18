@@ -35,6 +35,17 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
+// ─── Organization Memberships (Many-to-Many User <-> Organizations) ───────────
+export const organizationMembers = pgTable('organization_members', {
+  id: serial('id').primaryKey(),
+  organizationId: integer('organization_id')
+    .references(() => organizations.id, { onDelete: 'cascade' }).notNull(),
+  userId: integer('user_id')
+    .references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  role: varchar('role', { length: 50 }).default('agent').notNull(), // 'owner' | 'admin' | 'agent' | 'viewer'
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
 // ─── Channels ────────────────────────────────────────────────────────────────
 export const channels = pgTable('channels', {
   id: serial('id').primaryKey(),

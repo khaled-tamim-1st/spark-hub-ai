@@ -80,21 +80,18 @@ export default function Login() {
 
             <Button
               type="submit"
-              className="w-full"
+              className="w-full h-11 text-base font-semibold"
               disabled={login.isPending}
               data-testid="button-submit"
             >
               {login.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Sign in
+              Sign in to Workspace
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              Don't have an account?{' '}
-              <Link href="/register" className="text-primary hover:underline font-medium" data-testid="link-register">
-                Sign up
-              </Link>
+          <div className="mt-6 text-center pt-2 border-t border-border/50">
+            <p className="text-xs text-muted-foreground">
+              SupportHub AI Enterprise Platform &bull; Accounts are provisioned centrally by your administrator.
             </p>
           </div>
         </div>

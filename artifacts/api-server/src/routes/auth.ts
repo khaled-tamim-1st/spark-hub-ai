@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '@workspace/db';
-import { users, organizations, aiSettings } from '@workspace/db';
-import { eq } from 'drizzle-orm';
+import { users, organizations, organizationMembers, aiSettings } from '@workspace/db';
+import { eq, and, sql } from 'drizzle-orm';
 import { SignJWT, jwtVerify } from 'jose';
 import { scryptSync, randomBytes, timingSafeEqual } from 'crypto';
 
@@ -16,22 +16,68 @@ function hashPassword(pw: string): string {
   return scryptSync(pw, salt, 64).toString('hex') + '.' + salt;
 }
 
-function verifyPassword(pw: string, stored: string): boolean {
-  const [h, s] = stored.split('.');
-  if (!h || !s) return false;
-  try {
-    return timingSafeEqual(Buffer.from(h, 'hex'), scryptSync(pw, s, 64) as Buffer);
-  } catch {
-    return false;
-  }
+function verifyPassword(pw: string, hash: string): boolean {
+  const [storedHash, salt] = hash.split('.');
+  if (!storedHash || !salt) return false;
+  const computed = scryptSync(pw, salt, 64);
+  const stored = Buffer.from(storedHash, 'hex');
+  return stored.length === computed.length && timingSafeEqual(stored, computed);
 }
 
-async function signToken(userId: number, orgId: number, role: string): Promise<string> {
+export async function signToken(userId: number, orgId: number, role: string) {
   return new SignJWT({ sub: String(userId), organizationId: orgId, role })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')
     .sign(JWT_SECRET);
+}
+
+async function getUserOrganizations(userId: number, isSuperAdmin: boolean) {
+  if (isSuperAdmin) {
+    const allOrgs = await db.select().from(organizations);
+    return allOrgs.map(o => ({
+      id: o.id,
+      name: o.name,
+      slug: o.slug,
+      logoUrl: o.logoUrl,
+      plan: o.plan,
+      status: o.status,
+      role: 'superadmin',
+    }));
+  }
+
+  let list = await db.select({
+    id: organizations.id,
+    name: organizations.name,
+    slug: organizations.slug,
+    logoUrl: organizations.logoUrl,
+    plan: organizations.plan,
+    status: organizations.status,
+    role: organizationMembers.role,
+  })
+  .from(organizationMembers)
+  .innerJoin(organizations, eq(organizations.id, organizationMembers.organizationId))
+  .where(eq(organizationMembers.userId, userId));
+
+  if (list.length === 0) {
+    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    if (user && user.organizationId) {
+      const [o] = await db.select().from(organizations).where(eq(organizations.id, user.organizationId)).limit(1);
+      if (o) {
+        list = [{
+          id: o.id,
+          name: o.name,
+          slug: o.slug,
+          logoUrl: o.logoUrl,
+          plan: o.plan,
+          status: o.status,
+          role: user.role,
+        }];
+      }
+    }
+  }
+
+  return list;
 }
 
 const userPublicFields = {
@@ -48,7 +94,7 @@ const userPublicFields = {
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body ?? {};
+    const { email, password, organizationId } = req.body ?? {};
     if (!email || !password) {
       res.status(400).json({ error: 'Email and password are required' });
       return;
@@ -60,101 +106,113 @@ router.post('/login', async (req, res) => {
       return;
     }
 
-    // Check organization status if not superadmin
-    let org = null;
-    if (user.organizationId) {
-      const [o] = await db.select().from(organizations).where(eq(organizations.id, user.organizationId)).limit(1);
-      org = o;
-      if (user.role !== 'superadmin' && org && org.status === 'suspended') {
-        res.status(403).json({ error: 'Your organization account is suspended. Please contact platform support.' });
-        return;
-      }
+    const isSuperAdmin = user.role === 'superadmin';
+    const userOrgs = await getUserOrganizations(user.id, isSuperAdmin);
+
+    // Determine active organization
+    let activeOrg = organizationId 
+      ? userOrgs.find(o => o.id === Number(organizationId))
+      : userOrgs.find(o => o.id === user.organizationId) || userOrgs[0];
+
+    if (!activeOrg && userOrgs.length > 0) {
+      activeOrg = userOrgs[0];
     }
 
-    const accessToken = await signToken(user.id, user.organizationId, user.role);
+    const activeOrgId = activeOrg ? activeOrg.id : (user.organizationId || 1);
+    const activeRole = isSuperAdmin ? 'superadmin' : (activeOrg?.role || user.role || 'agent');
+
+    if (!isSuperAdmin && activeOrg && activeOrg.status === 'suspended') {
+      res.status(403).json({ error: 'This organization account is currently suspended. Please contact platform support.' });
+      return;
+    }
+
+    const accessToken = await signToken(user.id, activeOrgId, activeRole);
+
     res.json({
       accessToken,
       user: {
-        id: user.id, email: user.email,
-        firstName: user.firstName, lastName: user.lastName,
-        role: user.role, avatarUrl: user.avatarUrl,
-        organizationId: user.organizationId,
-        organization: org,
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: activeRole,
+        avatarUrl: user.avatarUrl,
+        organizationId: activeOrgId,
+        organization: activeOrg || null,
       },
+      organizations: userOrgs,
     });
   } catch (err) {
-    console.error(err);
+    console.error('Login error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// POST /api/auth/register
-router.post('/register', async (req, res) => {
+// POST /api/auth/switch-org - Switch active company/organization
+router.post('/switch-org', async (req, res) => {
   try {
-    const { email, password, firstName, lastName, organizationName } = req.body ?? {};
-    if (!email || !password || !firstName || !lastName) {
-      res.status(400).json({ error: 'All fields are required' });
+    const auth = req.headers.authorization;
+    if (!auth?.startsWith('Bearer ')) {
+      res.status(401).json({ error: 'Unauthorized' });
       return;
     }
-    const [existing] = await db.select({ id: users.id }).from(users)
-      .where(eq(users.email, String(email).toLowerCase())).limit(1);
-    if (existing) {
-      res.status(409).json({ error: 'Email already in use' });
+    const { payload } = await jwtVerify(auth.slice(7), JWT_SECRET);
+    const userId = Number(payload.sub);
+    const targetOrgId = Number(req.body.organizationId);
+
+    if (!targetOrgId || Number.isNaN(targetOrgId)) {
+      res.status(400).json({ error: 'organizationId is required' });
       return;
     }
-    const orgName = organizationName || `${firstName}'s Workspace`;
-    const slug = orgName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-      + '-' + Math.random().toString(36).slice(2, 7);
-    const [org] = await db.insert(organizations).values({ 
-      name: orgName, 
-      slug,
-      plan: 'free',
-      status: 'active',
-      maxUsers: 5,
-      maxChannels: 2,
-      aiEnabled: true,
-    }).returning();
-    const [user] = await db.insert(users).values({
-      organizationId: org.id,
-      email: String(email).toLowerCase(),
-      passwordHash: hashPassword(String(password)),
-      firstName: String(firstName),
-      lastName: String(lastName),
-      role: 'owner',
-    }).returning();
 
-    // Automatically seed default AI Settings for the new tenant
-    await db.insert(aiSettings).values({
-      organizationId: org.id,
-      provider: 'ollama',
-      model: 'llama3',
-      baseUrl: 'http://localhost:11434',
-      systemPrompt: `You are a helpful customer support assistant for ${orgName}. Be concise, friendly, and professional.`,
-      temperature: '0.7',
-      maxTokens: 1000,
-      autoReply: false,
-      autoReplyConfidence: '0.8',
-    } as any).catch(() => {});
+    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
 
-    const accessToken = await signToken(user.id, org.id, user.role);
-    res.status(201).json({
+    const isSuperAdmin = user.role === 'superadmin';
+    const userOrgs = await getUserOrganizations(userId, isSuperAdmin);
+
+    const targetOrg = userOrgs.find(o => o.id === targetOrgId);
+    if (!targetOrg) {
+      res.status(403).json({ error: 'You are not a member of this company' });
+      return;
+    }
+
+    if (!isSuperAdmin && targetOrg.status === 'suspended') {
+      res.status(403).json({ error: 'This company account is currently suspended.' });
+      return;
+    }
+
+    const targetRole = isSuperAdmin ? 'superadmin' : (targetOrg.role || 'agent');
+    const accessToken = await signToken(user.id, targetOrg.id, targetRole);
+
+    res.json({
       accessToken,
       user: {
-        id: user.id, email: user.email,
-        firstName: user.firstName, lastName: user.lastName,
-        role: user.role, avatarUrl: user.avatarUrl,
-        organizationId: user.organizationId,
-        organization: org,
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: targetRole,
+        avatarUrl: user.avatarUrl,
+        organizationId: targetOrg.id,
+        organization: targetOrg,
       },
+      organizations: userOrgs,
     });
-  } catch (err: any) {
-    console.error(err);
-    if (err?.code === '23505') {
-      res.status(409).json({ error: 'Email already in use' });
-      return;
-    }
-    res.status(500).json({ error: 'Internal server error' });
+  } catch (err) {
+    console.error('Switch org error:', err);
+    res.status(401).json({ error: 'Invalid or expired session' });
   }
+});
+
+// POST /api/auth/register - Closed self-registration
+router.post('/register', async (_req, res) => {
+  res.status(403).json({
+    error: 'Self-registration is closed. Please contact the platform administrator to provision your company account.',
+  });
 });
 
 // GET /api/auth/me
@@ -164,17 +222,25 @@ router.get('/me', async (req, res) => {
     if (!auth?.startsWith('Bearer ')) { res.status(401).json({ error: 'Unauthorized' }); return; }
     const { payload } = await jwtVerify(auth.slice(7), JWT_SECRET);
     const userId = Number(payload.sub);
+    const currentOrgId = Number(payload.organizationId) || 1;
+    const currentRole = String(payload.role || 'agent');
+
     const [user] = await db.select(userPublicFields).from(users)
       .where(eq(users.id, userId)).limit(1);
     if (!user) { res.status(404).json({ error: 'User not found' }); return; }
     
-    let org = null;
-    if (user.organizationId) {
-      const [o] = await db.select().from(organizations).where(eq(organizations.id, user.organizationId)).limit(1);
-      org = o;
-    }
+    const isSuperAdmin = user.role === 'superadmin';
+    const userOrgs = await getUserOrganizations(userId, isSuperAdmin);
 
-    res.json({ ...user, organization: org });
+    let activeOrg = userOrgs.find(o => o.id === currentOrgId) || userOrgs[0] || null;
+
+    res.json({
+      ...user,
+      role: isSuperAdmin ? 'superadmin' : currentRole,
+      organizationId: activeOrg ? activeOrg.id : currentOrgId,
+      organization: activeOrg,
+      organizations: userOrgs,
+    });
   } catch {
     res.status(401).json({ error: 'Invalid token' });
   }
@@ -187,10 +253,10 @@ router.post('/refresh', async (req, res) => {
     if (!auth?.startsWith('Bearer ')) { res.status(401).json({ error: 'Unauthorized' }); return; }
     const { payload } = await jwtVerify(auth.slice(7), JWT_SECRET);
     const userId = Number(payload.sub);
-    const [user] = await db.select({ role: users.role, organizationId: users.organizationId })
-      .from(users).where(eq(users.id, userId)).limit(1);
-    if (!user) { res.status(404).json({ error: 'User not found' }); return; }
-    res.json({ accessToken: await signToken(userId, user.organizationId, user.role) });
+    const orgId = Number(payload.organizationId) || 1;
+    const role = String(payload.role || 'agent');
+
+    res.json({ accessToken: await signToken(userId, orgId, role) });
   } catch {
     res.status(401).json({ error: 'Invalid token' });
   }

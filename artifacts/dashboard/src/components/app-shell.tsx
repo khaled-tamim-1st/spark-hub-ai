@@ -1,6 +1,6 @@
 import { ReactNode, useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
   LayoutDashboard, 
   Inbox, 
@@ -17,12 +17,24 @@ import {
   Shield,
   Layers,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ChevronsUpDown,
+  Check,
+  Plus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { clearToken } from '@/lib/auth';
+import { clearToken, setToken } from '@/lib/auth';
 import { adminApi } from '@/lib/admin-api';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface AppShellProps {
   children: ReactNode;
@@ -66,6 +78,8 @@ export function AppShell({ children }: AppShellProps) {
   const [location, setLocation] = useLocation();
   const [isPinned, setIsPinned] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -74,10 +88,24 @@ export function AppShell({ children }: AppShellProps) {
   });
 
   const isSuperAdmin = user?.role === 'superadmin';
+  const organizationsList = user?.organizations || (user?.organization ? [user.organization] : []);
 
   const handleLogout = () => {
     clearToken();
     setLocation('/login');
+  };
+
+  const handleSwitchOrg = async (orgId: number, orgName: string) => {
+    if (user?.organizationId === orgId || user?.organization?.id === orgId) return;
+    try {
+      const res = await adminApi.switchOrganization(orgId);
+      setToken(res.accessToken);
+      queryClient.clear();
+      toast({ title: 'Workspace switched', description: `Now managing ${orgName}` });
+      window.location.reload();
+    } catch (e: any) {
+      toast({ title: 'Failed to switch workspace', description: e.message, variant: 'destructive' });
+    }
   };
 
   const isExpanded = isPinned || isHovered;
@@ -91,7 +119,7 @@ export function AppShell({ children }: AppShellProps) {
           "flex-shrink-0 bg-sidebar border-r border-sidebar-border flex flex-col relative z-20",
           "transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
         )}
-        style={{ width: isExpanded ? '220px' : '56px' }}
+        style={{ width: isExpanded ? '230px' : '56px' }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -107,13 +135,85 @@ export function AppShell({ children }: AppShellProps) {
             )}
           >
             <span className="font-bold text-sidebar-foreground text-sm tracking-tight leading-tight">SupportHub AI</span>
-            {user?.organization && (
-              <span className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wider truncate max-w-[120px]">
-                {user.organization.name}
-              </span>
-            )}
+            <span className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wider">Enterprise</span>
           </div>
         </div>
+
+        {/* Workspace / Company Switcher */}
+        {isExpanded && organizationsList.length > 0 && (
+          <div className="p-2 border-b border-sidebar-border shrink-0">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="w-full flex items-center justify-between p-2 rounded-lg bg-sidebar-accent/50 hover:bg-sidebar-accent border border-sidebar-border/60 text-left transition-all group"
+                  title="Switch Company Workspace"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-6 h-6 rounded bg-primary/10 text-primary flex items-center justify-center shrink-0 font-bold text-xs">
+                      <Building2 className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="truncate">
+                      <div className="text-xs font-semibold text-sidebar-foreground truncate leading-none">
+                        {user?.organization?.name || 'Company Workspace'}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground capitalize mt-0.5 leading-none">
+                        {isSuperAdmin ? 'SuperAdmin' : (user?.role || 'Member')}
+                      </div>
+                    </div>
+                  </div>
+                  <ChevronsUpDown className="w-3.5 h-3.5 text-muted-foreground group-hover:text-sidebar-foreground shrink-0 ml-1" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56 p-1.5 shadow-xl border-border/80 z-50">
+                <DropdownMenuLabel className="text-[10px] uppercase font-bold text-muted-foreground px-2 py-1 tracking-wider">
+                  Company Workspaces ({organizationsList.length})
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <div className="max-h-56 overflow-y-auto space-y-0.5">
+                  {organizationsList.map((org: any) => {
+                    const isSelected = (user?.organizationId === org.id) || (user?.organization?.id === org.id);
+                    return (
+                      <DropdownMenuItem
+                        key={org.id}
+                        onClick={() => handleSwitchOrg(org.id, org.name)}
+                        className={cn(
+                          "flex items-center justify-between px-2.5 py-2 rounded-md cursor-pointer text-xs",
+                          isSelected && "bg-primary/10 text-primary font-semibold"
+                        )}
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                          <Building2 className="w-4 h-4 text-muted-foreground shrink-0" />
+                          <div className="truncate">
+                            <span className="truncate block font-medium">{org.name}</span>
+                            <span className="text-[10px] text-muted-foreground capitalize block">
+                              {org.role || 'Member'} • {org.plan || 'starter'}
+                            </span>
+                          </div>
+                        </div>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-primary shrink-0 ml-1" />}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </div>
+                {isSuperAdmin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/admin/organizations"
+                        className="flex items-center gap-2 px-2.5 py-2 text-xs text-amber-600 font-medium cursor-pointer"
+                      >
+                        <Shield className="w-4 h-4" />
+                        Manage All Companies
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
         
         <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4 space-y-6 scrollbar-thin">
           

@@ -129,44 +129,78 @@ router.post('/organizations', async (req, res) => {
       ownerPassword,
     } = req.body ?? {};
 
-    if (!name || !ownerEmail || !ownerPassword || !ownerFirstName || !ownerLastName) {
-      res.status(400).json({ error: 'Organization name and owner credentials are required' });
+    if (!name || !ownerEmail) {
+      res.status(400).json({ error: 'Organization name and owner email are required' });
       return;
     }
 
-    // Check if email already exists
-    const [existingUser] = await db.select({ id: users.id })
-      .from(users).where(eq(users.email, String(ownerEmail).toLowerCase())).limit(1);
-    if (existingUser) {
-      res.status(409).json({ error: 'Owner email is already registered' });
-      return;
-    }
+    const cleanEmail = String(ownerEmail).trim().toLowerCase();
+
+    // Check if user already exists
+    const [existingUser] = await db.select()
+      .from(users).where(eq(users.email, cleanEmail)).limit(1);
 
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
       + '-' + Math.random().toString(36).slice(2, 7);
 
     const [org] = await db.insert(organizations).values({
-      name: String(name),
+      name: String(name).trim(),
       slug,
-      plan: String(plan),
-      status: String(status),
+      plan: String(plan || 'starter'),
+      status: String(status || 'active'),
       maxUsers: Number(maxUsers) || 5,
       maxChannels: Number(maxChannels) || 2,
       aiEnabled: Boolean(aiEnabled),
       notes: notes ? String(notes) : undefined,
     }).returning();
 
-    const [owner] = await db.insert(users).values({
-      organizationId: org.id,
-      email: String(ownerEmail).toLowerCase(),
-      passwordHash: hashPassword(String(ownerPassword)),
-      firstName: String(ownerFirstName),
-      lastName: String(ownerLastName),
-      role: 'owner',
-    }).returning();
+    let ownerRecord: any;
 
-    const { passwordHash: _, ...safeOwner } = owner;
-    res.status(201).json({ organization: org, owner: safeOwner });
+    if (existingUser) {
+      ownerRecord = existingUser;
+    } else {
+      const userPw = ownerPassword || 'Admin@123456';
+      const [newOwner] = await db.insert(users).values({
+        organizationId: org.id,
+        email: cleanEmail,
+        passwordHash: hashPassword(String(userPw)),
+        firstName: String(ownerFirstName || 'Company').trim(),
+        lastName: String(ownerLastName || 'Admin').trim(),
+        role: 'owner',
+      }).returning();
+      ownerRecord = newOwner;
+    }
+
+    // Link owner to organization in organization_members
+    await db.execute(sql`
+      INSERT INTO organization_members (organization_id, user_id, role)
+      VALUES (${org.id}, ${ownerRecord.id}, 'owner')
+      ON CONFLICT (organization_id, user_id)
+      DO UPDATE SET role = 'owner';
+    `);
+
+    // Seed default AI Settings for the new organization
+    await db.insert(aiSettings).values({
+      organizationId: org.id,
+      provider: 'ollama',
+      model: 'llama3',
+      baseUrl: 'http://localhost:11434',
+      systemPrompt: `You are an AI customer support assistant for ${org.name}. Be polite, professional, and helpful.`,
+      temperature: '0.7',
+      maxTokens: 1000,
+      autoReply: false,
+      autoReplyConfidence: '0.8',
+    } as any).catch(() => {});
+
+    const { passwordHash: _, ...safeOwner } = ownerRecord;
+    res.status(201).json({ 
+      organization: org, 
+      owner: safeOwner,
+      isExistingUser: !!existingUser,
+      message: existingUser 
+        ? `Organization created and assigned to existing user (${cleanEmail}).`
+        : `Organization created and new owner credentials generated.`
+    });
   } catch (err: any) {
     console.error('Admin create organization error:', err);
     res.status(500).json({ error: 'Internal server error' });

@@ -1,7 +1,6 @@
 import { Router } from 'express';
-import { db } from '@workspace/db';
-import { users, organizations } from '@workspace/db';
-import { eq, and, desc } from 'drizzle-orm';
+import { db, users, organizations, organizationMembers } from '@workspace/db';
+import { eq, and, desc, sql } from 'drizzle-orm';
 import { scryptSync, randomBytes } from 'crypto';
 import { requireAuth } from '../middlewares/auth.js';
 
@@ -20,10 +19,30 @@ const publicFields = {
 
 router.get('/', requireAuth, async (req, res) => {
   try {
-    const rows = await db.select(publicFields).from(users)
+    const directUsers = await db.select(publicFields).from(users)
       .where(and(eq(users.organizationId, req.organizationId), eq(users.isActive, true)))
       .orderBy(desc(users.createdAt));
-    res.json(rows);
+
+    const memberRows = await db.select({
+      id: users.id,
+      email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      role: organizationMembers.role,
+      avatarUrl: users.avatarUrl,
+      isActive: users.isActive,
+      organizationId: organizationMembers.organizationId,
+      createdAt: organizationMembers.createdAt,
+    })
+    .from(organizationMembers)
+    .innerJoin(users, eq(users.id, organizationMembers.userId))
+    .where(and(eq(organizationMembers.organizationId, req.organizationId), eq(users.isActive, true)));
+
+    const map = new Map<number, any>();
+    for (const u of directUsers) map.set(u.id, u);
+    for (const m of memberRows) map.set(m.id, { ...m });
+
+    res.json(Array.from(map.values()));
   } catch (err) { console.error(err); res.status(500).json({ error: 'Internal server error' }); }
 });
 
@@ -40,9 +59,11 @@ router.get('/:id', requireAuth, async (req, res) => {
 router.post('/', requireAuth, async (req, res) => {
   try {
     const { email, password, firstName, lastName, role = 'agent' } = req.body ?? {};
-    if (!email || !password || !firstName || !lastName) {
-      res.status(400).json({ error: 'All fields are required' }); return;
+    if (!email || !firstName || !lastName) {
+      res.status(400).json({ error: 'First name, last name, and email are required' }); return;
     }
+
+    const cleanEmail = String(email).trim().toLowerCase();
 
     // Check organization user limits
     const [org] = await db.select({ maxUsers: organizations.maxUsers })
@@ -50,30 +71,53 @@ router.post('/', requireAuth, async (req, res) => {
       .where(eq(organizations.id, req.organizationId))
       .limit(1);
 
-    const activeUsers = await db.select({ id: users.id })
-      .from(users)
-      .where(and(eq(users.organizationId, req.organizationId), eq(users.isActive, true)));
+    const [currentMembersCount] = await db.select({ count: sql<number>`count(*)::int` })
+      .from(organizationMembers)
+      .where(eq(organizationMembers.organizationId, req.organizationId));
 
-    if (org && activeUsers.length >= org.maxUsers) {
+    if (org && (currentMembersCount?.count ?? 0) >= org.maxUsers) {
       res.status(400).json({ 
-        error: `User limit of ${org.maxUsers} reached for your plan. Please upgrade your organization subscription.` 
+        error: `User limit of ${org.maxUsers} reached for this company. Please upgrade the subscription plan.` 
       });
       return;
     }
 
-    const [row] = await db.insert(users).values({
-      organizationId: req.organizationId,
-      email: String(email).toLowerCase(),
-      passwordHash: hashPassword(String(password)),
-      firstName: String(firstName),
-      lastName: String(lastName),
-      role: String(role),
-    }).returning();
-    const { passwordHash: _, ...safe } = row;
-    res.status(201).json(safe);
+    // Check if user exists globally
+    const [existingUser] = await db.select().from(users)
+      .where(eq(users.email, cleanEmail)).limit(1);
+
+    let targetUserId: number;
+    let finalUser: any;
+
+    if (existingUser) {
+      targetUserId = existingUser.id;
+      finalUser = existingUser;
+    } else {
+      const userPw = password || 'User@123456';
+      const [newUser] = await db.insert(users).values({
+        organizationId: req.organizationId,
+        email: cleanEmail,
+        passwordHash: hashPassword(String(userPw)),
+        firstName: String(firstName).trim(),
+        lastName: String(lastName).trim(),
+        role: String(role),
+      }).returning();
+      targetUserId = newUser.id;
+      finalUser = newUser;
+    }
+
+    // Upsert into organization_members
+    await db.execute(sql`
+      INSERT INTO organization_members (organization_id, user_id, role)
+      VALUES (${req.organizationId}, ${targetUserId}, ${String(role)})
+      ON CONFLICT (organization_id, user_id)
+      DO UPDATE SET role = EXCLUDED.role;
+    `);
+
+    const { passwordHash: _, ...safe } = finalUser;
+    res.status(201).json({ ...safe, role: String(role) });
   } catch (err: any) {
     console.error(err);
-    if (err?.code === '23505') { res.status(409).json({ error: 'Email already in use' }); return; }
     res.status(500).json({ error: 'Internal server error' });
   }
 });

@@ -112,6 +112,11 @@ export const adminApi = {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
+  switchOrganization: (organizationId: number) =>
+    fetchWithAuth<{ accessToken: string; user: any; organizations: any[] }>('/api/auth/switch-org', {
+      method: 'POST',
+      body: JSON.stringify({ organizationId }),
+    }),
   getMe: () =>
     fetchWithAuth<any>('/api/auth/me'),
 };
