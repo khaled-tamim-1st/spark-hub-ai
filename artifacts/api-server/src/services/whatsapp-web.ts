@@ -290,6 +290,14 @@ async function handleIncomingMessage(channelId: number, socket: WASocket, msg: W
 
       if (aiReply) {
         console.log(`[WhatsApp AI] Sending auto-reply to ${remoteJid}...`);
+        
+        // Human-like behavior: Send "Typing..." presence for 1.2s before reply to prevent spam detection
+        try {
+          await socket.sendPresenceUpdate('composing', remoteJid);
+          await new Promise(r => setTimeout(r, 1200));
+          await socket.sendPresenceUpdate('paused', remoteJid);
+        } catch {}
+
         await socket.sendMessage(remoteJid, { text: aiReply });
 
         await db.insert(messages).values({
