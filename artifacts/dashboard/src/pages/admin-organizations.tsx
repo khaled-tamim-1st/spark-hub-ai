@@ -828,20 +828,20 @@ export default function AdminOrganizations() {
                 />
               </div>
 
-              {aiConfigForm.provider !== 'ollama' && (
-                <div className="space-y-2">
-                  <Label>API Key (Secret Token)</Label>
-                  <Input
-                    type="password"
-                    value={aiConfigForm.apiKey}
-                    onChange={(e) => setAiConfigForm({ ...aiConfigForm, apiKey: e.target.value })}
-                    placeholder="sk-..."
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    This key will be kept confidential on the server and hidden from the tenant company.
-                  </p>
-                </div>
-              )}
+              <div className="space-y-2">
+                <Label>API Key (Secret Token / مفتاح الـ API)</Label>
+                <Input
+                  type="password"
+                  value={aiConfigForm.apiKey}
+                  onChange={(e) => setAiConfigForm({ ...aiConfigForm, apiKey: e.target.value })}
+                  placeholder={aiConfigForm.provider === 'ollama' ? 'Optional for local Ollama (Not required)' : 'sk-... or gsk_... (Enter your API Token)'}
+                />
+                <p className="text-xs text-muted-foreground">
+                  {aiConfigForm.provider === 'ollama' 
+                    ? 'Local Ollama runs on your VPS without a token by default.'
+                    : 'Your API token will be securely encrypted on the server and hidden from the tenant company.'}
+                </p>
+              </div>
 
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <div className="space-y-2">

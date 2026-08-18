@@ -137,18 +137,21 @@ export default function AiSettings() {
               />
             </div>
 
-            {form.provider !== 'ollama' && (
-              <div className="space-y-2">
-                <Label>API Key</Label>
-                <Input
-                  type="password"
-                  value={form.apiKey}
-                  onChange={(e) => setForm(p => ({ ...p, apiKey: e.target.value }))}
-                  placeholder="sk-..."
-                  data-testid="input-api-key"
-                />
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label>API Key (Secret Token / مفتاح الـ API)</Label>
+              <Input
+                type="password"
+                value={form.apiKey}
+                onChange={(e) => setForm(p => ({ ...p, apiKey: e.target.value }))}
+                placeholder={form.provider === 'ollama' ? 'Optional for local Ollama (Not required)' : 'sk-... or gsk_... (Enter your API Token)'}
+                data-testid="input-api-key"
+              />
+              <p className="text-xs text-muted-foreground">
+                {form.provider === 'ollama' 
+                  ? 'Local Ollama runs on your VPS without an API key by default.' 
+                  : 'Your API token is stored securely on the server.'}
+              </p>
+            </div>
           </div>
         ) : (
           /* Tenant View: Read-only Engine Card */
