@@ -813,9 +813,35 @@ export default function AdminOrganizations() {
                 <Input
                   value={aiConfigForm.model}
                   onChange={(e) => setAiConfigForm({ ...aiConfigForm, model: e.target.value })}
-                  placeholder="e.g. gpt-4o, gpt-4o-mini, deepseek-chat, llama-3.3-70b-versatile..."
+                  placeholder="e.g. llama-3.1-8b-instant, llama3-70b-8192, gpt-4o-mini..."
                   required
                 />
+                {aiConfigForm.provider === 'groq' && (
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    <span className="text-[10px] text-muted-foreground self-center mr-1">Recommended for Groq:</span>
+                    <button
+                      type="button"
+                      onClick={() => setAiConfigForm(p => ({ ...p, model: 'llama-3.1-8b-instant' }))}
+                      className="text-[10px] px-2 py-0.5 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 transition-colors"
+                    >
+                      ⚡ llama-3.1-8b-instant (Fastest & Free)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAiConfigForm(p => ({ ...p, model: 'llama3-70b-8192' }))}
+                      className="text-[10px] px-2 py-0.5 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 transition-colors"
+                    >
+                      🧠 llama3-70b-8192
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAiConfigForm(p => ({ ...p, model: 'mixtral-8x7b-32768' }))}
+                      className="text-[10px] px-2 py-0.5 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 transition-colors"
+                    >
+                      mixtral-8x7b-32768
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
