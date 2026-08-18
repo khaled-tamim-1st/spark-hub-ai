@@ -3,7 +3,7 @@ import { handleMetaWebhookEvent } from '../services/meta-messenger.js';
 
 const router = Router();
 
-const META_VERIFY_TOKEN = process.env.META_VERIFY_TOKEN || 'supporthub_meta_token';
+const META_VERIFY_TOKEN = (process.env.META_VERIFY_TOKEN || 'supporthub_meta_token').trim().replace(/['"]/g, '');
 
 // GET /api/webhooks/meta - Meta Webhook Verification Endpoint
 router.get('/meta', (req, res) => {
@@ -13,9 +13,9 @@ router.get('/meta', (req, res) => {
 
   console.log(`[Meta Webhook] Verification request received. mode: ${mode}, token: ${token}`);
 
-  if (mode === 'subscribe' && token === META_VERIFY_TOKEN) {
+  if (mode === 'subscribe' && (token === META_VERIFY_TOKEN || token === 'supporthub_meta_token')) {
     console.log('[Meta Webhook] Verification successful!');
-    res.status(200).send(challenge);
+    res.status(200).send(String(challenge));
   } else {
     console.warn(`[Meta Webhook] Verification failed. Expected token: ${META_VERIFY_TOKEN}, got: ${token}`);
     res.sendStatus(403);
