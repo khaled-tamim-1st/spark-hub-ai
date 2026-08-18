@@ -124,8 +124,8 @@ export function AppShell({ children }: AppShellProps) {
       >
         {/* Logo Area */}
         <div className="flex items-center h-16 px-3 border-b border-sidebar-border overflow-hidden shrink-0">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-600 flex items-center justify-center shrink-0 shadow-sm shadow-indigo-500/30">
-            <MessageSquare className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shrink-0 shadow-sm border border-sidebar-border">
+            <img src="/logo.png" alt="Spark Hub" className="w-full h-full object-cover" />
           </div>
           <div 
             className={cn(
@@ -133,8 +133,8 @@ export function AppShell({ children }: AppShellProps) {
               isExpanded ? "opacity-100" : "opacity-0"
             )}
           >
-            <span className="font-bold text-sidebar-foreground text-sm tracking-tight leading-tight">SupportHub AI</span>
-            <span className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wider">Enterprise</span>
+            <span className="font-bold text-sidebar-foreground text-sm tracking-tight leading-tight">Spark Hub</span>
+            <span className="text-[10px] text-amber-500 uppercase font-bold tracking-wider">AI Platform</span>
           </div>
         </div>
 

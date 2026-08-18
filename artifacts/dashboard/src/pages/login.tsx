@@ -68,12 +68,12 @@ export default function Login() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-600 mb-4 shadow-lg shadow-indigo-500/25">
-            <MessageSquare className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl overflow-hidden mb-4 shadow-lg border border-border">
+            <img src="/logo.png" alt="Spark Hub" className="w-full h-full object-cover" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">SupportHub AI</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Spark Hub</h1>
           <p className="text-muted-foreground">
-            {selectingOrg ? 'Select Company Workspace' : 'Sign in to your company workspace'}
+            {selectingOrg ? 'Select Company Workspace' : 'Sign in to your intelligent platform'}
           </p>
         </div>
 
@@ -188,7 +188,7 @@ export default function Login() {
 
             <div className="mt-6 text-center pt-2 border-t border-border/50">
               <p className="text-xs text-muted-foreground">
-                SupportHub AI Enterprise Platform &bull; Accounts are provisioned centrally by your administrator.
+                Spark Hub Enterprise Platform &bull; Accounts are provisioned centrally by your administrator.
               </p>
             </div>
           </div>

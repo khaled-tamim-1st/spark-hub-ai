@@ -125,12 +125,12 @@ export default function Workspaces() {
       <header className="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-600 flex items-center justify-center shadow-md shadow-indigo-500/25">
-              <MessageSquare className="w-5 h-5 text-white" />
+            <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center shadow-md border border-slate-700">
+              <img src="/logo.png" alt="Spark Hub" className="w-full h-full object-cover" />
             </div>
             <div>
-              <span className="font-bold text-base tracking-tight text-white">SupportHub AI</span>
-              <span className="text-[10px] ml-2 px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-semibold border border-indigo-500/30">
+              <span className="font-bold text-base tracking-tight text-white">Spark Hub</span>
+              <span className="text-[10px] ml-2 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/30">
                 Workspaces Hub
               </span>
             </div>
