@@ -14,6 +14,7 @@ import analyticsRouter from './analytics.js';
 import tagsRouter from './tags.js';
 import notesRouter from './notes.js';
 import adminRouter from './admin.js';
+import organizationsRouter from './organizations.js';
 import webhooksRouter from './webhooks.js';
 
 const router: IRouter = Router();
@@ -22,6 +23,7 @@ router.use(healthRouter);
 router.use('/webhooks', webhooksRouter);
 router.use('/auth', authRouter);
 router.use('/admin', adminRouter);
+router.use('/organizations', organizationsRouter);
 router.use('/users', usersRouter);
 router.use('/contacts', contactsRouter);
 router.use('/companies', companiesRouter);

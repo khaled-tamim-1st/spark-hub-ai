@@ -5,7 +5,15 @@ import { adminApi } from '@/lib/admin-api';
 import { setToken, clearToken } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { 
   Building2, 
   MessageSquare, 
@@ -19,7 +27,8 @@ import {
   CheckCircle2, 
   Sparkles,
   Users,
-  Radio
+  Radio,
+  Plus
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -28,6 +37,14 @@ export default function Workspaces() {
   const [, setLocation] = useLocation();
   const [search, setSearch] = useState('');
   const [launchingId, setLaunchingId] = useState<number | null>(null);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    name: '',
+    industry: '',
+    website: '',
+  });
+
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -60,6 +77,24 @@ export default function Workspaces() {
         variant: 'destructive',
       });
       setLaunchingId(null);
+    }
+  };
+
+  const handleCreateCompany = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!createForm.name.trim()) return;
+    setCreating(true);
+    try {
+      const newOrg = await adminApi.createMyOrganization(createForm);
+      await queryClient.invalidateQueries({ queryKey: ['current-user'] });
+      setIsCreateOpen(false);
+      setCreateForm({ name: '', industry: '', website: '' });
+      toast({ title: 'Company Created', description: `Created ${newOrg.name}` });
+      await handleLaunchWorkspace(newOrg);
+    } catch (err: any) {
+      toast({ title: 'Failed to create company', description: err.message, variant: 'destructive' });
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -175,19 +210,92 @@ export default function Workspaces() {
               </p>
             </div>
 
-            {/* Search Input */}
-            {organizationsList.length > 2 && (
-              <div className="relative w-full sm:w-64">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <Input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Filter companies..."
-                  className="pl-9 bg-slate-900/80 border-slate-800 text-sm placeholder:text-slate-500 text-white focus:border-indigo-500 h-9"
-                />
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              {/* Search Input */}
+              {organizationsList.length > 2 && (
+                <div className="relative w-full sm:w-56">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Filter companies..."
+                    className="pl-9 bg-slate-900/80 border-slate-800 text-sm placeholder:text-slate-500 text-white focus:border-indigo-500 h-9"
+                  />
+                </div>
+              )}
+
+              {/* Create New Company Button */}
+              <Button
+                onClick={() => setIsCreateOpen(true)}
+                className="gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-md shadow-indigo-600/20 font-semibold text-xs h-9 shrink-0"
+              >
+                <Plus className="w-4 h-4" /> Add Company
+              </Button>
+            </div>
           </div>
+
+          {/* Dialog: Add New Company */}
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <DialogContent className="bg-slate-900 border-slate-800 text-slate-100 max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 text-white text-lg">
+                  <Building2 className="w-5 h-5 text-indigo-400" />
+                  Create New Company Workspace
+                </DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleCreateCompany} className="space-y-4 pt-2">
+                <div className="space-y-2">
+                  <Label className="text-slate-300">Company / Workspace Name *</Label>
+                  <Input
+                    value={createForm.name}
+                    onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
+                    placeholder="e.g. Clash Market, The Trio LLC"
+                    required
+                    className="bg-slate-950 border-slate-800 text-white"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-slate-300">Industry / Category (Optional)</Label>
+                  <Input
+                    value={createForm.industry}
+                    onChange={(e) => setCreateForm({ ...createForm, industry: e.target.value })}
+                    placeholder="e.g. E-Commerce, Gaming, Agency"
+                    className="bg-slate-950 border-slate-800 text-white"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-slate-300">Website or Page URL (Optional)</Label>
+                  <Input
+                    value={createForm.website}
+                    onChange={(e) => setCreateForm({ ...createForm, website: e.target.value })}
+                    placeholder="https://clashmarket.com"
+                    className="bg-slate-950 border-slate-800 text-white"
+                  />
+                </div>
+
+                <DialogFooter className="pt-4 border-t border-slate-800">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsCreateOpen(false)}
+                    className="border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={creating}
+                    className="bg-indigo-600 hover:bg-indigo-500 text-white"
+                  >
+                    {creating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
+                    Create &amp; Launch
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
 
           {/* Companies Grid */}
           {filteredOrgs.length === 0 ? (

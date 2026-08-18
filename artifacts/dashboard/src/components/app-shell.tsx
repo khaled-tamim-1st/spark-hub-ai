@@ -47,7 +47,6 @@ const navSections = [
       { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
       { name: 'Inbox', href: '/inbox', icon: Inbox, badge: true },
       { name: 'Contacts', href: '/contacts', icon: Users },
-      { name: 'Companies', href: '/companies', icon: Building2 },
     ]
   },
   {

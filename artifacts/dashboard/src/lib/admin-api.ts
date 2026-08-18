@@ -117,6 +117,11 @@ export const adminApi = {
       method: 'POST',
       body: JSON.stringify({ organizationId }),
     }),
+  createMyOrganization: (data: { name: string; website?: string; industry?: string }) =>
+    fetchWithAuth<any>('/api/organizations', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
   getMe: () =>
     fetchWithAuth<any>('/api/auth/me'),
 };
