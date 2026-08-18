@@ -18,6 +18,7 @@ export default function AiSettings() {
 
   const [testInput, setTestInput] = useState('');
   const [testReply, setTestReply] = useState<string | null>(null);
+  const [testError, setTestError] = useState<string | null>(null);
   const [testing, setTesting] = useState(false);
 
   const [form, setForm] = useState({
@@ -64,6 +65,7 @@ export default function AiSettings() {
     if (!testInput.trim()) return;
     setTesting(true);
     setTestReply(null);
+    setTestError(null);
     try {
       const res = await fetchWithAuth<{ reply: string }>('/api/ai-settings/test', {
         method: 'POST',
@@ -81,6 +83,7 @@ export default function AiSettings() {
       setTestReply(res.reply);
       toast({ title: 'AI Response Received', description: 'Model replied successfully!' });
     } catch (err: any) {
+      setTestError(err.message || 'Failed to connect to AI model.');
       toast({
         title: 'AI Test Failed',
         description: err.message || 'Please check your model provider and API key in SuperAdmin.',
@@ -320,6 +323,18 @@ export default function AiSettings() {
               </div>
               <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
                 {testReply}
+              </div>
+            </div>
+          )}
+
+          {testError && (
+            <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30 space-y-1.5 mt-4 text-destructive">
+              <div className="flex items-center gap-2 text-xs font-semibold">
+                <AlertCircle className="w-4 h-4" />
+                <span>AI Diagnostic Error:</span>
+              </div>
+              <div className="text-xs whitespace-pre-wrap leading-relaxed font-mono">
+                {testError}
               </div>
             </div>
           )}

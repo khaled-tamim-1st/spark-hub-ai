@@ -55,12 +55,12 @@ export async function generateAiReplyDetailed(options: GenerateReplyOptions): Pr
       .where(eq(aiSettings.organizationId, organizationId))
       .limit(1) : [null];
 
-    // Fallback: If this org has no API key or is unconfigured, look for any configured org with an API key
-    if ((!settings || !settings.apiKey || settings.provider === 'ollama') && !overrideSettings?.apiKey) {
-      const [configured] = await db.select().from(aiSettings)
-        .where(isNotNull(aiSettings.apiKey))
-        .limit(1);
+    // Fallback: If this org has no API key or is unconfigured, look for any configured org with a valid API key
+    if ((!settings || !settings.apiKey || settings.apiKey.trim().length < 5 || settings.provider === 'ollama') && !overrideSettings?.apiKey) {
+      const allRows = await db.select().from(aiSettings);
+      const configured = allRows.find(r => r.apiKey && r.apiKey.trim().length > 10 && !r.apiKey.includes('••••'));
       if (configured) {
+        console.log(`[AI Service] Using global AI configuration from org #${configured.organizationId} [${configured.provider} / ${configured.model}]`);
         settings = { ...(settings || {}), ...configured } as any;
       }
     }
