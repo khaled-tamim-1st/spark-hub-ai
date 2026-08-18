@@ -1,6 +1,6 @@
 import { getToken } from './auth';
 
-async function fetchWithAuth<T>(url: string, options: RequestInit = {}): Promise<T> {
+export async function fetchWithAuth<T>(url: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
   const headers = new Headers(options.headers || {});
   headers.set('Content-Type', 'application/json');

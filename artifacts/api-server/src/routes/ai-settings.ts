@@ -3,6 +3,7 @@ import { db } from '@workspace/db';
 import { aiSettings } from '@workspace/db';
 import { eq } from 'drizzle-orm';
 import { requireAuth } from '../middlewares/auth.js';
+import { generateAiReply } from '../services/ai-service.js';
 
 const router = Router();
 
@@ -94,6 +95,36 @@ router.put('/', requireAuth, async (req, res) => {
   } catch (err) {
     console.error('Update AI settings error:', err);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /api/ai-settings/test - Test the AI model live
+router.post('/test', requireAuth, async (req, res) => {
+  try {
+    const { message } = req.body ?? {};
+    if (!message) {
+      res.status(400).json({ error: 'Test message is required' });
+      return;
+    }
+
+    const reply = await generateAiReply({
+      organizationId: req.organizationId!,
+      customerName: 'Test Customer',
+      incomingText: String(message),
+      forceGenerate: true,
+    });
+
+    if (!reply) {
+      res.status(502).json({ 
+        error: 'Failed to generate AI response. Please ensure provider, model, and API Key are valid in SuperAdmin.' 
+      });
+      return;
+    }
+
+    res.json({ reply });
+  } catch (err: any) {
+    console.error('AI test error:', err);
+    res.status(500).json({ error: err.message || 'Internal server error' });
   }
 });
 

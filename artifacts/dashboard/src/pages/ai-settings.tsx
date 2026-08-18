@@ -8,12 +8,17 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/hooks/use-toast';
-import { Bot, Save, Loader2 } from 'lucide-react';
+import { Bot, Save, Loader2, Send, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react';
+import { fetchWithAuth } from '@/lib/admin-api';
 
 export default function AiSettings() {
   const { data: settings, isLoading } = useGetAiSettings();
   const updateSettings = useUpdateAiSettings();
   const { toast } = useToast();
+
+  const [testInput, setTestInput] = useState('');
+  const [testReply, setTestReply] = useState<string | null>(null);
+  const [testing, setTesting] = useState(false);
 
   const [form, setForm] = useState({
     provider: 'ollama',
@@ -52,6 +57,29 @@ export default function AiSettings() {
         onError: (e) => toast({ title: 'Failed to save', description: e.message, variant: 'destructive' }),
       }
     );
+  };
+
+  const handleTestAi = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!testInput.trim()) return;
+    setTesting(true);
+    setTestReply(null);
+    try {
+      const res = await fetchWithAuth<{ reply: string }>('/api/ai-settings/test', {
+        method: 'POST',
+        body: JSON.stringify({ message: testInput }),
+      });
+      setTestReply(res.reply);
+      toast({ title: 'AI Response Received', description: 'Model replied successfully!' });
+    } catch (err: any) {
+      toast({
+        title: 'AI Test Failed',
+        description: err.message || 'Please check your model provider and API key in SuperAdmin.',
+        variant: 'destructive',
+      });
+    } finally {
+      setTesting(false);
+    }
   };
 
   if (isLoading) {
@@ -242,6 +270,48 @@ export default function AiSettings() {
                 onValueChange={([v]) => setForm(p => ({ ...p, autoReplyConfidence: v }))}
               />
               <p className="text-xs text-muted-foreground">Only auto-reply when AI confidence exceeds this threshold</p>
+            </div>
+          )}
+        </div>
+
+        {/* Live AI Test Sandbox */}
+        <div className="bg-card border border-card-border rounded-lg p-6 space-y-4 shadow-sm">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-indigo-500" />
+            <h2 className="text-lg font-semibold">Test AI Response (Live Sandbox)</h2>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Test how your AI assistant will respond to customer inquiries in real-time before going live.
+          </p>
+
+          <form onSubmit={handleTestAi} className="space-y-3 pt-2">
+            <div className="flex gap-2">
+              <Input
+                value={testInput}
+                onChange={(e) => setTestInput(e.target.value)}
+                placeholder="Ask a question as a customer (e.g. ما هي خدماتكم وأسعاركم؟)"
+                className="flex-1"
+              />
+              <Button
+                type="submit"
+                disabled={testing || !testInput.trim()}
+                className="gap-2 bg-indigo-600 hover:bg-indigo-500 text-white shrink-0"
+              >
+                {testing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                Send Test
+              </Button>
+            </div>
+          </form>
+
+          {testReply && (
+            <div className="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/20 space-y-2 mt-4">
+              <div className="flex items-center gap-2 text-xs font-semibold text-indigo-400">
+                <Bot className="w-4 h-4" />
+                <span>AI Assistant Live Output:</span>
+              </div>
+              <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+                {testReply}
+              </div>
             </div>
           )}
         </div>

@@ -7,10 +7,11 @@ export interface GenerateReplyOptions {
   customerName?: string;
   incomingText: string;
   conversationHistory?: Array<{ sender: string; text: string }>;
+  forceGenerate?: boolean;
 }
 
 export async function generateAiReply(options: GenerateReplyOptions): Promise<string | null> {
-  const { organizationId, customerName = 'Customer', incomingText, conversationHistory = [] } = options;
+  const { organizationId, customerName = 'Customer', incomingText, conversationHistory = [], forceGenerate = false } = options;
 
   try {
     // Check if organization has AI enabled
@@ -19,7 +20,8 @@ export async function generateAiReply(options: GenerateReplyOptions): Promise<st
       .where(eq(organizations.id, organizationId))
       .limit(1);
 
-    if (org && !org.aiEnabled) {
+    if (org && !org.aiEnabled && !forceGenerate) {
+      console.log(`[AI Service] Org #${organizationId} has AI disabled globally.`);
       return null;
     }
 
@@ -28,7 +30,13 @@ export async function generateAiReply(options: GenerateReplyOptions): Promise<st
       .where(eq(aiSettings.organizationId, organizationId))
       .limit(1);
 
-    if (!settings || !settings.autoReply) {
+    if (!settings) {
+      console.log(`[AI Service] Org #${organizationId} has no AI settings row.`);
+      return null;
+    }
+
+    if (!settings.autoReply && !forceGenerate) {
+      console.log(`[AI Service] Org #${organizationId} autoReply is set to false. Enable in AI Settings to auto-reply.`);
       return null;
     }
 
@@ -52,23 +60,15 @@ Instructions:
 - Keep the response concise, formatted for WhatsApp or live chat (bullet points if needed).
 - If you do not know the answer, politely offer to connect them to a human agent.`;
 
-    const provider = settings.provider || 'ollama';
-    const model = settings.model || 'llama3';
-    
-    // Resolve endpoint Base URL based on provider
-    let baseUrl = (settings.baseUrl || '').trim().replace(/\/+$/, '');
-    if (!baseUrl) {
-      if (provider === 'openai') baseUrl = 'https://api.openai.com';
-      else if (provider === 'groq') baseUrl = 'https://api.groq.com/openai';
-      else if (provider === 'deepseek') baseUrl = 'https://api.deepseek.com';
-      else if (provider === 'openrouter') baseUrl = 'https://openrouter.ai/api';
-      else baseUrl = 'http://localhost:11434';
-    }
-
+    const provider = (settings.provider || 'ollama').toLowerCase().trim();
+    const model = (settings.model || 'llama3').trim();
     const temperature = Number(settings.temperature) || 0.7;
+
+    console.log(`[AI Service] Generating response for org #${organizationId} using provider: [${provider}], model: [${model}]`);
 
     // Handle Ollama
     if (provider === 'ollama') {
+      const baseUrl = (settings.baseUrl || 'http://localhost:11434').trim().replace(/\/+$/, '');
       const historyPrompt = conversationHistory
         .map(h => `${h.sender}: ${h.text}`)
         .join('\n');
@@ -90,7 +90,8 @@ Instructions:
       });
 
       if (!res.ok) {
-        console.warn(`Ollama API call returned status ${res.status}`);
+        const errText = await res.text().catch(() => '');
+        console.warn(`[AI Service] Ollama API call returned status ${res.status}: ${errText}`);
         return null;
       }
 
@@ -98,47 +99,63 @@ Instructions:
       return data.response ? data.response.trim() : null;
     }
 
-    // Handle OpenAI-compatible API (OpenAI, Groq, DeepSeek, OpenRouter, vLLM, etc.)
-    if (provider !== 'ollama' || settings.apiKey) {
-      const messages = [
-        { role: 'system', content: fullSystemInstruction },
-        ...conversationHistory.map(h => ({
-          role: h.sender === 'Customer' ? 'user' : 'assistant',
-          content: h.text,
-        })),
-        { role: 'user', content: incomingText },
-      ];
-
-      const endpoint = baseUrl.endsWith('/v1') ? `${baseUrl}/chat/completions` : `${baseUrl}/v1/chat/completions`;
-
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(settings.apiKey ? { Authorization: `Bearer ${settings.apiKey}` } : {}),
-        },
-        body: JSON.stringify({
-          model,
-          messages,
-          temperature,
-          max_tokens: settings.maxTokens || 600,
-        }),
-      });
-
-      if (!res.ok) {
-        const errText = await res.text().catch(() => '');
-        console.warn(`[AI Service] API call to ${endpoint} returned status ${res.status}: ${errText}`);
-        return null;
+    // Handle Cloud OpenAI-compatible API (Groq, OpenAI, DeepSeek, OpenRouter, Custom)
+    let endpoint = '';
+    if (provider === 'groq') {
+      endpoint = 'https://api.groq.com/openai/v1/chat/completions';
+    } else if (provider === 'deepseek') {
+      endpoint = 'https://api.deepseek.com/v1/chat/completions';
+    } else if (provider === 'openrouter') {
+      endpoint = 'https://openrouter.ai/api/v1/chat/completions';
+    } else if (provider === 'openai') {
+      endpoint = 'https://api.openai.com/v1/chat/completions';
+    } else {
+      // Custom OpenAI Compatible or user custom URL
+      const cleanUrl = (settings.baseUrl || '').trim().replace(/\/+$/, '');
+      if (cleanUrl.endsWith('/v1')) {
+        endpoint = `${cleanUrl}/chat/completions`;
+      } else if (cleanUrl.includes('/chat/completions')) {
+        endpoint = cleanUrl;
+      } else {
+        endpoint = cleanUrl ? `${cleanUrl}/v1/chat/completions` : 'https://api.openai.com/v1/chat/completions';
       }
-
-      const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
-      const reply = data.choices?.[0]?.message?.content;
-      return reply ? reply.trim() : null;
     }
 
-    return null;
+    const messages = [
+      { role: 'system', content: fullSystemInstruction },
+      ...conversationHistory.map(h => ({
+        role: h.sender === 'Customer' ? 'user' : 'assistant',
+        content: h.text,
+      })),
+      { role: 'user', content: incomingText },
+    ];
+
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(settings.apiKey ? { Authorization: `Bearer ${settings.apiKey}` } : {}),
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        temperature,
+        max_tokens: settings.maxTokens || 800,
+      }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      console.warn(`[AI Service] API call to ${endpoint} returned status ${res.status}: ${errText}`);
+      return null;
+    }
+
+    const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
+    const reply = data.choices?.[0]?.message?.content;
+    console.log(`[AI Service] Successfully generated reply (${reply?.length || 0} chars)`);
+    return reply ? reply.trim() : null;
   } catch (err: any) {
-    console.error('Error generating AI reply:', err.message || err);
+    console.error('[AI Service] Error generating AI reply:', err.message || err);
     return null;
   }
 }
