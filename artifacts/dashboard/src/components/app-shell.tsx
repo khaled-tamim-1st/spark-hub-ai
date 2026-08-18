@@ -140,30 +140,40 @@ export function AppShell({ children }: AppShellProps) {
         </div>
 
         {/* Workspace / Company Switcher */}
-        {isExpanded && organizationsList.length > 0 && (
+        {organizationsList.length > 0 && (
           <div className="p-2 border-b border-sidebar-border shrink-0">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="w-full flex items-center justify-between p-2 rounded-lg bg-sidebar-accent/50 hover:bg-sidebar-accent border border-sidebar-border/60 text-left transition-all group"
-                  title="Switch Company Workspace"
-                >
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div className="w-6 h-6 rounded bg-primary/10 text-primary flex items-center justify-center shrink-0 font-bold text-xs">
-                      <Building2 className="w-3.5 h-3.5" />
-                    </div>
-                    <div className="truncate">
-                      <div className="text-xs font-semibold text-sidebar-foreground truncate leading-none">
-                        {user?.organization?.name || 'Company Workspace'}
+                {isExpanded ? (
+                  <button
+                    type="button"
+                    className="w-full flex items-center justify-between p-2 rounded-lg bg-sidebar-accent/50 hover:bg-sidebar-accent border border-sidebar-border/60 text-left transition-all group"
+                    title="Switch Company Workspace"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-6 h-6 rounded bg-primary/10 text-primary flex items-center justify-center shrink-0 font-bold text-xs">
+                        <Building2 className="w-3.5 h-3.5" />
                       </div>
-                      <div className="text-[10px] text-muted-foreground capitalize mt-0.5 leading-none">
-                        {isSuperAdmin ? 'SuperAdmin' : (user?.role || 'Member')}
+                      <div className="truncate">
+                        <div className="text-xs font-semibold text-sidebar-foreground truncate leading-none">
+                          {user?.organization?.name || 'Company Workspace'}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground capitalize mt-0.5 leading-none">
+                          {isSuperAdmin ? 'SuperAdmin' : (user?.role || 'Member')}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <ChevronsUpDown className="w-3.5 h-3.5 text-muted-foreground group-hover:text-sidebar-foreground shrink-0 ml-1" />
-                </button>
+                    <ChevronsUpDown className="w-3.5 h-3.5 text-muted-foreground group-hover:text-sidebar-foreground shrink-0 ml-1" />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="w-10 h-10 mx-auto rounded-lg bg-sidebar-accent/50 hover:bg-sidebar-accent border border-sidebar-border/60 flex items-center justify-center text-primary transition-all group"
+                    title={`Current: ${user?.organization?.name || 'Workspace'}`}
+                  >
+                    <Building2 className="w-4 h-4" />
+                  </button>
+                )}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56 p-1.5 shadow-xl border-border/80 z-50">
                 <DropdownMenuLabel className="text-[10px] uppercase font-bold text-muted-foreground px-2 py-1 tracking-wider">
