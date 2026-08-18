@@ -97,7 +97,7 @@ export function AppShell({ children }: AppShellProps) {
       >
         {/* Logo Area */}
         <div className="flex items-center h-16 px-3 border-b border-sidebar-border overflow-hidden shrink-0">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-teal-500 flex items-center justify-center shrink-0 shadow-sm">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-600 flex items-center justify-center shrink-0 shadow-sm shadow-indigo-500/30">
             <MessageSquare className="w-5 h-5 text-white" />
           </div>
           <div 

@@ -433,7 +433,7 @@ export default function AdminOrganizations() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Building2 className="w-5 h-5 text-primary" />
-              Register New Tenant Company (إضافة شركة جديدة)
+              Register New Tenant Company
             </DialogTitle>
           </DialogHeader>
           <form

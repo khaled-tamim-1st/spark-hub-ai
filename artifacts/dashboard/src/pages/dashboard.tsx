@@ -8,12 +8,12 @@ import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '@/lib/admin-api';
 
 const CARD_COLORS = [
-  { bg: 'bg-cyan-500/10', text: 'text-cyan-500', border: 'border-cyan-500' },
-  { bg: 'bg-green-500/10', text: 'text-green-500', border: 'border-green-500' },
+  { bg: 'bg-indigo-500/10', text: 'text-indigo-500', border: 'border-indigo-500' },
+  { bg: 'bg-emerald-500/10', text: 'text-emerald-500', border: 'border-emerald-500' },
   { bg: 'bg-amber-500/10', text: 'text-amber-500', border: 'border-amber-500' },
-  { bg: 'bg-purple-500/10', text: 'text-purple-500', border: 'border-purple-500' },
-  { bg: 'bg-blue-500/10', text: 'text-blue-500', border: 'border-blue-500' },
-  { bg: 'bg-red-500/10', text: 'text-red-500', border: 'border-red-500' },
+  { bg: 'bg-violet-500/10', text: 'text-violet-500', border: 'border-violet-500' },
+  { bg: 'bg-sky-500/10', text: 'text-sky-500', border: 'border-sky-500' },
+  { bg: 'bg-rose-500/10', text: 'text-rose-500', border: 'border-rose-500' },
 ];
 
 export default function Dashboard() {

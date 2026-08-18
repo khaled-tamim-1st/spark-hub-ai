@@ -359,12 +359,12 @@ export default function Integrations() {
             {isWhatsApp ? (
               <div className="rounded-lg border border-border bg-muted/30 p-4 text-center space-y-3">
                 <p className="text-sm text-muted-foreground">
-                  افتح WhatsApp على هاتفك ثم Settings &gt; Linked devices &gt; Link a device
+                  Open WhatsApp on your phone, then tap <strong>Settings &gt; Linked Devices &gt; Link a Device</strong>
                 </p>
                 {whatsappStatus.qrCode ? (
                   <img src={whatsappStatus.qrCode} alt="WhatsApp Web QR code" className="mx-auto w-64 h-64 rounded-lg bg-white p-2" />
                 ) : whatsappStatus.status === 'connected' ? (
-                  <div className="py-8 text-green-600 font-medium">
+                  <div className="py-8 text-emerald-600 font-medium">
                     WhatsApp connected {whatsappStatus.phoneNumber ? `(${whatsappStatus.phoneNumber})` : ''}
                   </div>
                 ) : (
@@ -373,7 +373,7 @@ export default function Integrations() {
                   </div>
                 )}
                 {whatsappStatus.qrCode && (
-                  <p className="text-xs text-muted-foreground">Scan this code before it expires, then keep this page open.</p>
+                  <p className="text-xs text-muted-foreground">Scan this QR code with WhatsApp, then keep this modal open.</p>
                 )}
               </div>
             ) : configuring?.provider === 'meta_graph' ? (
@@ -388,7 +388,7 @@ export default function Integrations() {
                         : 'border-transparent text-muted-foreground hover:text-foreground'
                     }`}
                   >
-                    1-Click Connect (الربط التلقائي)
+                    Automatic Connect
                   </button>
                   <button
                     type="button"
@@ -399,7 +399,7 @@ export default function Integrations() {
                         : 'border-transparent text-muted-foreground hover:text-foreground'
                     }`}
                   >
-                    Manual Setup (يدوي)
+                    Manual Credentials
                   </button>
                 </div>
 
