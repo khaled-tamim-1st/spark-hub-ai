@@ -238,6 +238,39 @@ export const aiSettings = pgTable('ai_settings', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
+// ─── Voice Sessions ──────────────────────────────────────────────────────────
+export const voiceSessions = pgTable('voice_sessions', {
+  id: serial('id').primaryKey(),
+  organizationId: integer('organization_id')
+    .references(() => organizations.id, { onDelete: 'cascade' }).notNull(),
+  conversationId: integer('conversation_id')
+    .references(() => conversations.id, { onDelete: 'set null' }),
+  contactId: integer('contact_id')
+    .references(() => contacts.id, { onDelete: 'set null' }),
+  channelId: integer('channel_id')
+    .references(() => channels.id, { onDelete: 'set null' }),
+  agentId: integer('agent_id')
+    .references(() => users.id, { onDelete: 'set null' }),
+  sessionId: varchar('session_id', { length: 100 }).notNull().unique(),
+  providerCallId: varchar('provider_call_id', { length: 255 }),
+  status: varchar('status', { length: 30 }).default('initiated').notNull(), // initiated | ringing | in_progress | completed | busy | failed | no_answer
+  direction: varchar('direction', { length: 10 }).default('inbound').notNull(), // inbound | outbound
+  callerNumber: varchar('caller_number', { length: 50 }),
+  calleeNumber: varchar('callee_number', { length: 50 }),
+  provider: varchar('provider', { length: 50 }).default('mock').notNull(), // mock | generic_sip | twilio | etc.
+  durationSeconds: integer('duration_seconds').default(0),
+  transcript: text('transcript'),
+  transcriptJson: text('transcript_json'), // Structured array: [{role, text, timestamp}]
+  summary: text('summary'),
+  metadata: text('metadata'), // JSON string for provider metadata, SIP headers, QoS
+  errorReason: text('error_reason'),
+  startedAt: timestamp('started_at', { withTimezone: true }).defaultNow().notNull(),
+  answeredAt: timestamp('answered_at', { withTimezone: true }),
+  endedAt: timestamp('ended_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
 // ─── Type exports ─────────────────────────────────────────────────────────────
 export type Organization = typeof organizations.$inferSelect;
 export type User = typeof users.$inferSelect;
@@ -253,3 +286,5 @@ export type Deal = typeof deals.$inferSelect;
 export type Note = typeof notes.$inferSelect;
 export type KnowledgeDoc = typeof knowledgeDocs.$inferSelect;
 export type AiSettings = typeof aiSettings.$inferSelect;
+export type VoiceSession = typeof voiceSessions.$inferSelect;
+

@@ -20,7 +20,7 @@ export default function Register() {
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-600 mb-4 shadow-lg shadow-indigo-500/25">
           <MessageSquare className="w-8 h-8 text-white" />
         </div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">SupportHub AI</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-2">Spark Hub</h1>
         <p className="text-muted-foreground mb-8">Enterprise B2B Customer Support Platform</p>
 
         <div className="bg-card border border-card-border rounded-xl p-8 shadow-sm space-y-4 text-left">

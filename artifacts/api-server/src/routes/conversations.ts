@@ -78,10 +78,11 @@ router.patch('/:id', requireAuth, async (req, res) => {
       .where(and(eq(conversations.id, Number(req.params.id)), eq(conversations.organizationId, req.organizationId)))
       .limit(1);
     if (!existing) { res.status(404).json({ error: 'Not found' }); return; }
-    const { status, assigneeId } = req.body ?? {};
+    const { status, assigneeId, aiHandled } = req.body ?? {};
     const [row] = await db.update(conversations).set({
       ...(status && { status: String(status) }),
       ...(assigneeId !== undefined && { assigneeId: assigneeId ? Number(assigneeId) : null }),
+      ...(aiHandled !== undefined && { aiHandled: Boolean(aiHandled) }),
       updatedAt: new Date(),
     }).where(eq(conversations.id, Number(req.params.id))).returning();
     res.json(row);

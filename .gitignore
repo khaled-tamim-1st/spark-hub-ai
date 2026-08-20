@@ -47,3 +47,8 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Local WhatsApp Sessions & Media
+artifacts/api-server/var/
+scripts/dist-test.mjs
+scripts/run-test.mjs

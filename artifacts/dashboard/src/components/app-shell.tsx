@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
   LayoutDashboard, 
   Inbox, 
+  PhoneCall,
   Users, 
   Building2, 
   Target, 
@@ -42,36 +43,39 @@ interface AppShellProps {
 
 const navSections = [
   {
-    title: 'Support',
+    title: 'التشغيل والمحادثات (Operations)',
     items: [
-      { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { name: 'Inbox', href: '/inbox', icon: Inbox, badge: true },
-      { name: 'Contacts', href: '/contacts', icon: Users },
+      { name: 'لوحة المؤشرات (Dashboard)', href: '/dashboard', icon: LayoutDashboard },
+      { name: 'صندوق الوارد (Inbox)', href: '/inbox', icon: Inbox, badge: true },
+      { name: 'المكالمات الصوتية (Voice AI)', href: '/voice', icon: PhoneCall },
     ]
   },
   {
-    title: 'Sales',
+    title: 'إدارة العملاء والطلبات (CRM & Orders)',
     items: [
-      { name: 'CRM', href: '/crm', icon: Target },
+      { name: 'جهات الاتصال (Contacts)', href: '/contacts', icon: Users },
+      { name: 'الطلبات والصفقات (CRM / Deals)', href: '/crm', icon: Target },
+      { name: 'الشركات (Companies)', href: '/companies', icon: Building2 },
     ]
   },
   {
-    title: 'Intelligence',
+    title: 'الذكاء الاصطناعي والمعرفة (Intelligence)',
     items: [
-      { name: 'Knowledge Base', href: '/knowledge-base', icon: BookOpen },
-      { name: 'AI Settings', href: '/ai-settings', icon: Bot },
-      { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+      { name: 'قاعدة المعرفة والمنتجات', href: '/knowledge-base', icon: BookOpen },
+      { name: 'إعدادات الذكاء الاصطناعي', href: '/ai-settings', icon: Bot },
+      { name: 'التقارير والتحليلات', href: '/analytics', icon: BarChart3 },
     ]
   },
   {
-    title: 'Platform',
+    title: 'إدارة المنصة والربط (Platform)',
     items: [
-      { name: 'Integrations', href: '/integrations', icon: Puzzle },
-      { name: 'Team', href: '/users', icon: MessageSquare },
-      { name: 'Settings', href: '/settings', icon: Settings },
+      { name: 'قنوات التواصل والربط', href: '/integrations', icon: Puzzle },
+      { name: 'فريق العمل والصلاحيات', href: '/users', icon: MessageSquare },
+      { name: 'إعدادات المنصة', href: '/settings', icon: Settings },
     ]
   }
 ];
+
 
 export function AppShell({ children }: AppShellProps) {
   const [location, setLocation] = useLocation();

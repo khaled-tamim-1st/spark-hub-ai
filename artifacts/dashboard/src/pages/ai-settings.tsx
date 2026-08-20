@@ -208,7 +208,7 @@ export default function AiSettings() {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  High-performance model managed and provisioned centrally by SupportHub AI.
+                  High-performance model managed and provisioned centrally by Spark Hub.
                 </p>
               </div>
             </div>
