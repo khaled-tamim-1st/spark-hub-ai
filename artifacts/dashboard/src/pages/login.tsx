@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Loader2, Building2, ArrowRight, ArrowLeft, Shield } from 'lucide-react';
+import { MessageSquare, Loader2, Building2, ArrowRight, ArrowLeft, Shield, Sparkles, Lock, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Login() {
@@ -31,15 +31,15 @@ export default function Login() {
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || 'Invalid email or password');
+        throw new Error(data.error || 'البريد الإلكتروني أو كلمة المرور غير صحيحة');
       }
 
       setToken(data.accessToken);
       setLocation('/workspaces');
     } catch (error: any) {
       toast({
-        title: 'Login failed',
-        description: error.message || 'Invalid email or password',
+        title: 'فشل تسجيل الدخول',
+        description: error.message || 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
         variant: 'destructive',
       });
     } finally {
@@ -55,7 +55,7 @@ export default function Login() {
       setLocation('/dashboard');
     } catch (err: any) {
       toast({
-        title: 'Failed to access workspace',
+        title: 'فشل الدخول لمساحة العمل',
         description: err.message,
         variant: 'destructive',
       });
@@ -64,25 +64,25 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 font-sans">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl overflow-hidden mb-4 shadow-lg border border-border">
             <img src="/logo.png" alt="Spark Hub" className="w-full h-full object-cover" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Spark Hub</h1>
-          <p className="text-muted-foreground">
-            {selectingOrg ? 'Select Company Workspace' : 'Sign in to your intelligent platform'}
+          <h1 className="text-3xl font-extrabold text-foreground mb-1 tracking-tight">Spark Hub</h1>
+          <p className="text-muted-foreground text-sm font-medium">
+            {selectingOrg ? 'اختر مساحة عمل المتجر أو الشركة' : 'منصة العمليات والذكاء الاصطناعي للمتاجر'}
           </p>
         </div>
 
         {/* Workspace Selection Screen */}
         {selectingOrg ? (
-          <div className="bg-card border border-card-border rounded-xl p-6 shadow-sm space-y-4">
+          <div className="bg-card border border-card-border rounded-2xl p-6 shadow-sm space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-border/50">
               <div>
-                <p className="text-xs text-muted-foreground">Signed in as</p>
+                <p className="text-xs text-muted-foreground">تم تسجيل الدخول بحساب:</p>
                 <p className="text-sm font-semibold text-foreground">{sessionUser?.email}</p>
               </div>
               <Button
@@ -94,75 +94,69 @@ export default function Login() {
                 }}
                 className="text-xs gap-1 text-muted-foreground hover:text-foreground"
               >
-                <ArrowLeft className="w-3.5 h-3.5" /> Back
+                <ArrowRight className="w-3.5 h-3.5" /> رجوع
               </Button>
             </div>
 
-            <p className="text-xs text-muted-foreground">
-              You have access to <strong className="text-foreground">{availableOrgs.length} workspaces</strong>. Choose the company you want to manage:
-            </p>
-
-            <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-              {availableOrgs.map((org) => {
-                const isCurrentSwitching = switchingId === org.id;
-                return (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                مساحات العمل المتاحة ({availableOrgs.length})
+              </p>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {availableOrgs.map((org) => (
                   <button
                     key={org.id}
                     onClick={() => handleSelectWorkspace(org)}
                     disabled={switchingId !== null}
-                    className="w-full flex items-center justify-between p-3.5 rounded-lg border border-border/70 hover:border-primary bg-background/50 hover:bg-primary/5 transition-all text-left group"
+                    className="w-full p-3 rounded-xl border border-border bg-card hover:bg-muted/50 hover:border-primary/40 flex items-center justify-between transition-all group text-right"
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                        <Building2 className="w-5 h-5" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
+                        <Building2 className="w-4 h-4" />
                       </div>
-                      <div className="truncate">
-                        <div className="font-semibold text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                      <div>
+                        <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">
                           {org.name}
-                        </div>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[10px] font-medium uppercase px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                            {org.role || 'Member'}
-                          </span>
-                          <span className="text-[10px] text-muted-foreground capitalize">
-                            Plan: {org.plan || 'starter'}
-                          </span>
-                        </div>
+                        </p>
+                        <p className="text-[11px] text-muted-foreground capitalize">
+                          {org.role === 'superadmin' ? 'مدير النظام' : org.role} • باقة {org.plan || 'الأساسية'}
+                        </p>
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-1.5 shrink-0 pl-2">
-                      {isCurrentSwitching ? (
-                        <Loader2 className="w-4 h-4 text-primary animate-spin" />
-                      ) : (
-                        <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
-                      )}
-                    </div>
+                    {switchingId === org.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    ) : (
+                      <ArrowLeft className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:-translate-x-0.5 transition-all" />
+                    )}
                   </button>
-                );
-              })}
+                ))}
+              </div>
             </div>
           </div>
         ) : (
-          /* Normal Login Screen */
-          <div className="bg-card border border-card-border rounded-xl p-8 shadow-sm">
-            <form onSubmit={handleSubmit} className="space-y-6">
+          /* Login Form */
+          <div className="bg-card border border-card-border rounded-2xl p-8 shadow-sm">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5 text-primary" /> البريد الإلكتروني
+                </Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@company.com"
+                  placeholder="name@company.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  disabled={loading}
                   data-testid="input-email"
+                  className="h-11 text-xs bg-muted/20"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5 text-primary" /> كلمة المرور
+                </Label>
                 <Input
                   id="password"
                   type="password"
@@ -170,27 +164,26 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  disabled={loading}
                   data-testid="input-password"
+                  className="h-11 text-xs bg-muted/20"
                 />
               </div>
 
               <Button
                 type="submit"
-                className="w-full h-11 text-base font-semibold"
+                className="w-full h-11 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all"
                 disabled={loading}
                 data-testid="button-submit"
               >
-                {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                Sign in to Workspace
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" /> جاري التحقق...
+                  </span>
+                ) : (
+                  'تسجيل الدخول للمنصة'
+                )}
               </Button>
             </form>
-
-            <div className="mt-6 text-center pt-2 border-t border-border/50">
-              <p className="text-xs text-muted-foreground">
-                Spark Hub Enterprise Platform &bull; Accounts are provisioned centrally by your administrator.
-              </p>
-            </div>
           </div>
         )}
       </div>

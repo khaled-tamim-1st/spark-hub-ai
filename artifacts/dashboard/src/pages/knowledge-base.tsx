@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { EmptyState } from '@/components/empty-state';
 import { StatusBadge } from '@/components/status-badge';
-import { Plus, BookOpen, FileText, Trash2, Search } from 'lucide-react';
+import { Plus, BookOpen, FileText, Trash2, Search, Sparkles, Globe, HelpCircle } from 'lucide-react';
 import { formatDateTime } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -34,6 +34,11 @@ export default function KnowledgeBase() {
   );
 
   const handleCreate = () => {
+    if (!formData.title.trim()) {
+      toast({ title: 'يرجى كتابة عنوان للمستند أو السؤال', variant: 'destructive' });
+      return;
+    }
+
     const data: any = {
       title: formData.title,
       fileType: formData.fileType,
@@ -52,11 +57,11 @@ export default function KnowledgeBase() {
           queryClient.invalidateQueries({ queryKey: getListKnowledgeBaseQueryKey() });
           setIsCreateOpen(false);
           setFormData({ title: '', fileType: 'txt', content: '', url: '' });
-          toast({ title: 'Document created successfully' });
+          toast({ title: '✅ تم حفظ المستند وتدريب الذكاء الاصطناعي عليه' });
         },
         onError: (error) => {
           toast({
-            title: 'Failed to create document',
+            title: 'فشل حفظ المستند',
             description: error.message,
             variant: 'destructive',
           });
@@ -66,18 +71,18 @@ export default function KnowledgeBase() {
   };
 
   const handleDelete = (id: number) => {
-    if (!confirm('Are you sure you want to delete this document?')) return;
+    if (!confirm('هل أنت متأكد من رغبتك في حذف هذا المستند من قاعدة المعرفة؟')) return;
 
     deleteDoc.mutate(
       { id },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListKnowledgeBaseQueryKey() });
-          toast({ title: 'Document deleted successfully' });
+          toast({ title: 'تم حذف المستند' });
         },
         onError: (error) => {
           toast({
-            title: 'Failed to delete document',
+            title: 'فشل حذف المستند',
             description: error.message,
             variant: 'destructive',
           });
@@ -87,142 +92,155 @@ export default function KnowledgeBase() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
+    <div className="flex-1 overflow-y-auto bg-background/50">
+      <div className="p-6 md:p-8 space-y-6 max-w-[1600px] mx-auto">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Knowledge Base</h1>
-            <p className="text-sm text-muted-foreground mt-1">Train your AI with documents and FAQs</p>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+              قاعدة المعرفة والمنتجات (Knowledge Base)
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1 font-medium">
+              تدريب الذكاء الاصطناعي على سياسات المتجر، تفاصيل المنتجات، والأسئلة الشائعة
+            </p>
           </div>
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <DialogTrigger asChild>
-              <Button data-testid="button-create-doc">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Document
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add Knowledge Document</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Title</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))}
-                    data-testid="input-title"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="fileType">Type</Label>
-                  <Select value={formData.fileType} onValueChange={(v: any) => setFormData((p) => ({ ...p, fileType: v }))}>
-                    <SelectTrigger data-testid="select-file-type">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="txt">Text</SelectItem>
-                      <SelectItem value="faq">FAQ</SelectItem>
-                      <SelectItem value="url">URL</SelectItem>
-                      <SelectItem value="pdf">PDF</SelectItem>
-                      <SelectItem value="docx">Word Doc</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                {formData.fileType === 'url' ? (
-                  <div className="space-y-2">
-                    <Label htmlFor="url">URL</Label>
-                    <Input
-                      id="url"
-                      type="url"
-                      placeholder="https://example.com/docs"
-                      value={formData.url}
-                      onChange={(e) => setFormData((p) => ({ ...p, url: e.target.value }))}
-                      data-testid="input-url"
-                    />
-                  </div>
-                ) : formData.fileType === 'txt' || formData.fileType === 'faq' ? (
-                  <div className="space-y-2">
-                    <Label htmlFor="content">Content</Label>
-                    <Textarea
-                      id="content"
-                      rows={6}
-                      placeholder="Enter the document content..."
-                      value={formData.content}
-                      onChange={(e) => setFormData((p) => ({ ...p, content: e.target.value }))}
-                      data-testid="textarea-content"
-                    />
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">File upload coming soon</p>
-                )}
-                <Button onClick={handleCreate} className="w-full" disabled={createDoc.isPending} data-testid="button-submit">
-                  Add Document
+
+          <div className="flex items-center gap-3">
+            <div className="relative w-64">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="بحث في المستندات والأسئلة..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pr-9 h-10 text-xs bg-card"
+              />
+            </div>
+
+            <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+              <DialogTrigger asChild>
+                <Button className="gap-2 h-10 rounded-xl px-4 shadow-sm" data-testid="button-create-doc">
+                  <Plus className="w-4 h-4" />
+                  <span>إضافة مستند أو سؤال وجواب</span>
                 </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>إضافة معرفة جديدة للـ AI</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 pt-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">عنوان المستند / السؤال *</Label>
+                    <Input
+                      id="title"
+                      placeholder="مثال: سياسة الشحن والتوصيل في السعودية أو مواصفات العطور"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="fileType">نوع المحتوى</Label>
+                    <Select
+                      value={formData.fileType}
+                      onValueChange={(val: any) => setFormData({ ...formData, fileType: val })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="txt">نص مباشر / سياسة (Text)</SelectItem>
+                        <SelectItem value="faq">سؤال وجواب (FAQ)</SelectItem>
+                        <SelectItem value="url">رابط موقع / صفحة متجر (Web URL)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {formData.fileType === 'url' ? (
+                    <div className="space-y-2">
+                      <Label htmlFor="url">رابط الصفحة (URL)</Label>
+                      <Input
+                        id="url"
+                        placeholder="https://salla.sa/yourstore/policy"
+                        value={formData.url}
+                        onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                      />
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Label htmlFor="content">تفاصيل المحتوى والمعلومات للـ AI</Label>
+                      <Textarea
+                        id="content"
+                        placeholder="اكتب هنا كافة الإجابات والتفاصيل التي تريد من الـ AI معرفتها والرد بها على العملاء..."
+                        value={formData.content}
+                        onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                        rows={6}
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex justify-end gap-2 pt-4">
+                    <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
+                      إلغاء
+                    </Button>
+                    <Button onClick={handleCreate} disabled={createDoc.isPending}>
+                      {createDoc.isPending ? 'جاري التدريب...' : 'حفظ وتدريب الـ AI'}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search documents..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-            data-testid="input-search"
-          />
-        </div>
-
+        {/* Knowledge Documents Grid */}
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-48 bg-muted animate-pulse rounded-lg" />
+              <div key={i} className="h-40 bg-muted animate-pulse rounded-2xl" />
             ))}
           </div>
         ) : !filteredDocs || filteredDocs.length === 0 ? (
           <EmptyState
             icon={BookOpen}
-            title="No documents found"
-            description="Add documents to train your AI assistant"
-            action={{ label: 'Add Document', onClick: () => setIsCreateOpen(true) }}
+            title="لا توجد مستندات مسجلة"
+            description="أضف مستندات أو أسئلة شائعة لتدريب الذكاء الاصطناعي على الرد المخصص لمتجرك."
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-testid="documents-grid">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredDocs.map((doc) => (
               <div
                 key={doc.id}
-                className="bg-card border border-card-border rounded-lg p-5 hover:border-primary/50 transition-colors"
-                data-testid={`doc-${doc.id}`}
+                className="bg-card border border-border/80 rounded-2xl p-5 shadow-sm space-y-4 hover:shadow-md transition-all group flex flex-col justify-between"
               >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <FileText className="w-5 h-5 text-primary" />
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => handleDelete(doc.id)}
-                    data-testid={`button-delete-${doc.id}`}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-                <h3 className="font-semibold mb-2">{doc.title}</h3>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground uppercase">{doc.fileType}</span>
-                    <StatusBadge status={doc.status} variant="compact" />
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                      <h3 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors leading-snug">
+                        {doc.title}
+                      </h3>
+                    </div>
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                      onClick={() => handleDelete(doc.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
-                  {doc.chunkCount !== null && doc.chunkCount !== undefined && (
-                    <p className="text-xs text-muted-foreground">{doc.chunkCount} chunks</p>
-                  )}
-                  <p className="text-xs text-muted-foreground pt-2 border-t border-border">
-                    {formatDateTime(doc.createdAt)}
+
+                  <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
+                    {((doc as any).content) || ((doc as any).url) || 'مستند معرفي نشط ومتاح للـ AI'}
                   </p>
+                </div>
+
+                <div className="flex items-center justify-between pt-3 border-t border-border/60 text-[10px] text-muted-foreground">
+                  <StatusBadge status={doc.status || 'ready'} variant="compact" />
+                  <span className="font-mono">{formatDateTime(doc.createdAt)}</span>
                 </div>
               </div>
             ))}

@@ -9,14 +9,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/empty-state';
-import { Users as UsersIcon, Plus, Trash2, Shield } from 'lucide-react';
+import { Users as UsersIcon, Plus, Trash2, Shield, UserCheck, Mail } from 'lucide-react';
 import { getInitials, formatDateTime } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
-const ROLE_COLORS: Record<string, string> = {
-  owner: 'bg-purple-500/10 text-purple-600 border-0',
-  admin: 'bg-blue-500/10 text-blue-600 border-0',
-  agent: 'bg-green-500/10 text-green-600 border-0',
+const ROLE_LABELS: Record<string, { label: string; color: string }> = {
+  owner: { label: 'مالك المتجر / المدير', color: 'bg-purple-500/10 text-purple-600 border-purple-500/20' },
+  admin: { label: 'مشرف عمليات', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' },
+  agent: { label: 'ممثل خدمة عملاء', color: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' },
+  viewer: { label: 'مراقب فقط', color: 'bg-gray-500/10 text-gray-600 border-gray-500/20' },
 };
 
 export default function Users() {
@@ -36,6 +37,11 @@ export default function Users() {
   const deleteUser = useDeleteUser();
 
   const handleInvite = () => {
+    if (!form.firstName.trim() || !form.email.trim() || !form.password.trim()) {
+      toast({ title: 'يرجى ملء جميع الحقول الإلزامية', variant: 'destructive' });
+      return;
+    }
+
     createUser.mutate(
       { data: form as any },
       {
@@ -43,164 +49,188 @@ export default function Users() {
           queryClient.invalidateQueries({ queryKey: getListUsersQueryKey() });
           setIsInviteOpen(false);
           setForm({ firstName: '', lastName: '', email: '', password: '', role: 'agent' });
-          toast({ title: 'Team member added' });
+          toast({ title: '✅ تم إضافة عضو الفريق بنجاح' });
         },
-        onError: (e) => toast({ title: 'Failed to add member', description: e.message, variant: 'destructive' }),
+        onError: (e) => toast({ title: 'فشل إضافة العضو', description: e.message, variant: 'destructive' }),
       }
     );
   };
 
   const handleDelete = (id: number) => {
-    if (!confirm('Remove this team member?')) return;
+    if (!confirm('هل أنت متأكد من رغبتك في إزالة هذا العضو من الفريق؟')) return;
     deleteUser.mutate(
       { id },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListUsersQueryKey() });
-          toast({ title: 'Team member removed' });
+          toast({ title: 'تم حذف العضو' });
         },
-        onError: (e) => toast({ title: 'Failed', description: e.message, variant: 'destructive' }),
+        onError: (e) => toast({ title: 'فشل الحذف', description: e.message, variant: 'destructive' }),
       }
     );
   };
 
   return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
+    <div className="flex-1 overflow-y-auto bg-background/50">
+      <div className="p-6 md:p-8 space-y-6 max-w-[1600px] mx-auto">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Team</h1>
-            <p className="text-sm text-muted-foreground mt-1">Manage your support team members</p>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+              فريق العمل والموظفين (Team & Access)
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1 font-medium">
+              إدارة صلاحيات موظفي الدعم، المشرفين، ومسؤولي المبيعات
+            </p>
           </div>
+
           <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
             <DialogTrigger asChild>
-              <Button data-testid="button-invite-user">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Member
+              <Button className="gap-2 h-10 rounded-xl px-5 shadow-sm" data-testid="button-invite-user">
+                <Plus className="w-4 h-4" />
+                <span>إضافة موظف جديد</span>
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[450px]">
               <DialogHeader>
-                <DialogTitle>Add Team Member</DialogTitle>
+                <DialogTitle>إضافة عضو جديد لفريق العمل</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-4 pt-2">
+                <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label>First name</Label>
+                    <Label>الاسم الأول *</Label>
                     <Input
+                      placeholder="أحمد"
                       value={form.firstName}
                       onChange={(e) => setForm(p => ({ ...p, firstName: e.target.value }))}
                       data-testid="input-first-name"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Last name</Label>
+                    <Label>اسم العائلة</Label>
                     <Input
+                      placeholder="الغامدي"
                       value={form.lastName}
                       onChange={(e) => setForm(p => ({ ...p, lastName: e.target.value }))}
                       data-testid="input-last-name"
                     />
                   </div>
                 </div>
+
                 <div className="space-y-2">
-                  <Label>Email</Label>
+                  <Label>البريد الإلكتروني *</Label>
                   <Input
                     type="email"
+                    placeholder="ahmed@company.com"
                     value={form.email}
                     onChange={(e) => setForm(p => ({ ...p, email: e.target.value }))}
                     data-testid="input-email"
                   />
                 </div>
+
                 <div className="space-y-2">
-                  <Label>Password</Label>
+                  <Label>كلمة المرور الأولية *</Label>
                   <Input
                     type="password"
+                    placeholder="••••••••"
                     value={form.password}
                     onChange={(e) => setForm(p => ({ ...p, password: e.target.value }))}
-                    placeholder="Temporary password"
                     data-testid="input-password"
                   />
                 </div>
+
                 <div className="space-y-2">
-                  <Label>Role</Label>
-                  <Select value={form.role} onValueChange={(v) => setForm(p => ({ ...p, role: v as any }))}>
+                  <Label>الدور والصلاحية</Label>
+                  <Select
+                    value={form.role}
+                    onValueChange={(val: any) => setForm(p => ({ ...p, role: val }))}
+                  >
                     <SelectTrigger data-testid="select-role">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="agent">Agent</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="owner">Owner</SelectItem>
+                      <SelectItem value="agent">ممثل خدمة عملاء (Agent)</SelectItem>
+                      <SelectItem value="admin">مشرف ومسؤول (Admin)</SelectItem>
+                      <SelectItem value="viewer">مراقب قراءة فقط (Viewer)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <Button onClick={handleInvite} className="w-full" disabled={createUser.isPending} data-testid="button-submit">
-                  Add Member
-                </Button>
+
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button variant="outline" onClick={() => setIsInviteOpen(false)}>
+                    إلغاء
+                  </Button>
+                  <Button onClick={handleInvite} disabled={createUser.isPending} data-testid="button-submit-invite">
+                    {createUser.isPending ? 'جاري الإضافة...' : 'حفظ وإضافة الموظف'}
+                  </Button>
+                </div>
               </div>
             </DialogContent>
           </Dialog>
         </div>
 
+        {/* Team Members List Grid */}
         {isLoading ? (
-          <div className="space-y-3">
-            {[...Array(4)].map((_, i) => <div key={i} className="h-20 bg-muted animate-pulse rounded-lg" />)}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-36 bg-muted animate-pulse rounded-2xl" />
+            ))}
           </div>
         ) : !users || users.length === 0 ? (
           <EmptyState
             icon={UsersIcon}
-            title="No team members yet"
-            description="Add your first team member to get started"
-            action={{ label: 'Add Member', onClick: () => setIsInviteOpen(true) }}
+            title="لا يوجد أعضاء بالفريق"
+            description="أضف أعضاء فريق العمل للبدء في الرد على العملاء ومتابعة العمليات."
           />
         ) : (
-          <div className="bg-card border border-card-border rounded-lg overflow-hidden">
-            <table className="w-full" data-testid="users-table">
-              <thead className="bg-muted/50 border-b border-border">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Member</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Role</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Joined</th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-muted/30" data-testid={`user-${user.id}`}>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="w-9 h-9">
-                          <AvatarImage src={user.avatarUrl || undefined} />
-                          <AvatarFallback>{getInitials(user.firstName, user.lastName)}</AvatarFallback>
-                        </Avatar>
-                        <p className="font-medium">{user.firstName} {user.lastName}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {users.map((user) => {
+              const roleInfo = ROLE_LABELS[user.role] || ROLE_LABELS.agent;
+
+              return (
+                <div
+                  key={user.id}
+                  className="bg-card border border-border/80 rounded-2xl p-5 shadow-sm space-y-4 hover:shadow-md transition-all group flex flex-col justify-between"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="w-12 h-12 border border-primary/20">
+                        <AvatarImage src={user.avatarUrl || undefined} />
+                        <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">
+                          {getInitials(user.firstName, user.lastName)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">
+                          {user.firstName} {user.lastName}
+                        </h3>
+                        <p className="text-xs text-muted-foreground font-mono mt-0.5">
+                          {user.email}
+                        </p>
                       </div>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">{user.email}</td>
-                    <td className="px-4 py-3">
-                      <Badge variant="secondary" className={`text-xs ${ROLE_COLORS[user.role] ?? ''}`}>
-                        <Shield className="w-3 h-3 mr-1" />
-                        {user.role}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">{formatDateTime(user.createdAt)}</td>
-                    <td className="px-4 py-3 text-right">
-                      {user.role !== 'owner' && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(user.id)}
-                          data-testid={`button-delete-${user.id}`}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      onClick={() => handleDelete(user.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 border-t border-border/60 text-xs">
+                    <Badge variant="outline" className={`text-[10px] font-bold ${roleInfo.color}`}>
+                      {roleInfo.label}
+                    </Badge>
+                    <span className="text-[10px] text-muted-foreground font-mono">
+                      {formatDateTime(user.createdAt)}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
