@@ -116,12 +116,12 @@ export default function Workspaces() {
       {/* Top Navbar */}
       <header className="border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-30 px-6 py-4 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl overflow-hidden shadow-sm border border-border">
-            <img src="/logo.png" alt="Spark Hub" className="w-full h-full object-cover" />
+          <div className="w-9 h-9 rounded-xl overflow-hidden shadow-sm border border-primary/30">
+            <img src="/logo.png" alt="سند" className="w-full h-full object-cover" />
           </div>
           <div>
-            <h1 className="font-extrabold text-base text-foreground leading-none">Spark Hub</h1>
-            <p className="text-[11px] text-muted-foreground mt-0.5">منصة إدارة وتشغيل المتاجر الذكية</p>
+            <h1 className="font-extrabold text-base text-foreground leading-none sanad-gradient-text">سند</h1>
+            <p className="text-[11px] text-muted-foreground mt-0.5">المساعد الذكي لمتجرك</p>
           </div>
         </div>
 

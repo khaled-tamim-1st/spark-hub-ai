@@ -68,12 +68,12 @@ export default function Login() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl overflow-hidden mb-4 shadow-lg border border-border">
-            <img src="/logo.png" alt="Spark Hub" className="w-full h-full object-cover" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl overflow-hidden mb-4 shadow-lg border border-primary/20 sanad-glow">
+            <img src="/logo.png" alt="سند" className="w-full h-full object-cover" />
           </div>
-          <h1 className="text-3xl font-extrabold text-foreground mb-1 tracking-tight">Spark Hub</h1>
+          <h1 className="text-3xl font-extrabold mb-1 tracking-tight sanad-gradient-text">سند</h1>
           <p className="text-muted-foreground text-sm font-medium">
-            {selectingOrg ? 'اختر مساحة عمل المتجر أو الشركة' : 'منصة العمليات والذكاء الاصطناعي للمتاجر'}
+            {selectingOrg ? 'اختر مساحة عمل المتجر أو الشركة' : 'المساعد الذكي لمتجرك على سلة 🛒'}
           </p>
         </div>
 

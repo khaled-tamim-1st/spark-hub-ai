@@ -126,19 +126,19 @@ export function AppShell({ children }: AppShellProps) {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Logo Area */}
+        {/* Logo Area — سند Brand */}
         <div className="flex items-center h-16 px-3 border-b border-sidebar-border overflow-hidden shrink-0">
-          <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shrink-0 shadow-sm border border-sidebar-border">
-            <img src="/logo.png" alt="Spark Hub" className="w-full h-full object-cover" />
+          <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shrink-0 sanad-logo-glow">
+            <img src="/logo.png" alt="سند" className="w-full h-full object-cover" />
           </div>
           <div 
             className={cn(
-              "ml-3 flex flex-col transition-opacity duration-300 whitespace-nowrap",
+              "me-3 flex flex-col transition-opacity duration-300 whitespace-nowrap",
               isExpanded ? "opacity-100" : "opacity-0"
             )}
           >
-            <span className="font-bold text-sidebar-foreground text-sm tracking-tight leading-tight">Spark Hub</span>
-            <span className="text-[10px] text-amber-500 uppercase font-bold tracking-wider">AI Platform</span>
+            <span className="font-extrabold text-sm tracking-tight leading-tight sanad-gradient-text">سند</span>
+            <span className="text-[10px] text-purple-400 font-bold tracking-wider">المساعد الذكي لمتجرك</span>
           </div>
         </div>
 
