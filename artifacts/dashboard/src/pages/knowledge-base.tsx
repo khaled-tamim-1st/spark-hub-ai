@@ -37,22 +37,28 @@ export default function KnowledgeBase() {
   );
 
   const handleCreate = () => {
-    if (!formData.title.trim()) {
+    let effectiveTitle = formData.title.trim();
+    if (!effectiveTitle && formData.fileType === 'url' && formData.url.trim()) {
+      effectiveTitle = formData.url.trim();
+    }
+
+    if (!effectiveTitle) {
       toast({ 
-        title: language === 'ar' ? 'يرجى كتابة عنوان للمستند أو السؤال' : 'Please enter a title for the document', 
+        title: language === 'ar' ? 'يرجى كتابة عنوان للمستند أو إدخال الرابط' : 'Please enter a title or URL', 
         variant: 'destructive' 
       });
       return;
     }
 
     const data: any = {
-      title: formData.title,
+      title: effectiveTitle,
       fileType: formData.fileType,
+      contentType: formData.fileType,
     };
 
     if (formData.fileType === 'url') {
-      data.url = formData.url;
-    } else if (formData.fileType === 'txt' || formData.fileType === 'faq') {
+      data.url = formData.url.trim() || effectiveTitle;
+    } else {
       data.content = formData.content;
     }
 
