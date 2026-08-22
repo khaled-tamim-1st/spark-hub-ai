@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/lib/i18n';
 
 export default function Workspaces() {
   const [, setLocation] = useLocation();
@@ -111,29 +112,30 @@ export default function Workspaces() {
     );
   });
 
+  const { language, t } = useLanguage();
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">
       {/* Top Navbar */}
       <header className="border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-30 px-6 py-4 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl overflow-hidden shadow-sm border border-primary/30">
-            <img src="/logo.png" alt="سند" className="w-full h-full object-cover" />
+            <img src="/logo.png" alt={t.brandName} className="w-full h-full object-cover" />
           </div>
           <div>
-            <h1 className="font-extrabold text-base text-foreground leading-none sanad-gradient-text">سند</h1>
-            <p className="text-[11px] text-muted-foreground mt-0.5">المساعد الذكي لمتجرك</p>
+            <h1 className="font-extrabold text-base text-foreground leading-none sanad-gradient-text">{t.brandName}</h1>
+            <p className="text-[11px] text-muted-foreground mt-0.5">{t.brandTagline}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="text-left hidden sm:block">
+          <div className="text-start hidden sm:block">
             <p className="text-xs font-bold text-foreground">{user?.firstName} {user?.lastName}</p>
             <p className="text-[10px] text-muted-foreground font-mono">{user?.email}</p>
           </div>
 
           <Button variant="ghost" size="sm" onClick={handleLogout} className="text-xs text-muted-foreground gap-1.5">
             <LogOut className="w-4 h-4" />
-            <span>تسجيل الخروج</span>
+            <span>{t.logout}</span>
           </Button>
         </div>
       </header>
@@ -143,17 +145,17 @@ export default function Workspaces() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl md:text-3xl font-extrabold text-foreground tracking-tight">
-              مساحات العمل والمتاجر (Workspaces)
+              {language === 'ar' ? 'مساحات العمل والمتاجر' : 'Store Workspaces'}
             </h2>
             <p className="text-sm text-muted-foreground mt-1 font-medium">
-              اختر المتجر أو الشركة التي ترغب في إدارتها ومتابعة عملياتها الآن
+              {language === 'ar' ? 'اختر المتجر أو الشركة التي ترغب في إدارتها ومتابعة عملياتها الآن' : 'Select the store or organization you want to manage'}
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <Button onClick={() => setIsCreateOpen(true)} className="gap-2 h-10 rounded-xl px-4 shadow-sm">
               <Plus className="w-4 h-4" />
-              <span>إضافة متجر / شركة جديدة</span>
+              <span>{language === 'ar' ? 'إضافة متجر / شركة جديدة' : 'Add New Workspace'}</span>
             </Button>
           </div>
         </div>

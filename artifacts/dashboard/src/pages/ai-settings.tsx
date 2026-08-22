@@ -11,7 +11,10 @@ import { useToast } from '@/hooks/use-toast';
 import { Bot, Save, Loader2, Send, Sparkles, CheckCircle2, AlertCircle, Cpu, Sliders } from 'lucide-react';
 import { fetchWithAuth } from '@/lib/admin-api';
 
+import { useLanguage } from '@/lib/i18n';
+
 export default function AiSettings() {
+  const { language, t } = useLanguage();
   const { data: settings, isLoading } = useGetAiSettings();
   const updateSettings = useUpdateAiSettings();
   const { toast } = useToast();
@@ -23,7 +26,7 @@ export default function AiSettings() {
 
   const [form, setForm] = useState({
     provider: 'groq',
-    model: 'openai/gpt-oss-120b',
+    model: 'llama-3.3-70b-versatile',
     baseUrl: '',
     apiKey: '',
     systemPrompt: 'أنت مساعد ذكي ومتخصص لخدمة عملاء المتجر. أجب دائماً بأسلوب مهذب وودود وموجز، وساعد العميل في معرفة حالة الطلبات والشحن والمنتجات.',
@@ -38,7 +41,7 @@ export default function AiSettings() {
       const s = settings as any;
       setForm({
         provider: s.provider ?? 'groq',
-        model: s.model ?? 'openai/gpt-oss-120b',
+        model: s.model ?? 'llama-3.3-70b-versatile',
         baseUrl: s.baseUrl ?? '',
         apiKey: s.apiKey ?? '',
         systemPrompt: s.systemPrompt ?? 'أنت مساعد ذكي ومتخصص لخدمة عملاء المتجر. أجب دائماً بأسلوب مهذب وودود وموجز، وساعد العميل في معرفة حالة الطلبات والشحن والمنتجات.',
@@ -54,8 +57,12 @@ export default function AiSettings() {
     updateSettings.mutate(
       { data: form as any },
       {
-        onSuccess: () => toast({ title: '✅ تم حفظ إعدادات الذكاء الاصطناعي بنجاح' }),
-        onError: (e) => toast({ title: 'فشل الحفظ', description: e.message, variant: 'destructive' }),
+        onSuccess: () => toast({ title: t.savedSuccessfully }),
+        onError: (e) => toast({ 
+          title: language === 'ar' ? 'فشل الحفظ' : 'Failed to save', 
+          description: e.message, 
+          variant: 'destructive' 
+        }),
       }
     );
   };
@@ -81,12 +88,15 @@ export default function AiSettings() {
         }),
       });
       setTestReply(res.reply);
-      toast({ title: '✨ تم استلام رد الذكاء الاصطناعي', description: 'تم اختبار النموذج والـ Prompt بنجاح!' });
+      toast({ 
+        title: language === 'ar' ? 'تم استلام رد الذكاء الاصطناعي' : 'AI Response Received', 
+        description: language === 'ar' ? 'تم اختبار النموذج والـ Prompt بنجاح' : 'Model replied successfully' 
+      });
     } catch (err: any) {
-      setTestError(err.message || 'فشل الاتصال بمزود الذكاء الاصطناعي.');
+      setTestError(err.message || (language === 'ar' ? 'فشل الاتصال بمزود الذكاء الاصطناعي.' : 'Failed to connect to AI provider.'));
       toast({
-        title: 'فشل الاختبار',
-        description: err.message || 'يرجى مراجعة مفتاح الـ API ومزود الذكاء الاصطناعي.',
+        title: language === 'ar' ? 'فشل الاختبار' : 'Test Failed',
+        description: err.message,
         variant: 'destructive',
       });
     } finally {
@@ -110,16 +120,16 @@ export default function AiSettings() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-              إعدادات الذكاء الاصطناعي (AI Prompt & Models)
+              {t.aiSettingsTitle}
             </h1>
             <p className="text-sm text-muted-foreground mt-1 font-medium">
-              تخصيص شخصية المساعد الذكي، تعليمات الرد، ونموذج التفكير
+              {t.aiSettingsSubtitle}
             </p>
           </div>
 
           <Button onClick={handleSave} disabled={updateSettings.isPending} className="gap-2 h-10 rounded-xl px-5 shadow-sm">
             <Save className="w-4 h-4" />
-            <span>{updateSettings.isPending ? 'جاري الحفظ...' : 'حفظ الإعدادات'}</span>
+            <span>{updateSettings.isPending ? t.saving : t.save}</span>
           </Button>
         </div>
 
@@ -131,10 +141,10 @@ export default function AiSettings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <h3 className="font-bold text-sm text-foreground flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-primary" /> تفعيل الرد التلقائي العام (Auto-Pilot)
+                    <Sparkles className="w-4 h-4 text-primary" /> {t.autoPilotToggle}
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    الرد التلقائي الفوري على رسائل العملاء الواردة عبر كافة القنوات
+                    {t.autoPilotDesc}
                   </p>
                 </div>
                 <Switch

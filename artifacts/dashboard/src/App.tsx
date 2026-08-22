@@ -20,6 +20,7 @@ import Users from '@/pages/users';
 import Settings from '@/pages/settings';
 import AdminOrganizations from '@/pages/admin-organizations';
 import Workspaces from '@/pages/workspaces';
+import { LanguageProvider } from '@/lib/i18n';
 import NotFound from '@/pages/not-found';
 
 const queryClient = new QueryClient({
@@ -101,12 +102,14 @@ function AppRoutes() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          <AppRoutes />
-        </WouterRouter>
-        <Toaster />
-      </TooltipProvider>
+      <LanguageProvider>
+        <TooltipProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+            <AppRoutes />
+          </WouterRouter>
+          <Toaster />
+        </TooltipProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

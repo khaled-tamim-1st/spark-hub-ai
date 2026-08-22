@@ -20,7 +20,10 @@ const ROLE_LABELS: Record<string, { label: string; color: string }> = {
   viewer: { label: 'مراقب فقط', color: 'bg-gray-500/10 text-gray-600 border-gray-500/20' },
 };
 
+import { useLanguage } from '@/lib/i18n';
+
 export default function Users() {
+  const { language, t } = useLanguage();
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [form, setForm] = useState<{ firstName: string; lastName: string; email: string; password: string; role: 'owner' | 'admin' | 'agent' | 'viewer' }>({ 
     firstName: '', 
@@ -38,7 +41,10 @@ export default function Users() {
 
   const handleInvite = () => {
     if (!form.firstName.trim() || !form.email.trim() || !form.password.trim()) {
-      toast({ title: 'يرجى ملء جميع الحقول الإلزامية', variant: 'destructive' });
+      toast({ 
+        title: language === 'ar' ? 'يرجى ملء جميع الحقول الإلزامية' : 'Please fill all required fields', 
+        variant: 'destructive' 
+      });
       return;
     }
 
@@ -49,23 +55,31 @@ export default function Users() {
           queryClient.invalidateQueries({ queryKey: getListUsersQueryKey() });
           setIsInviteOpen(false);
           setForm({ firstName: '', lastName: '', email: '', password: '', role: 'agent' });
-          toast({ title: '✅ تم إضافة عضو الفريق بنجاح' });
+          toast({ title: language === 'ar' ? 'تم إضافة عضو الفريق بنجاح' : 'Team member added successfully' });
         },
-        onError: (e) => toast({ title: 'فشل إضافة العضو', description: e.message, variant: 'destructive' }),
+        onError: (e) => toast({ 
+          title: language === 'ar' ? 'فشل إضافة العضو' : 'Failed to add member', 
+          description: e.message, 
+          variant: 'destructive' 
+        }),
       }
     );
   };
 
   const handleDelete = (id: number) => {
-    if (!confirm('هل أنت متأكد من رغبتك في إزالة هذا العضو من الفريق؟')) return;
+    if (!confirm(language === 'ar' ? 'هل أنت متأكد من رغبتك في إزالة هذا العضو من الفريق؟' : 'Are you sure you want to remove this team member?')) return;
     deleteUser.mutate(
       { id },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListUsersQueryKey() });
-          toast({ title: 'تم حذف العضو' });
+          toast({ title: t.deletedSuccessfully });
         },
-        onError: (e) => toast({ title: 'فشل الحذف', description: e.message, variant: 'destructive' }),
+        onError: (e) => toast({ 
+          title: language === 'ar' ? 'فشل الحذف' : 'Failed to remove member', 
+          description: e.message, 
+          variant: 'destructive' 
+        }),
       }
     );
   };
@@ -77,10 +91,10 @@ export default function Users() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-              فريق العمل والموظفين (Team & Access)
+              {language === 'ar' ? 'فريق العمل والصلاحيات' : 'Team & Access Permissions'}
             </h1>
             <p className="text-sm text-muted-foreground mt-1 font-medium">
-              إدارة صلاحيات موظفي الدعم، المشرفين، ومسؤولي المبيعات
+              {language === 'ar' ? 'إدارة صلاحيات موظفي الدعم، المشرفين، ومسؤولي المبيعات' : 'Manage support agents, admins, and operations staff'}
             </p>
           </div>
 

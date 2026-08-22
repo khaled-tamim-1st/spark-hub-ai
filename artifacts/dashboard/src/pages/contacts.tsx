@@ -11,7 +11,10 @@ import { Plus, Search, Mail, Phone, Building2, Trash2, User, ExternalLink } from
 import { getInitials, formatDateTime } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
+import { useLanguage } from '@/lib/i18n';
+
 export default function Contacts() {
+  const { language, t } = useLanguage();
   const [search, setSearch] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -33,7 +36,10 @@ export default function Contacts() {
 
   const handleCreate = () => {
     if (!formData.firstName.trim()) {
-      toast({ title: 'يرجى إدخال الاسم الأول على الأقل', variant: 'destructive' });
+      toast({ 
+        title: language === 'ar' ? 'يرجى إدخال الاسم الأول على الأقل' : 'Please enter at least a first name', 
+        variant: 'destructive' 
+      });
       return;
     }
 
@@ -44,11 +50,11 @@ export default function Contacts() {
           queryClient.invalidateQueries({ queryKey: getListContactsQueryKey({}) });
           setIsCreateOpen(false);
           setFormData({ firstName: '', lastName: '', email: '', phone: '' });
-          toast({ title: '✅ تم إنشاء جهة الاتصال بنجاح' });
+          toast({ title: language === 'ar' ? 'تم إنشاء جهة الاتصال بنجاح' : 'Contact created successfully' });
         },
         onError: (error) => {
           toast({
-            title: 'فشل إنشاء جهة الاتصال',
+            title: language === 'ar' ? 'فشل إنشاء جهة الاتصال' : 'Failed to create contact',
             description: error.message,
             variant: 'destructive',
           });
@@ -58,18 +64,18 @@ export default function Contacts() {
   };
 
   const handleDelete = (id: number) => {
-    if (!confirm('هل أنت متأكد من رغبتك في حذف جهة الاتصال هذه؟')) return;
+    if (!confirm(language === 'ar' ? 'هل أنت متأكد من رغبتك في حذف جهة الاتصال هذه؟' : 'Are you sure you want to delete this contact?')) return;
 
     deleteContact.mutate(
       { id },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListContactsQueryKey({}) });
-          toast({ title: 'تم حذف جهة الاتصال' });
+          toast({ title: t.deletedSuccessfully });
         },
         onError: (error) => {
           toast({
-            title: 'فشل حذف جهة الاتصال',
+            title: language === 'ar' ? 'فشل حذف جهة الاتصال' : 'Failed to delete contact',
             description: error.message,
             variant: 'destructive',
           });
@@ -85,21 +91,21 @@ export default function Contacts() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-              جهات الاتصال والعملاء (Contacts)
+              {language === 'ar' ? 'جهات الاتصال والعملاء' : 'Customer Contacts'}
             </h1>
             <p className="text-sm text-muted-foreground mt-1 font-medium">
-              دليل بيانات العملاء المسجلين وسجلات التواصل
+              {language === 'ar' ? 'دليل بيانات العملاء المسجلين وسجلات التواصل' : 'Manage registered customer profiles and records'}
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="relative w-64">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="بحث بالاسم أو الرقم أو الإيميل..."
+                placeholder={language === 'ar' ? 'بحث بالاسم أو الرقم أو الإيميل...' : 'Search by name, phone or email...'}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pr-9 h-10 text-xs bg-card"
+                className="ps-9 h-10 text-xs bg-card"
               />
             </div>
 
@@ -107,29 +113,29 @@ export default function Contacts() {
               <DialogTrigger asChild>
                 <Button className="gap-2 h-10 rounded-xl px-4 shadow-sm" data-testid="button-create-contact">
                   <Plus className="w-4 h-4" />
-                  <span>إضافة عميل جديد</span>
+                  <span>{language === 'ar' ? 'إضافة عميل جديد' : 'Add New Contact'}</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[450px]">
                 <DialogHeader>
-                  <DialogTitle>إضافة جهة اتصال جديدة</DialogTitle>
+                  <DialogTitle>{language === 'ar' ? 'إضافة جهة اتصال جديدة' : 'Create New Contact'}</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4 pt-2">
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
-                      <Label htmlFor="firstName">الاسم الأول *</Label>
+                      <Label htmlFor="firstName">{t.firstNameLabel} *</Label>
                       <Input
                         id="firstName"
-                        placeholder="سعد"
+                        placeholder={language === 'ar' ? 'سعد' : 'Saad'}
                         value={formData.firstName}
                         onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="lastName">اسم العائلة</Label>
+                      <Label htmlFor="lastName">{t.lastNameLabel}</Label>
                       <Input
                         id="lastName"
-                        placeholder="العتيبي"
+                        placeholder={language === 'ar' ? 'العتيبي' : 'Al-Otaibi'}
                         value={formData.lastName}
                         onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                       />
@@ -137,32 +143,34 @@ export default function Contacts() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="phone">رقم الهاتف / الجوال</Label>
+                    <Label htmlFor="phone">{t.phone}</Label>
                     <Input
                       id="phone"
                       placeholder="+966501234567"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      className="font-mono"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email">البريد الإلكتروني</Label>
+                    <Label htmlFor="email">{t.email}</Label>
                     <Input
                       id="email"
                       type="email"
                       placeholder="saad@example.com"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="font-mono"
                     />
                   </div>
 
                   <div className="flex justify-end gap-2 pt-4">
                     <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
-                      إلغاء
+                      {t.cancel}
                     </Button>
                     <Button onClick={handleCreate} disabled={createContact.isPending}>
-                      {createContact.isPending ? 'جاري الحفظ...' : 'حفظ العميل'}
+                      {createContact.isPending ? t.saving : (language === 'ar' ? 'حفظ العميل' : 'Save Contact')}
                     </Button>
                   </div>
                 </div>

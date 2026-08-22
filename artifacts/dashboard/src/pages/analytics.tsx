@@ -29,7 +29,10 @@ const agentData = [
   { name: 'عبدالله الشمري (شحن)', resolved: 55, avgTime: '2.8 د', csat: 4.9 },
 ];
 
+import { useLanguage } from '@/lib/i18n';
+
 export default function Analytics() {
+  const { language, t } = useLanguage();
   const { data: stats, isLoading } = useGetDashboardStats();
 
   if (isLoading) {
@@ -48,10 +51,10 @@ export default function Analytics() {
       <div className="p-6 md:p-8 space-y-8 max-w-[1600px] mx-auto">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-            التقارير ومؤشرات الأداء (Analytics & Insights)
+            {language === 'ar' ? 'التقارير ومؤشرات الأداء' : 'Analytics & Performance'}
           </h1>
           <p className="text-sm text-muted-foreground mt-1 font-medium">
-            تحليل دقيق لأداء الذكاء الاصطناعي، حجم القنوات، وسرعة خدمة العملاء
+            {language === 'ar' ? 'تحليل دقيق لأداء الذكاء الاصطناعي، حجم القنوات، وسرعة خدمة العملاء' : 'Comprehensive insights into AI resolution, channel volume, and agent speeds'}
           </p>
         </div>
 

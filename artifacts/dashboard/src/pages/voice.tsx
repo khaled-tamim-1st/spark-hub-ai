@@ -27,7 +27,10 @@ import { getToken } from '@/lib/auth';
 import { VoiceCallModal } from '@/components/voice-call-modal';
 import { StatusBadge } from '@/components/status-badge';
 
+import { useLanguage } from '@/lib/i18n';
+
 export default function VoicePage() {
+  const { language, t } = useLanguage();
   const [search, setSearch] = useState('');
   const [selectedSession, setSelectedSession] = useState<any | null>(null);
   const [isDialModalOpen, setIsDialModalOpen] = useState(false);
@@ -81,10 +84,10 @@ export default function VoicePage() {
             <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
               <PhoneCall className="w-6 h-6" />
             </span>
-            المكالمات الصوتية الذكية (Voice AI Engine)
+            {t.voiceTitle}
           </h1>
           <p className="text-muted-foreground text-sm mt-1 font-medium">
-            مساعد صوتي ذكي بالذكاء الاصطناعي يستقبل ويجري المكالمات الهاتفية الحقيقية ويتحدث بطلاقة
+            {t.voiceSubtitle}
           </p>
         </div>
 
@@ -94,7 +97,7 @@ export default function VoicePage() {
             className="gap-2 h-10 rounded-xl px-5 bg-emerald-600 hover:bg-emerald-700 text-white shadow-md"
           >
             <PhoneOutgoing className="w-4 h-4" />
-            <span>بدء مكالمة هاتفية جديدة</span>
+            <span>{t.startCall}</span>
           </Button>
         </div>
       </div>

@@ -13,7 +13,10 @@ import { Plus, BookOpen, FileText, Trash2, Search, Sparkles, Globe, HelpCircle }
 import { formatDateTime } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
+import { useLanguage } from '@/lib/i18n';
+
 export default function KnowledgeBase() {
+  const { language, t } = useLanguage();
   const [search, setSearch] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -35,7 +38,10 @@ export default function KnowledgeBase() {
 
   const handleCreate = () => {
     if (!formData.title.trim()) {
-      toast({ title: 'يرجى كتابة عنوان للمستند أو السؤال', variant: 'destructive' });
+      toast({ 
+        title: language === 'ar' ? 'يرجى كتابة عنوان للمستند أو السؤال' : 'Please enter a title for the document', 
+        variant: 'destructive' 
+      });
       return;
     }
 
@@ -57,11 +63,11 @@ export default function KnowledgeBase() {
           queryClient.invalidateQueries({ queryKey: getListKnowledgeBaseQueryKey() });
           setIsCreateOpen(false);
           setFormData({ title: '', fileType: 'txt', content: '', url: '' });
-          toast({ title: '✅ تم حفظ المستند وتدريب الذكاء الاصطناعي عليه' });
+          toast({ title: language === 'ar' ? 'تم حفظ المستند وتدريب الذكاء الاصطناعي بنجاح' : 'Document saved & AI trained successfully' });
         },
         onError: (error) => {
           toast({
-            title: 'فشل حفظ المستند',
+            title: language === 'ar' ? 'فشل حفظ المستند' : 'Failed to save document',
             description: error.message,
             variant: 'destructive',
           });
@@ -71,18 +77,18 @@ export default function KnowledgeBase() {
   };
 
   const handleDelete = (id: number) => {
-    if (!confirm('هل أنت متأكد من رغبتك في حذف هذا المستند من قاعدة المعرفة؟')) return;
+    if (!confirm(language === 'ar' ? 'هل أنت متأكد من رغبتك في حذف هذا المستند؟' : 'Are you sure you want to delete this document?')) return;
 
     deleteDoc.mutate(
       { id },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListKnowledgeBaseQueryKey() });
-          toast({ title: 'تم حذف المستند' });
+          toast({ title: t.deletedSuccessfully });
         },
         onError: (error) => {
           toast({
-            title: 'فشل حذف المستند',
+            title: language === 'ar' ? 'فشل حذف المستند' : 'Failed to delete document',
             description: error.message,
             variant: 'destructive',
           });
@@ -98,21 +104,21 @@ export default function KnowledgeBase() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-              قاعدة المعرفة والمنتجات (Knowledge Base)
+              {t.kbTitle}
             </h1>
             <p className="text-sm text-muted-foreground mt-1 font-medium">
-              تدريب الذكاء الاصطناعي على سياسات المتجر، تفاصيل المنتجات، والأسئلة الشائعة
+              {t.kbSubtitle}
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="relative w-64">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="بحث في المستندات والأسئلة..."
+                placeholder={language === 'ar' ? 'بحث في المستندات والأسئلة...' : 'Search documents & FAQs...'}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pr-9 h-10 text-xs bg-card"
+                className="ps-9 h-10 text-xs bg-card"
               />
             </div>
 
