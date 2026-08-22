@@ -42,4 +42,21 @@ router.post('/meta', async (req, res) => {
   }
 });
 
+// POST /api/webhooks/salla - Salla E-Commerce Webhook Receiver
+router.post('/salla', async (req, res) => {
+  const event = req.body?.event || req.headers['x-salla-event'] || 'unknown';
+  const payload = req.body || {};
+  const merchantId = payload.merchant || req.headers['x-salla-merchant'];
+
+  console.log(`[Salla Webhook] Received event [${event}] from merchant [${merchantId}]`);
+  res.status(200).json({ status: 'success' });
+
+  try {
+    const { sallaService } = await import('../services/salla-service.js');
+    await sallaService.handleSallaWebhook(String(event), payload, 1);
+  } catch (err: any) {
+    console.error('[Salla Webhook] Processing error:', err);
+  }
+});
+
 export default router;

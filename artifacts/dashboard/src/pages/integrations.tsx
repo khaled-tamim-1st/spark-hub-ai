@@ -53,6 +53,41 @@ const INTEGRATION_TYPES = [
       { key: 'welcomeMessage', label: 'Welcome Message' },
     ],
   },
+  {
+    name: 'Telephony & SIP Trunk (المكالمات الصوتية)',
+    type: 'voice',
+    provider: 'generic_sip',
+    description: 'ربط خطوط التليفون والسنترال السحابي (SIP Trunk / FreeSWITCH / Asterisk / Cloud PBX)',
+    icon: '📞',
+    fields: [
+      { key: 'sipGatewayUrl', label: 'SIP Gateway / Webhook URL' },
+      { key: 'didNumber', label: 'رقم الهاتف المخصص (DID Number / Caller ID)' },
+      { key: 'webhookSecret', label: 'Webhook Secret Key', type: 'password' },
+    ],
+  },
+  {
+    name: 'متجر سلة (Salla E-Commerce)',
+    type: 'salla',
+    provider: 'salla',
+    description: 'الربط التلقائي مع متجر سلة لقراءة الطلبات والمنتجات وتتبع الشحنات واستعادة السلات المتروكة',
+    icon: '🛒',
+    fields: [
+      { key: 'token', label: 'Salla Access Token (رمز الوصول)', type: 'password' },
+      { key: 'merchantId', label: 'معرف التاجر في سلة (Merchant ID)' },
+      { key: 'webhookSecret', label: 'Salla Webhook Secret Key', type: 'password' },
+    ],
+  },
+  {
+    name: 'بوابات وشركات الشحن السعودية (OTO / SMSA / Aramex / RedBox)',
+    type: 'shipping',
+    provider: 'saudi_shipping',
+    description: 'ربط بوابات الشحن سمسا، أرامكس، ريدبوكس، سبل، وأوتو لتمكين الـ AI من إعطاء العميل حالة الشحنة المباشرة',
+    icon: '🚚',
+    fields: [
+      { key: 'apiKey', label: 'API Key / Tracking Token', type: 'password' },
+      { key: 'defaultCourier', label: 'شركة الشحن الافتراضية (SMSA / Aramex / RedBox / SPL / OTO)' },
+    ],
+  },
 ];
 
 type WhatsAppStatus = {

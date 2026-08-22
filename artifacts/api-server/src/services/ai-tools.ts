@@ -1,6 +1,8 @@
 import { db } from '@workspace/db';
 import { deals, knowledgeDocs, contacts, conversations, messages, notes } from '@workspace/db';
 import { eq, and, ilike, or } from 'drizzle-orm';
+import { sallaService } from './salla-service.js';
+import { saudiShippingService } from './shipping-service.js';
 
 export interface ToolExecutionContext {
   organizationId: number;
@@ -77,6 +79,70 @@ export const SHARED_AI_TOOLS: ToolDefinition[] = [
         },
       },
       required: ['subject', 'details'],
+    },
+  },
+  {
+    name: 'get_salla_order',
+    description: 'استعلام مباشر عن طلب العميل من متجر سلة (Salla) بالاسم أو رقم الطلب أو رقم الجوال لمعرفة المنتجات وحالة الشحن والتتبع.',
+    parameters: {
+      type: 'object',
+      properties: {
+        orderId: {
+          type: 'string',
+          description: 'رقم أو كود طلب سلة (مثال: 78912 أو #9941).',
+        },
+        mobile: {
+          type: 'string',
+          description: 'رقم جوال العميل للبحث عن طلباته في المتجر.',
+        },
+      },
+      required: [],
+    },
+  },
+  {
+    name: 'track_saudi_shipment',
+    description: 'تتبع الشحنة المباشر مع شركات الشحن السعودية (سمسا SMSA، أرامكس Aramex، ريدبوكس RedBox، سبل البريد السعودي SPL، أوتو OTO).',
+    parameters: {
+      type: 'object',
+      properties: {
+        trackingNumber: {
+          type: 'string',
+          description: 'رقم بوليصة الشحن والتتبع (Tracking Number / AWB).',
+        },
+        courier: {
+          type: 'string',
+          description: 'اسم شركة الشحن إن وُجد (مثل: سمسا، أرامكس، ريدبوكس، سبل).',
+        },
+      },
+      required: ['trackingNumber'],
+    },
+  },
+  {
+    name: 'check_product_inventory',
+    description: 'الاستعلام عن توفر منتج أو مقاس أو سعر في متجر سلة والكتالوج.',
+    parameters: {
+      type: 'object',
+      properties: {
+        productName: {
+          type: 'string',
+          description: 'اسم المنتج أو الكود أو الكلمات المفتاحية.',
+        },
+      },
+      required: ['productName'],
+    },
+  },
+  {
+    name: 'create_coupon_or_discount',
+    description: 'توليد كوبون وكود خصم فوري ومخصص للعميل لإتمام الطلب أو تعويض السلة المتروكة.',
+    parameters: {
+      type: 'object',
+      properties: {
+        discountPercent: {
+          type: 'number',
+          description: 'نسبة الخصم المطلوبة (مثال: 10 أو 15).',
+        },
+      },
+      required: [],
     },
   },
   {
@@ -185,6 +251,75 @@ export async function executeAiTool(
           success: true,
           result: docs,
           message: docs.length > 0 ? docs[0].content : 'لا توجد معلومات إضافية مسجلة في قاعدة المعرفة.',
+        };
+      }
+
+      case 'get_salla_order': {
+        const orderRes = await sallaService.getOrderDetails(organizationId, {
+          orderId: args.orderId,
+          mobile: args.mobile || customerPhone,
+        });
+
+        if (orderRes) {
+          const itemsStr = orderRes.items.map(it => `${it.name} (${it.quantity}x)`).join('، ');
+          const shipmentStr = orderRes.shipment 
+            ? `\nشركة الشحن: ${orderRes.shipment.courierName} (بوليصة: ${orderRes.shipment.trackingNumber})`
+            : '';
+
+          return {
+            success: true,
+            result: orderRes,
+            message: `طلب سلة #${orderRes.referenceId} للعميل ${orderRes.customer.name}:
+- الحالة: ${orderRes.status.name}
+- المنتجات: ${itemsStr}
+- الإجمالي: ${orderRes.total.amount} ${orderRes.total.currency}${shipmentStr}`,
+          };
+        }
+
+        return {
+          success: false,
+          result: null,
+          message: 'لم يتم العثور على طلب سلة بهذا الرقم أو الجوال. يرجى التحقق من الرقم.',
+        };
+      }
+
+      case 'track_saudi_shipment': {
+        const trackRes = await saudiShippingService.trackShipment(args.trackingNumber, args.courier);
+        const lastUpdate = trackRes.timeline[0]?.description || trackRes.statusDescriptionArabic;
+
+        return {
+          success: true,
+          result: trackRes,
+          message: `تتبع الشحنة مع ${trackRes.courierName} (رقم: ${trackRes.trackingNumber}):
+- الحالة الحالية: ${trackRes.statusDescriptionArabic}
+- آخر تحديث: ${lastUpdate}
+- الوجهة: ${trackRes.destinationCity || 'السعودية'}`,
+        };
+      }
+
+      case 'check_product_inventory': {
+        const products = await sallaService.checkProductInventory(organizationId, args.productName);
+        if (products.length > 0) {
+          const pList = products.map(p => `- ${p.name}: السعر ${p.price} ${p.currency} (المتاح بالمخزون: ${p.quantity} قطعة)`).join('\n');
+          return {
+            success: true,
+            result: products,
+            message: `المنتجات المتوفرة في المتجر:\n${pList}`,
+          };
+        }
+        return {
+          success: true,
+          result: [],
+          message: `المنتج "${args.productName}" غير متوفر حالياً في الكتالوج، أو نفدت الكمية.`,
+        };
+      }
+
+      case 'create_coupon_or_discount': {
+        const coupon = await sallaService.createDiscountCoupon(organizationId, args.discountPercent || 10);
+        return {
+          success: true,
+          result: coupon,
+          message: `تم توليد كود خصم خاص للعميل: ${coupon.code} (خصم ${args.discountPercent || 10}%) صالح حتى ${coupon.expiry}.`,
         };
       }
 

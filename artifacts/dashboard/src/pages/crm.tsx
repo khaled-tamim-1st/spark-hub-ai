@@ -7,19 +7,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { EmptyState } from '@/components/empty-state';
-import { Plus, Target, DollarSign } from 'lucide-react';
+import { Plus, Target, DollarSign, ShoppingBag, Truck, CheckCircle2, XCircle, Clock, Search } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 export default function CRM() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({
     title: '',
     pipelineId: '',
     stage: '',
     value: '',
-    currency: 'USD',
+    currency: 'EGP',
   });
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -30,11 +32,17 @@ export default function CRM() {
   const updateDeal = useUpdateDeal();
 
   const selectedPipeline = pipelines?.[0];
-  const stages = selectedPipeline?.stages || [];
+  const stages = selectedPipeline?.stages || [
+    { name: 'lead', label: 'عميل محتمل / جديد' },
+    { name: 'processing', label: 'قيد التجهيز' },
+    { name: 'shipping', label: 'جاري الشحن مع المندوب' },
+    { name: 'won', label: 'تم التسليم بنجاح ✅' },
+    { name: 'lost', label: 'ملغي / مرتجع ❌' },
+  ];
 
   const handleCreate = () => {
-    if (!formData.pipelineId || !formData.stage) {
-      toast({ title: 'Please select a pipeline and stage', variant: 'destructive' });
+    if (!formData.title.trim()) {
+      toast({ title: 'يرجى كتابة عنوان أو تفاصيل الطلب', variant: 'destructive' });
       return;
     }
 
@@ -42,22 +50,22 @@ export default function CRM() {
       {
         data: {
           title: formData.title,
-          pipelineId: Number(formData.pipelineId),
-          stage: formData.stage,
-          value: formData.value ? Number(formData.value) : undefined,
-          currency: formData.currency,
+          pipelineId: formData.pipelineId ? Number(formData.pipelineId) : (selectedPipeline?.id || 1),
+          stage: formData.stage || 'lead',
+          value: formData.value ? Number(formData.value) : 0,
+          currency: formData.currency || 'EGP',
         },
       },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListDealsQueryKey({}) });
           setIsCreateOpen(false);
-          setFormData({ title: '', pipelineId: '', stage: '', value: '', currency: 'USD' });
-          toast({ title: 'Deal created successfully' });
+          setFormData({ title: '', pipelineId: '', stage: '', value: '', currency: 'EGP' });
+          toast({ title: '✅ تم إنشاء الطلب / الصفقة بنجاح' });
         },
         onError: (error) => {
           toast({
-            title: 'Failed to create deal',
+            title: 'فشل إنشاء الطلب',
             description: error.message,
             variant: 'destructive',
           });
@@ -72,11 +80,11 @@ export default function CRM() {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListDealsQueryKey({}) });
-          toast({ title: 'Deal updated' });
+          toast({ title: 'تم تحديث حالة الطلب' });
         },
         onError: (error) => {
           toast({
-            title: 'Failed to update deal',
+            title: 'فشل تحديث الحالة',
             description: error.message,
             variant: 'destructive',
           });
@@ -85,147 +93,194 @@ export default function CRM() {
     );
   };
 
+  const filteredDeals = (deals || []).filter((d) => {
+    if (!searchQuery.trim()) return true;
+    const term = searchQuery.toLowerCase();
+    return (d.title || '').toLowerCase().includes(term);
+  });
+
   const dealsByStage = stages.reduce((acc, stage) => {
-    acc[stage.name] = deals?.filter((d) => d.stage === stage.name) || [];
+    acc[stage.name] = filteredDeals.filter((d) => d.stage === stage.name);
     return acc;
-  }, {} as Record<string, typeof deals>);
+  }, {} as Record<string, typeof filteredDeals>);
 
   return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
+    <div className="flex-1 overflow-y-auto bg-background/50">
+      <div className="p-6 md:p-8 space-y-6 max-w-[1600px] mx-auto">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">CRM Pipeline</h1>
-            <p className="text-sm text-muted-foreground mt-1">Manage your sales opportunities</p>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+              إدارة الطلبات والصفقات (Orders & CRM Pipeline)
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1 font-medium">
+              تتبع مراحل الطلبات والمبيعات من أول رسالة حتى إتمام الشحن والتسليم
+            </p>
           </div>
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <DialogTrigger asChild>
-              <Button data-testid="button-create-deal">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Deal
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create Deal</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Deal title</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))}
-                    data-testid="input-title"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="pipeline">Pipeline</Label>
-                  <Select value={formData.pipelineId} onValueChange={(v) => setFormData((p) => ({ ...p, pipelineId: v, stage: '' }))}>
-                    <SelectTrigger data-testid="select-pipeline">
-                      <SelectValue placeholder="Select pipeline" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {pipelines?.map((p) => (
-                        <SelectItem key={p.id} value={String(p.id)}>
-                          {p.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                {formData.pipelineId && (
+
+          <div className="flex items-center gap-3">
+            <div className="relative w-64">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="بحث في الطلبات والصفقات..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pr-9 h-10 text-xs bg-card"
+              />
+            </div>
+
+            <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+              <DialogTrigger asChild>
+                <Button className="gap-2 h-10 rounded-xl px-4 shadow-sm">
+                  <Plus className="w-4 h-4" />
+                  <span>تسجيل طلب / صفقة جديدة</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[450px]">
+                <DialogHeader>
+                  <DialogTitle>إنشاء طلب أو صفقة جديدة</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
                   <div className="space-y-2">
-                    <Label htmlFor="stage">Stage</Label>
-                    <Select value={formData.stage} onValueChange={(v) => setFormData((p) => ({ ...p, stage: v }))}>
-                      <SelectTrigger data-testid="select-stage">
-                        <SelectValue placeholder="Select stage" />
+                    <Label>تفاصيل / اسم الطلب *</Label>
+                    <Input
+                      placeholder="مثال: باقة البريميوم أو أوردر ملابس #1042"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label>المبلغ / القيمة</Label>
+                      <Input
+                        type="number"
+                        placeholder="1500"
+                        value={formData.value}
+                        onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>العملة</Label>
+                      <Select
+                        value={formData.currency}
+                        onValueChange={(val) => setFormData({ ...formData, currency: val })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="EGP">EGP (جنيه مصري)</SelectItem>
+                          <SelectItem value="SAR">SAR (ريال سعودي)</SelectItem>
+                          <SelectItem value="USD">USD (دولار)</SelectItem>
+                          <SelectItem value="AED">AED (درهم إماراتي)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>مرحلة الطلب الأولية</Label>
+                    <Select
+                      value={formData.stage || 'lead'}
+                      onValueChange={(val) => setFormData({ ...formData, stage: val })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {pipelines?.find((p) => p.id === Number(formData.pipelineId))?.stages.map((s) => (
-                          <SelectItem key={s.id} value={s.name}>
-                            {s.name}
+                        {stages.map((st) => (
+                          <SelectItem key={st.name} value={st.name}>
+                            {(st as any).label || st.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
-                )}
-                <div className="space-y-2">
-                  <Label htmlFor="value">Deal value</Label>
-                  <Input
-                    id="value"
-                    type="number"
-                    placeholder="0"
-                    value={formData.value}
-                    onChange={(e) => setFormData((p) => ({ ...p, value: e.target.value }))}
-                    data-testid="input-value"
-                  />
+
+                  <div className="flex justify-end gap-2 pt-4">
+                    <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
+                      إلغاء
+                    </Button>
+                    <Button onClick={handleCreate} disabled={createDeal.isPending}>
+                      {createDeal.isPending ? 'جاري الحفظ...' : 'حفظ الطلب'}
+                    </Button>
+                  </div>
                 </div>
-                <Button onClick={handleCreate} className="w-full" disabled={createDeal.isPending} data-testid="button-submit">
-                  Create Deal
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
+        {/* Pipeline Stages Columns (Kanban Board) */}
         {isLoading ? (
-          <div className="h-96 bg-muted animate-pulse rounded-lg" />
-        ) : !selectedPipeline || !deals ? (
-          <EmptyState
-            icon={Target}
-            title="No pipeline found"
-            description="Create a pipeline to start managing deals"
-          />
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-80 bg-muted animate-pulse rounded-2xl" />
+            ))}
+          </div>
         ) : (
-          <div className="flex gap-4 overflow-x-auto pb-4" data-testid="pipeline-board">
-            {stages.map((stage) => (
-              <div key={stage.id} className="flex-shrink-0 w-80" data-testid={`stage-${stage.name.toLowerCase().replace(/\s+/g, '-')}`}>
-                <div className="bg-card border border-card-border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold">{stage.name}</h3>
-                    <span className="text-xs font-mono text-muted-foreground">
-                      {dealsByStage[stage.name]?.length || 0}
-                    </span>
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4.5 overflow-x-auto pb-6">
+            {stages.map((stage) => {
+              const stageDeals = dealsByStage[stage.name] || [];
+              const totalVal = stageDeals.reduce((sum, d) => sum + (Number(d.value) || 0), 0);
+
+              return (
+                <div
+                  key={stage.name}
+                  className="bg-card border border-border/80 rounded-2xl p-4 flex flex-col min-h-[500px] shadow-sm"
+                >
+                  <div className="flex items-center justify-between pb-3 border-b border-border mb-3">
+                    <div>
+                      <h3 className="font-bold text-xs text-foreground">{(stage as any).label || stage.name}</h3>
+                      <p className="text-[10px] font-mono text-muted-foreground mt-0.5">
+                        {totalVal.toLocaleString()} EGP
+                      </p>
+                    </div>
+                    <Badge variant="secondary" className="text-[10px] font-bold">
+                      {stageDeals.length}
+                    </Badge>
                   </div>
-                  <div className="space-y-3">
-                    {dealsByStage[stage.name]?.map((deal) => (
-                      <div
-                        key={deal.id}
-                        className="bg-background border border-border rounded-lg p-4 hover:border-primary/50 transition-colors cursor-pointer"
-                        data-testid={`deal-${deal.id}`}
-                      >
-                        <h4 className="font-medium mb-2">{deal.title}</h4>
-                        {deal.value && (
-                          <p className="text-lg font-bold text-primary font-mono">
-                            {formatCurrency(deal.value, deal.currency || 'USD')}
-                          </p>
-                        )}
-                        {deal.contactName && (
-                          <p className="text-sm text-muted-foreground mt-2">{deal.contactName}</p>
-                        )}
-                        <Select value={deal.stage} onValueChange={(v) => handleStageChange(deal.id, v)}>
-                          <SelectTrigger className="mt-3 h-8 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {stages.map((s) => (
-                              <SelectItem key={s.id} value={s.name}>
-                                {s.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+
+                  <div className="flex-1 space-y-2.5 overflow-y-auto">
+                    {stageDeals.length === 0 ? (
+                      <div className="py-8 text-center text-xs text-muted-foreground/60">
+                        لا توجد طلبات هنا
                       </div>
-                    ))}
-                    {dealsByStage[stage.name]?.length === 0 && (
-                      <p className="text-sm text-muted-foreground text-center py-8">No deals</p>
+                    ) : (
+                      stageDeals.map((deal) => (
+                        <div
+                          key={deal.id}
+                          className="p-3.5 rounded-xl bg-muted/40 border border-border/80 text-xs space-y-2 hover:bg-muted/70 hover:shadow-sm transition-all group"
+                        >
+                          <div className="flex items-start justify-between gap-1">
+                            <h4 className="font-bold text-foreground leading-snug">{deal.title}</h4>
+                            <span className="font-bold text-primary font-mono shrink-0">
+                              {deal.value} {deal.currency || 'EGP'}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-1">
+                            <span>#{deal.id}</span>
+                            <select
+                              value={deal.stage}
+                              onChange={(e) => handleStageChange(deal.id, e.target.value)}
+                              className="text-[10px] rounded border border-border bg-card px-1.5 py-0.5 text-foreground cursor-pointer focus:ring-1 focus:ring-primary"
+                            >
+                              {stages.map((st) => (
+                                <option key={st.name} value={st.name}>
+                                  {(st as any).label || st.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                      ))
                     )}
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
