@@ -1,125 +1,137 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Link2, Brain, Coffee } from "lucide-react";
+import { Link2, Brain, Rocket, CheckCircle2, ArrowLeft, QrCode, FileText, Bot } from "lucide-react";
 import { getAppUrl } from "@/lib/config";
 
 const steps = [
   {
-    number: "01",
+    step: "01",
     icon: Link2,
-    title: "ربط متجرك بسلة",
-    desc: "وصّل متجرك على سلة وقنوات التواصل (واتساب، انستغرام، فيسبوك) في دقيقتين فقط بدون أي خبرة تقنية.",
-    highlight: "دقيقتان فقط",
+    badgeIcon: QrCode,
+    title: "ربط متجرك بسلة وواتساب",
+    desc: "بنقرة واحدة من متجر تطبيقات سلة أو مسح رمز QR لواتساب ويب، يتصل سند بمتجرك ويبدأ مزامنة الطلبات والمنتجات فورياً.",
+    visual: {
+      type: "connection",
+      tag: "ربط سحابي مشفر",
+      items: ["تطبيق سلة الرسمي ✓", "واتساب ويب فوري ✓", "شركات الشحن (SMSA/Aramex) ✓"],
+    },
   },
   {
-    number: "02",
+    step: "02",
     icon: Brain,
-    title: "درّب مساعدك",
-    desc: "أضف سياسات متجرك، كتالوج منتجاتك، والأسئلة الشائعة في قاعدة المعرفة — سند سيتعلم ويجيب منها بدقة.",
-    highlight: "بدون برمجة",
+    badgeIcon: FileText,
+    title: "تدريب قاعدة المعرفة الخاصة بك",
+    desc: "أضف سياسات متجرك، شروط الاستبدال، جدول المقاسات، والأسئلة المكررة. سند يستوعبها بدقة متناهية ويجيب منها حصراً.",
+    visual: {
+      type: "knowledge",
+      tag: "فهرسة ذكية",
+      items: ["كتالوج المنتجات الحية", "سياسة الاسترجاع والضمان", "تخصيص نبرة وأسلوب البراند"],
+    },
   },
   {
-    number: "03",
-    icon: Coffee,
-    title: "استرح وراقب النتائج",
-    desc: "سند يرد على عملاءك تلقائياً، يتتبع الشحنات، ويحول المحادثات للفريق عند الحاجة — على مدار الساعة.",
-    highlight: "24/7 بلا توقف",
+    step: "03",
+    icon: Rocket,
+    badgeIcon: Bot,
+    title: "الانطلاق بالأتمتة الكاملة 24/7",
+    desc: "سند يتولى الرد على العملاء وتتبع الشحنات وزيادة المبيعات على مدار الساعة، مع إمكانية التدخل البشري في أي وقت بضغطة زر.",
+    visual: {
+      type: "autopilot",
+      tag: "أتمتة ذاتية",
+      items: ["رد فوري في 1.2 ثانية", "تتبع تلقائي للشحنات", "تحويل ذكي للموظف عند الحاجة"],
+    },
   },
 ];
 
 export default function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-24 bg-[#0A0A0F] overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0 hero-grid opacity-30 pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#6B00FF]/10 rounded-full blur-[120px] pointer-events-none" />
+    <section id="how-it-works" className="py-28 bg-[#07070C] relative overflow-hidden">
+      {/* Background radial glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#6B00FF]/10 rounded-full blur-[160px] pointer-events-none" />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        
         {/* Header */}
-        <div className="text-center mb-16">
-          <motion.span
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-block text-[#9B59FF] font-semibold text-sm uppercase tracking-wider mb-3"
-          >
-            كيف يعمل سند
-          </motion.span>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-3xl sm:text-4xl font-bold text-white mb-4"
-          >
-            ابدأ في 3 خطوات بسيطة
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="text-white/50 text-lg max-w-xl mx-auto"
-          >
-            لا تعقيد، لا خبرة تقنية مطلوبة — فقط اتبع الخطوات وسند يتكفل بالباقي
-          </motion.p>
+        <div className="text-center max-w-3xl mx-auto mb-20">
+          <div className="inline-flex items-center gap-2 bg-[#6B00FF]/15 border border-[#6B00FF]/30 text-[#C499FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+            <span>سهولة الإعداد والانطلاق</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-5">
+            كيف يعمل سند في 3 خطوات بسيطة؟
+          </h2>
+          <p className="text-gray-400 text-base sm:text-lg">
+            لا تحتاج لأي مبرمج أو خبرة تقنية. سند مجهز للعمل مع متجرك في أقل من 10 دقائق.
+          </p>
         </div>
 
-        {/* Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-          {steps.map((step, i) => {
-            const Icon = step.icon;
-            return (
-              <motion.div
-                key={step.number}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
-                className="relative bg-[#12121A] border border-[#6B00FF]/20 rounded-2xl p-8 hover:border-[#6B00FF]/40 transition-all"
-              >
-                {/* Step number */}
-                <div className="text-7xl font-black text-[#6B00FF]/10 absolute top-4 left-6 select-none">
-                  {step.number}
+        {/* 3 Step Cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {steps.map((item, i) => (
+            <motion.div
+              key={item.step}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.15 }}
+              className="glass-card rounded-3xl p-8 border border-[#6B00FF]/20 relative flex flex-col justify-between group hover:border-[#9B59FF]/50 transition-all duration-300 shadow-xl"
+            >
+              <div>
+                {/* Step number watermark */}
+                <div className="text-6xl font-black text-white/5 absolute top-6 left-6 select-none font-mono">
+                  {item.step}
                 </div>
 
-                {/* Icon */}
-                <div className="relative w-14 h-14 bg-[#6B00FF]/15 rounded-2xl flex items-center justify-center mb-6">
-                  <Icon size={26} className="text-[#9B59FF]" />
+                {/* Step icon */}
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#6B00FF] to-[#9B59FF] flex items-center justify-center text-white mb-6 shadow-lg shadow-[#6B00FF]/30">
+                  <item.icon size={26} />
                 </div>
 
-                <h3 className="text-white font-bold text-xl mb-3">{step.title}</h3>
-                <p className="text-white/50 text-sm leading-relaxed mb-5">{step.desc}</p>
+                <div className="text-xs font-bold text-[#C499FF] mb-2 font-mono">
+                  الخطوة {item.step}
+                </div>
 
-                <span className="inline-block bg-[#6B00FF]/20 text-[#9B59FF] text-xs font-semibold px-3 py-1 rounded-full">
-                  {step.highlight}
-                </span>
+                <h3 className="text-xl font-bold text-white mb-3 leading-snug">
+                  {item.title}
+                </h3>
 
-                {/* Connector line (not on last) */}
-                {i < steps.length - 1 && (
-                  <div className="hidden md:block absolute top-1/2 -left-4 w-8 h-px bg-gradient-to-r from-[#6B00FF]/40 to-transparent" />
-                )}
-              </motion.div>
-            );
-          })}
+                <p className="text-gray-400 text-sm leading-relaxed mb-6">
+                  {item.desc}
+                </p>
+              </div>
+
+              {/* Visual Box */}
+              <div className="bg-[#0E0E17] border border-white/5 rounded-2xl p-4 space-y-2">
+                <div className="text-[11px] font-bold text-gray-400 flex items-center justify-between pb-2 border-b border-white/5">
+                  <span>{item.visual.tag}</span>
+                  <item.badgeIcon size={13} className="text-[#9B59FF]" />
+                </div>
+                <div className="space-y-1.5 pt-1">
+                  {item.visual.items.map((sub) => (
+                    <div key={sub} className="flex items-center gap-2 text-xs text-gray-300 font-medium">
+                      <CheckCircle2 size={13} className="text-emerald-400 flex-shrink-0" />
+                      <span>{sub}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
 
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-          className="text-center mt-12"
-        >
+        {/* Bottom Fast Track CTA */}
+        <div className="mt-16 text-center">
           <a
             href={getAppUrl("/register")}
-            className="inline-flex items-center gap-2 bg-[#6B00FF] hover:bg-[#5800D9] text-white px-8 py-4 rounded-xl font-bold text-base transition-all hover:shadow-xl hover:shadow-[#6B00FF]/30 hover:scale-105"
+            className="inline-flex items-center gap-2.5 bg-gradient-to-r from-[#6B00FF] to-[#9B59FF] hover:from-[#5800D9] hover:to-[#8B33FF] text-white px-8 py-4 rounded-xl text-base font-bold shadow-xl shadow-[#6B00FF]/30 transition-all hover:scale-105"
           >
-            ابدأ الآن مجاناً
+            <span>ابدأ ربط متجرك الآن مجاناً</span>
+            <ArrowLeft size={18} />
           </a>
-        </motion.div>
+          <p className="text-xs text-gray-500 mt-3">
+            تجربة كاملة لمدة 14 يوم بدون أي التزام مالي
+          </p>
+        </div>
+
       </div>
     </section>
   );

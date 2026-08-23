@@ -1,139 +1,125 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, Zap } from "lucide-react";
+import { Check, Zap, Sparkles, Shield, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { getAppUrl } from "@/lib/config";
 
 const plans = [
   {
     name: "الباقة الأساسية",
+    badge: "للمتاجر الناشئة",
     emoji: "🌱",
     monthlyPrice: 149,
     yearlyPrice: 119,
-    desc: "مثالية لأصحاب المتاجر الصغيرة الذين يريدون البدء بالذكاء الاصطناعي",
+    desc: "مثالية للمتاجر التي تريد أتمتة الرد على الواتساب وتتبع طلبات سلة الأساسية.",
     features: [
-      "قناة تواصل واحدة (واتساب)",
-      "حتى 500 محادثة شهرياً",
-      "قاعدة معرفة (5 مستندات)",
-      "ربط متجر سلة واحد",
-      "تقارير أساسية",
-      "دعم عبر البريد الإلكتروني",
+      "قناة تواصل واحدة (واتساب ويب)",
+      "حتى 750 محادثة شهرياً",
+      "ربط متجر سلة واحد (تتبع الطلبات)",
+      "قاعدة معرفة حتى 10 مستندات",
+      "تقارير وإحصائيات شهرية",
+      "دعم فني سريع عبر الواتساب",
     ],
-    cta: "ابدأ مجاناً 14 يوم",
+    cta: "ابدأ تجربتك المجانية (14 يوم)",
     highlighted: false,
   },
   {
     name: "الباقة الاحترافية",
+    badge: "الأكثر طلباً لمتاجر سلة ⭐",
     emoji: "⚡",
     monthlyPrice: 349,
     yearlyPrice: 279,
-    desc: "للمتاجر المتنامية التي تريد أتمتة خدمة العملاء بالكامل",
+    desc: "الحل الشامل والمفضل لأصحاب المتاجر المتنامية لتغطية كل قنوات التواصل وزيادة المبيعات.",
     features: [
-      "3 قنوات تواصل",
-      "حتى 3,000 محادثة شهرياً",
-      "قاعدة معرفة غير محدودة",
-      "ربط سلة (طلبات + شحن تلقائي)",
-      "واتساب + انستغرام + فيسبوك",
-      "تقارير متقدمة وإحصائيات",
-      "دعم بأولوية عالية",
+      "3 قنوات تواصل (واتساب + سلة + انستغرام)",
+      "حتى 3,500 محادثة شهرياً",
+      "ربط متقدم مع سلة وشركات الشحن (SMSA, Aramex)",
+      "قاعدة معرفة غير محدودة (بدون هلوسة)",
+      "استرداد السلات المتروكة تلقائياً",
+      "لوحة تحليلات وتقارير أداء لحظية",
+      "أولوية دعم فني على مدار الساعة",
     ],
-    cta: "ابدأ مجاناً 14 يوم",
+    cta: "ابدأ تجربتك المجانية (14 يوم)",
     highlighted: true,
-    badge: "الأكثر طلباً",
   },
   {
     name: "الباقة المؤسسية",
+    badge: "للعلامات التجارية الكبرى",
     emoji: "🏢",
     monthlyPrice: null,
     yearlyPrice: null,
-    desc: "للمتاجر الكبيرة والعلامات التجارية التي تحتاج حلاً مخصصاً",
+    desc: "بنية تحتية مخصصة ومحادثات غير محدودة مع تدريب مخصص لذكاء اصطناعي يعكس هوية براندك.",
     features: [
-      "قنوات غير محدودة",
-      "محادثات غير محدودة",
-      "تدريب مخصص للذكاء الاصطناعي",
-      "مدير حساب مخصص",
-      "دعم فني 24/7 بالعربية",
-      "SLA مضمون 99.9%",
-      "تكامل API مخصص",
+      "قنوات تواصل غير محدودة",
+      "محادثات شهرية غير محدودة",
+      "تدريب مخصص للذكاء الاصطناعي على نبرة البراند",
+      "مدير حساب مخصص ومتابعة دورية",
+      "ربط API مخصص ودعم فني 24/7",
+      "اتفاقية مستوى الخدمة (SLA 99.9%)",
     ],
-    cta: "تواصل معنا",
+    cta: "تحدث مع المبيعات",
     highlighted: false,
     isEnterprise: true,
   },
 ];
 
 export default function Pricing() {
-  const [yearly, setYearly] = useState(false);
+  const [yearly, setYearly] = useState(true);
 
   return (
-    <section id="pricing" className="py-24 bg-[#F9FAFB]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <motion.span
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-block text-[#6B00FF] font-semibold text-sm uppercase tracking-wider mb-3"
-          >
-            الأسعار
-          </motion.span>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4"
-          >
-            باقات سند — لكل متجر الباقة المناسبة
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="text-gray-500 text-lg max-w-xl mx-auto mb-8"
-          >
-            جرّب أي باقة مجاناً لمدة 14 يوم — بدون بطاقة ائتمانية
-          </motion.p>
+    <section id="pricing" className="py-28 bg-[#07070C] relative overflow-hidden">
+      {/* Background ambient lighting */}
+      <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-[#6B00FF]/15 rounded-full blur-[150px] pointer-events-none" />
 
-          {/* Toggle */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-            className="inline-flex items-center bg-white border border-gray-200 rounded-full p-1 gap-1"
-          >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        
+        {/* Header */}
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-2 bg-[#6B00FF]/15 border border-[#6B00FF]/30 text-[#C499FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+            <Sparkles size={14} />
+            <span>باقات شفافة وبدون أي رسوم خفية</span>
+          </div>
+
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-5">
+            استثمر في ذكاء متجرك ووفر تكاليف التوظيف
+          </h2>
+
+          <p className="text-gray-400 text-base sm:text-lg mb-8">
+            ابدأ بتجربة مجانية كاملة لمدة 14 يوماً على أي باقة — بدون إدخال أي بطاقة بنكية.
+          </p>
+
+          {/* Billing Switcher */}
+          <div className="inline-flex items-center bg-[#141422] border border-[#6B00FF]/25 rounded-full p-1.5 gap-1 shadow-lg">
             <button
               onClick={() => setYearly(false)}
-              className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
+              className={`px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all ${
                 !yearly
-                  ? "bg-[#6B00FF] text-white shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-[#6B00FF] text-white shadow-md shadow-[#6B00FF]/30"
+                  : "text-gray-400 hover:text-white"
               }`}
             >
-              شهري
+              دفع شهري
             </button>
+
             <button
               onClick={() => setYearly(true)}
-              className={`px-5 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
+              className={`px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
                 yearly
-                  ? "bg-[#6B00FF] text-white shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-[#6B00FF] text-white shadow-md shadow-[#6B00FF]/30"
+                  : "text-gray-400 hover:text-white"
               }`}
             >
-              سنوي
-              <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">
-                وفّر 20%
+              <span>دفع سنوي</span>
+              <span className="bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[10px] font-black px-2 py-0.5 rounded-full">
+                وفّر شهرين (20%-)
               </span>
             </button>
-          </motion.div>
+          </div>
         </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Pricing Cards Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
           {plans.map((plan, i) => (
             <motion.div
               key={plan.name}
@@ -141,117 +127,113 @@ export default function Pricing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className={`relative rounded-2xl p-8 flex flex-col ${
+              className={`relative rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 ${
                 plan.highlighted
-                  ? "bg-[#6B00FF] text-white shadow-2xl shadow-[#6B00FF]/30 scale-105"
-                  : "bg-white border border-gray-100 shadow-sm"
+                  ? "bg-gradient-to-b from-[#1E1438] via-[#141426] to-[#0E0E1A] border-2 border-[#9B59FF] shadow-2xl shadow-[#6B00FF]/30 lg:-translate-y-3"
+                  : "glass-card border border-white/10 hover:border-white/20"
               }`}
             >
-              {/* Badge */}
-              {plan.badge && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-[#6B00FF] font-bold text-xs px-4 py-1.5 rounded-full shadow-md border border-[#6B00FF]/20 flex items-center gap-1">
-                  <Zap size={12} />
-                  {plan.badge}
+              {/* Highlight Badge */}
+              {plan.highlighted && (
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#6B00FF] to-[#9B59FF] text-white text-xs font-black px-4 py-1 rounded-full shadow-lg shadow-[#6B00FF]/40 border border-white/20 flex items-center gap-1.5">
+                  <Zap size={13} />
+                  <span>{plan.badge}</span>
                 </div>
               )}
 
-              {/* Plan header */}
-              <div className="mb-6">
-                <div className="text-3xl mb-2">{plan.emoji}</div>
-                <h3
-                  className={`text-xl font-bold mb-2 ${
-                    plan.highlighted ? "text-white" : "text-gray-900"
-                  }`}
-                >
+              <div>
+                {/* Plan Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-3xl">{plan.emoji}</span>
+                  {!plan.highlighted && (
+                    <span className="text-[11px] font-semibold text-gray-400 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full">
+                      {plan.badge}
+                    </span>
+                  )}
+                </div>
+
+                <h3 className="text-2xl font-bold text-white mb-2">
                   {plan.name}
                 </h3>
-                <p
-                  className={`text-sm leading-relaxed ${
-                    plan.highlighted ? "text-white/70" : "text-gray-500"
-                  }`}
-                >
+
+                <p className="text-gray-400 text-xs leading-relaxed mb-6 min-h-[36px]">
                   {plan.desc}
                 </p>
+
+                {/* Price Display */}
+                <div className="mb-8 pb-6 border-b border-white/10">
+                  {plan.isEnterprise ? (
+                    <div>
+                      <span className="text-3xl font-black text-white block">
+                        تواصل معنا
+                      </span>
+                      <span className="text-xs text-gray-400 mt-1 block">
+                        عرض سعر مخصص حسب احتياج متجرك
+                      </span>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-5xl font-black text-white">
+                          {yearly ? plan.yearlyPrice : plan.monthlyPrice}
+                        </span>
+                        <span className="text-sm font-semibold text-gray-400">
+                          ر.س / شهرياً
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-gray-500 mt-1.5 block font-medium">
+                        {yearly ? "تُدفع سنوياً مع توفير 20%" : "تُدفع شهرياً، ألغِ في أي وقت"}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Features List */}
+                <div className="space-y-3.5 mb-8">
+                  <span className="text-xs font-bold text-gray-300 block mb-2">
+                    المميزات المتضمنة:
+                  </span>
+                  {plan.features.map((feat) => (
+                    <div key={feat} className="flex items-start gap-2.5 text-xs text-gray-300 leading-relaxed font-medium">
+                      <Check
+                        size={15}
+                        className={`flex-shrink-0 mt-0.5 ${
+                          plan.highlighted ? "text-[#C499FF]" : "text-emerald-400"
+                        }`}
+                      />
+                      <span>{feat}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              {/* Price */}
-              <div className="mb-8">
-                {plan.isEnterprise ? (
-                  <p
-                    className={`text-2xl font-bold ${
-                      plan.highlighted ? "text-white" : "text-gray-900"
-                    }`}
-                  >
-                    تواصل معنا
-                  </p>
-                ) : (
-                  <div className="flex items-baseline gap-1">
-                    <span
-                      className={`text-5xl font-black ${
-                        plan.highlighted ? "text-white" : "text-gray-900"
-                      }`}
-                    >
-                      {yearly ? plan.yearlyPrice : plan.monthlyPrice}
-                    </span>
-                    <span
-                      className={`text-base font-medium ${
-                        plan.highlighted ? "text-white/70" : "text-gray-400"
-                      }`}
-                    >
-                      ر.س/شهر
-                    </span>
-                  </div>
-                )}
-                {yearly && !plan.isEnterprise && (
-                  <p
-                    className={`text-xs mt-1 ${
-                      plan.highlighted ? "text-white/60" : "text-gray-400"
-                    }`}
-                  >
-                    يُدفع سنوياً
-                  </p>
-                )}
-              </div>
-
-              {/* CTA */}
+              {/* Action Button */}
               <a
                 href={
                   plan.isEnterprise
                     ? "mailto:hello@sanadai.com"
                     : getAppUrl("/register")
                 }
-                className={`block text-center py-3.5 rounded-xl font-bold text-sm transition-all mb-8 ${
+                className={`w-full py-4 rounded-xl font-bold text-sm text-center transition-all flex items-center justify-center gap-2 ${
                   plan.highlighted
-                    ? "bg-white text-[#6B00FF] hover:bg-gray-100"
-                    : "bg-[#6B00FF] text-white hover:bg-[#5800D9] hover:shadow-lg hover:shadow-[#6B00FF]/20"
+                    ? "bg-gradient-to-r from-[#6B00FF] to-[#9B59FF] hover:from-[#5800D9] hover:to-[#8B33FF] text-white shadow-xl shadow-[#6B00FF]/40 hover:scale-[1.02]"
+                    : "bg-[#141422] hover:bg-[#1A1A2E] text-white border border-white/10 hover:border-[#6B00FF]/40"
                 }`}
               >
-                {plan.cta}
+                <span>{plan.cta}</span>
+                <ArrowLeft size={15} />
               </a>
 
-              {/* Features */}
-              <ul className="space-y-3 flex-1">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3">
-                    <Check
-                      size={16}
-                      className={`mt-0.5 flex-shrink-0 ${
-                        plan.highlighted ? "text-white" : "text-[#6B00FF]"
-                      }`}
-                    />
-                    <span
-                      className={`text-sm ${
-                        plan.highlighted ? "text-white/80" : "text-gray-600"
-                      }`}
-                    >
-                      {feature}
-                    </span>
-                  </li>
-                ))}
-              </ul>
             </motion.div>
           ))}
         </div>
+
+        {/* Money back guarantee footer */}
+        <div className="mt-14 text-center flex items-center justify-center gap-2 text-xs text-gray-400">
+          <Shield size={16} className="text-emerald-400" />
+          <span>ضمان استرجاع كامل المبلغ خلال 14 يوماً إذا لم تكن راضياً 100% عن سند.</span>
+        </div>
+
       </div>
     </section>
   );

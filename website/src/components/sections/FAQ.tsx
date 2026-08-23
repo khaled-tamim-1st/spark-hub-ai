@@ -2,130 +2,154 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, HelpCircle, MessageCircle } from "lucide-react";
+
+const categories = [
+  { id: "all", label: "جميع الأسئلة" },
+  { id: "salla", label: "سلة والشحن" },
+  { id: "ai", label: "الذكاء الاصطناعي" },
+  { id: "billing", label: "الأسعار والتجربة" },
+];
 
 const faqs = [
   {
-    q: "هل سند يدعم اللغة العربية بشكل كامل؟",
-    a: "نعم، سند مصمم أساساً للسوق السعودي والخليجي، ويتحدث العربية بطلاقة مع فهم عميق للسياق المحلي وأسلوب التخاطب مع العملاء السعوديين.",
-  },
-  {
+    category: "salla",
     q: "كيف يتصل سند بمتجري على سلة؟",
-    a: "عبر ربط API سلة الرسمي بخطوتين بسيطتين من لوحة تحكم سند. بعد الربط، يتزامن سند مع طلباتك ومنتجاتك وحالة الشحن فورياً وبشكل تلقائي.",
+    a: "الربط يتم بخطوات بسيطة جداً عبر تطبيق سلة الرسمي أو باستخدام مفتاح API. بعد الربط، يقوم سند بسحب وتحديث بيانات الطلبات والمخزون وحالة الشحن من شركات (سمسا، أرامكس، أوتو) بشكل لحظي وتلقائي.",
   },
   {
-    q: "هل الردود التلقائية دقيقة ولا تخترع معلومات؟",
-    a: "نعم 100%. سند يعتمد فقط على قاعدة المعرفة التي تحددها أنت، ولا يخترع منتجات أو أسعار أو معلومات من تلقاء نفسه. إذا لم يعرف الإجابة، يحوّل المحادثة لك مباشرة.",
+    category: "ai",
+    q: "هل يضمن سند عدم (الهلوسة) أو اختراع أسعار ومعلومات خاطئة؟",
+    a: "نعم 100%. تم تصميم وتدريب محرك سند بتقنية Grounded Retrieval الصارمة؛ حيث يلتزم الذكاء الاصطناعي فقط بالمعلومات الموجودة في قاعدة معرفة متجرك وسلة، وفي حال عدم توفر المعلومة يعتذر للعميل ويحوّل المحادثة فورياً لموظف بشري.",
   },
   {
-    q: "كم يستغرق الإعداد؟",
-    a: "إعداد سند لا يتجاوز 15 دقيقة بالكامل — ربط سلة، إضافة واتساب، ورفع قاعدة المعرفة. لا تحتاج أي خبرة تقنية على الإطلاق.",
+    category: "salla",
+    q: "هل يستطيع العميل تتبع شحنته مباشرة عبر الواتساب؟",
+    a: "نعم! بمجرد أن يرسل العميل رقم طلبه أو رقم جواله، يتعرف سند على الطلب ويستعلم عن بوليصة الشحن لدى شركة الشحن المعنية ويرسل له تقريراً مفصلاً مع رابط التتبع ورقم البوليصة وتاريخ الوصول المتوقع.",
   },
   {
-    q: "هل يمكنني رؤية المحادثات التي ردّ عليها سند؟",
-    a: "بالطبع. لوحة تحكم سند تعرض كل المحادثات وردودها بشكل مفصل. يمكنك التدخل في أي محادثة وتعديل ردود سند ومراقعة الأداء من خلال التقارير.",
+    category: "billing",
+    q: "هل أحتاج لإدخال بطاقة ائتمانية لبدء التجربة المجانية؟",
+    a: "لا، التجربة المجانية لمدة 14 يوماً مجانية بالكامل وبدون أي بطاقة ائتمانية. يمكنك التسجيل وربط متجرك فوراً وتجربة كل المميزات.",
   },
   {
-    q: "ماذا يحدث إذا لم يعرف سند الإجابة؟",
-    a: "سند يُخبر العميل بشكل لطيف أنه سيحوّله للفريق، ثم يرسل لك إشعاراً فورياً بالمحادثة حتى تتولاها بنفسك — لا يترك عميلاً بدون رد أبداً.",
+    category: "ai",
+    q: "هل يمكنني التدخل والرد على العميل بنفسي أثناء محادثة سند؟",
+    a: "بالتأكيد. توفر لوحة تحكم سند صندوق وارد تفاعلي يمكنك من خلاله رؤية جميع المحادثات الحية، والتدخل في أي محادثة وإيقاف الرد الآلي بنقرة زر واحدة متى ما رغبت.",
+  },
+  {
+    category: "billing",
+    q: "ماذا يحدث إذا تجاوزت عدد المحادثات الشهري المخصص للباقة؟",
+    a: "سنرسل لك تنبيهاً قبل نفاد باقتك. يمكنك ترقية باقتك بسهولة أو شراء باقة محادثات إضافية بأسعار رمزية بدون أي انقطاع في الخدمة.",
   },
 ];
 
-function FAQItem({ q, a, isOpen, onClick }: { q: string; a: string; isOpen: boolean; onClick: () => void }) {
-  return (
-    <div className="border-b border-gray-100 last:border-0">
-      <button
-        onClick={onClick}
-        className="w-full flex items-center justify-between gap-4 py-5 text-right"
-        aria-expanded={isOpen}
-      >
-        <span className={`font-semibold text-base transition-colors ${isOpen ? "text-[#6B00FF]" : "text-gray-900"}`}>
-          {q}
-        </span>
-        <motion.div
-          animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.2 }}
-          className="flex-shrink-0"
-        >
-          <ChevronDown size={20} className={isOpen ? "text-[#6B00FF]" : "text-gray-400"} />
-        </motion.div>
-      </button>
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="overflow-hidden"
-          >
-            <p className="text-gray-500 text-sm leading-relaxed pb-5">{a}</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
 export default function FAQ() {
+  const [activeCategory, setActiveCategory] = useState("all");
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
+  const filteredFaqs = activeCategory === "all"
+    ? faqs
+    : faqs.filter((f) => f.category === activeCategory);
+
   return (
-    <section id="faq" className="py-24 bg-white">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="faq" className="py-28 bg-[#0B0B14] border-t border-white/5 relative overflow-hidden">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        
         {/* Header */}
-        <div className="text-center mb-12">
-          <motion.span
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-block text-[#6B00FF] font-semibold text-sm uppercase tracking-wider mb-3"
-          >
-            أسئلة شائعة
-          </motion.span>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-3xl sm:text-4xl font-bold text-gray-900"
-          >
-            كل ما تريد معرفته عن سند
-          </motion.h2>
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="inline-flex items-center gap-2 bg-[#6B00FF]/15 border border-[#6B00FF]/30 text-[#C499FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+            <HelpCircle size={14} />
+            <span>إجابات واضحة ومباشرة</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight mb-4">
+            الأسئلة الأكثر شيوعاً حول سند
+          </h2>
+          <p className="text-gray-400 text-sm sm:text-base">
+            كل ما يدور في ذهنك حول عمل سند وتكامله مع متجرك على سلة
+          </p>
         </div>
 
-        {/* Accordion */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-          className="bg-white border border-gray-100 rounded-2xl shadow-sm px-6"
-        >
-          {faqs.map((faq, i) => (
-            <FAQItem
-              key={i}
-              q={faq.q}
-              a={faq.a}
-              isOpen={openIndex === i}
-              onClick={() => setOpenIndex(openIndex === i ? null : i)}
-            />
+        {/* Category Tabs */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => {
+                setActiveCategory(cat.id);
+                setOpenIndex(null);
+              }}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                activeCategory === cat.id
+                  ? "bg-[#6B00FF] text-white shadow-md shadow-[#6B00FF]/25"
+                  : "bg-[#141422] text-gray-400 hover:text-white border border-white/5 hover:border-white/10"
+              }`}
+            >
+              {cat.label}
+            </button>
           ))}
-        </motion.div>
+        </div>
 
-        {/* Extra CTA */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
-          className="text-center text-gray-500 text-sm mt-8"
-        >
-          لديك سؤال آخر؟{" "}
-          <a href="mailto:hello@sanadai.com" className="text-[#6B00FF] font-semibold hover:underline">
-            تواصل مع فريقنا
+        {/* Accordion List */}
+        <div className="space-y-3">
+          {filteredFaqs.map((faq, i) => {
+            const isOpen = openIndex === i;
+            return (
+              <div
+                key={faq.q}
+                className="glass-card rounded-2xl border border-white/10 overflow-hidden transition-all duration-200"
+              >
+                <button
+                  onClick={() => setOpenIndex(isOpen ? null : i)}
+                  className="w-full p-5 text-right flex items-center justify-between gap-4 select-none hover:bg-white/[0.02]"
+                  aria-expanded={isOpen}
+                >
+                  <span className={`text-sm sm:text-base font-bold transition-colors ${isOpen ? "text-[#C499FF]" : "text-white"}`}>
+                    {faq.q}
+                  </span>
+                  <div className={`w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180 bg-[#6B00FF]/20 text-[#C499FF]" : "text-gray-400"}`}>
+                    <ChevronDown size={18} />
+                  </div>
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: "easeInOut" }}
+                    >
+                      <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-gray-300 leading-relaxed border-t border-white/5">
+                        {faq.a}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Still have questions card */}
+        <div className="mt-12 text-center bg-[#141422] border border-[#6B00FF]/20 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-center sm:text-right">
+            <p className="text-white font-bold text-sm">
+              لديك استفسار خاص بمتجرك لم تجد إجابته هنا؟
+            </p>
+            <p className="text-gray-400 text-xs mt-0.5">
+              فريق خدمة العملاء لدينا متاح لمساعدتك والإجابة على كل أسئلتك.
+            </p>
+          </div>
+          <a
+            href="mailto:hello@sanadai.com"
+            className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-colors border border-white/10"
+          >
+            <MessageCircle size={15} />
+            <span>تواصل مع الدعم الفني</span>
           </a>
-        </motion.p>
+        </div>
+
       </div>
     </section>
   );
