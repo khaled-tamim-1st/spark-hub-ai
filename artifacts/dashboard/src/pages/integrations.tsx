@@ -8,34 +8,66 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { getToken } from '@/lib/auth';
-import { Plus, Trash2, CheckCircle2, Settings, Zap } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
+import { Plus, Trash2, CheckCircle2, Settings, Zap, RefreshCw, QrCode, Phone, ExternalLink } from 'lucide-react';
 
 const INTEGRATION_TYPES = [
   {
-    name: 'WhatsApp Web',
+    name: 'واتساب ويب (WhatsApp Web)',
+    nameEn: 'WhatsApp Web',
     type: 'whatsapp',
     provider: 'whatsapp_web',
-    description: 'Scan a QR code with your WhatsApp mobile app',
+    description: 'ربط رقم واتساب المتجر لمسح الرمز والاستقبال والرد التلقائي عبر الذكاء الاصطناعي',
+    descriptionEn: 'Connect store WhatsApp number by scanning QR code for AI auto-reply',
     icon: '💬',
     fields: [],
   },
   {
-    name: 'Facebook Messenger',
+    name: 'متجر سلة (Salla)',
+    nameEn: 'Salla Store',
+    type: 'salla',
+    provider: 'salla_ecommerce',
+    description: 'ربط متجرك على منصة سلة لمزامنة الطلبات والمنتجات وحالات الشحن والخصومات مع الـ AI',
+    descriptionEn: 'Connect your Salla store for orders, products, and AI store automation',
+    icon: '🛒',
+    fields: [
+      { key: 'accessToken', label: 'رمز الوصول (Salla Access Token)', type: 'password' },
+      { key: 'storeId', label: 'معرّف المتجر (Store ID / Merchant ID)' },
+    ],
+  },
+  {
+    name: 'شركات الشحن والتوصيل (Shipping & Couriers)',
+    nameEn: 'Saudi Shipping & Couriers',
+    type: 'shipping',
+    provider: 'saudi_shipping',
+    description: 'ربط شركات الشحن (SMSA, Aramex, RedBox, SPL, OTO) لتمكين الـ AI من تتبع الشحنات للعملاء',
+    descriptionEn: 'Connect SMSA, Aramex, RedBox, SPL & OTO for instant order tracking',
+    icon: '🚚',
+    fields: [
+      { key: 'apiKey', label: 'مفتاح الربط (API Key / Tracking Token)', type: 'password' },
+      { key: 'defaultCourier', label: 'شركة الشحن الافتراضية (SMSA / Aramex / RedBox / SPL / OTO)' },
+    ],
+  },
+  {
+    name: 'فيسبوك ماسنجر (Facebook Messenger)',
+    nameEn: 'Facebook Messenger',
     type: 'messenger',
     provider: 'meta_graph',
-    description: 'Connect Facebook Messenger to manage page conversations',
+    description: 'ربط صفحة فيسبوك لإدارة محادثات الصفحة والردود التلقائية',
+    descriptionEn: 'Connect Facebook Page to manage customer inquiries and messages',
     icon: '📘',
     fields: [
       { key: 'pageId', label: 'Page ID' },
       { key: 'accessToken', label: 'Page Access Token', type: 'password' },
-      { key: 'appSecret', label: 'App Secret', type: 'password' },
     ],
   },
   {
-    name: 'Instagram DM',
+    name: 'انستغرام (Instagram Direct)',
+    nameEn: 'Instagram Direct',
     type: 'instagram',
     provider: 'meta_graph',
-    description: 'Handle Instagram Direct Messages from your business account',
+    description: 'استقبال والرد على الرسائل المباشرة لحساب انستغرام التجاري',
+    descriptionEn: 'Handle Instagram Direct Messages from your professional account',
     icon: '📸',
     fields: [
       { key: 'pageId', label: 'Instagram Account ID' },
@@ -43,49 +75,30 @@ const INTEGRATION_TYPES = [
     ],
   },
   {
-    name: 'Web Chat Widget',
+    name: 'ودجت المحادثة للموقع (Web Chat Widget)',
+    nameEn: 'Web Chat Widget',
     type: 'web',
     provider: 'widget',
-    description: 'Embed a chat widget on your website',
+    description: 'تثبيت زر المحادثة الحية المباشرة في متجرك أو موقعك الإلكتروني',
+    descriptionEn: 'Embed a modern live chat widget on your store or website',
     icon: '🌐',
     fields: [
-      { key: 'widgetName', label: 'Widget Name' },
-      { key: 'welcomeMessage', label: 'Welcome Message' },
+      { key: 'widgetName', label: 'اسم الودجت' },
+      { key: 'welcomeMessage', label: 'رسالة الترحيب' },
     ],
   },
   {
-    name: 'Telephony & SIP Trunk (المكالمات الصوتية)',
+    name: 'المكالمات الصوتية (Telephony & SIP)',
+    nameEn: 'Voice Telephony & SIP',
     type: 'voice',
     provider: 'generic_sip',
-    description: 'ربط خطوط التليفون والسنترال السحابي (SIP Trunk / FreeSWITCH / Asterisk / Cloud PBX)',
+    description: 'ربط السنترال السحابي وخطوط الهاتف للرد الصوتي الذكي على المكالمات',
+    descriptionEn: 'Connect Cloud PBX & SIP Trunks for conversational Voice AI',
     icon: '📞',
     fields: [
-      { key: 'sipGatewayUrl', label: 'SIP Gateway / Webhook URL' },
-      { key: 'didNumber', label: 'رقم الهاتف المخصص (DID Number / Caller ID)' },
-      { key: 'webhookSecret', label: 'Webhook Secret Key', type: 'password' },
-    ],
-  },
-  {
-    name: 'متجر سلة (Salla E-Commerce)',
-    type: 'salla',
-    provider: 'salla',
-    description: 'الربط التلقائي مع متجر سلة لقراءة الطلبات والمنتجات وتتبع الشحنات واستعادة السلات المتروكة',
-    icon: '🛒',
-    fields: [
-      { key: 'token', label: 'Salla Access Token (رمز الوصول)', type: 'password' },
-      { key: 'merchantId', label: 'معرف التاجر في سلة (Merchant ID)' },
-      { key: 'webhookSecret', label: 'Salla Webhook Secret Key', type: 'password' },
-    ],
-  },
-  {
-    name: 'بوابات وشركات الشحن السعودية (OTO / SMSA / Aramex / RedBox)',
-    type: 'shipping',
-    provider: 'saudi_shipping',
-    description: 'ربط بوابات الشحن سمسا، أرامكس، ريدبوكس، سبل، وأوتو لتمكين الـ AI من إعطاء العميل حالة الشحنة المباشرة',
-    icon: '🚚',
-    fields: [
-      { key: 'apiKey', label: 'API Key / Tracking Token', type: 'password' },
-      { key: 'defaultCourier', label: 'شركة الشحن الافتراضية (SMSA / Aramex / RedBox / SPL / OTO)' },
+      { key: 'sipServer', label: 'SIP Server / Gateway Host' },
+      { key: 'sipUsername', label: 'SIP Extension / User' },
+      { key: 'sipPassword', label: 'SIP Password', type: 'password' },
     ],
   },
 ];
@@ -99,6 +112,7 @@ type WhatsAppStatus = {
 };
 
 export default function Integrations() {
+  const { language, t } = useLanguage();
   const { data: channels, isLoading } = useListChannels({});
   const createChannel = useCreateChannel();
   const deleteChannel = useDeleteChannel();
@@ -109,6 +123,7 @@ export default function Integrations() {
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [channelName, setChannelName] = useState('');
   const [whatsappStatus, setWhatsappStatus] = useState<WhatsAppStatus>({ status: 'idle' });
+  const [isStartingQr, setIsStartingQr] = useState(false);
 
   const whatsappChannel = (channels ?? []).find((channel) => channel.provider === 'whatsapp_web');
   const isWhatsApp = configuring?.provider === 'whatsapp_web';
@@ -130,9 +145,11 @@ export default function Integrations() {
 
   const activeWhatsAppId = whatsappChannel?.id || whatsappStatus?.channelId;
 
+  // Poll WhatsApp status only when modal is open or when connecting
   useEffect(() => {
-    if (!activeWhatsAppId) return;
+    if (!activeWhatsAppId || !configuring) return;
     let cancelled = false;
+
     const refreshStatus = async () => {
       try {
         const status = await whatsappFetch(`/api/channels/whatsapp-web/${activeWhatsAppId}/status`);
@@ -143,116 +160,80 @@ export default function Integrations() {
           }
         }
       } catch {
-        // The channel can exist before its in-memory session is started.
+        // Ignore silent polling errors
       }
     };
+
     void refreshStatus();
-    const timer = window.setInterval(refreshStatus, 2000);
+    const timer = window.setInterval(refreshStatus, 3000); // Stable 3s poll interval
     return () => {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [activeWhatsAppId]);
+  }, [activeWhatsAppId, configuring]);
 
-  const getChannelsOfType = (type: string) =>
-    (channels ?? []).filter((c) => c.channelType === type);
-
-  const [metaAuthMode, setMetaAuthMode] = useState<'oauth' | 'manual'>('oauth');
-  const [metaUserToken, setMetaUserToken] = useState('');
-  const [metaPages, setMetaPages] = useState<Array<{
-    id: string;
-    name: string;
-    accessToken: string;
-    category?: string;
-    picture?: string;
-    instagram?: { id: string; username: string; name?: string; picture?: string } | null;
-  }>>([]);
-  const [loadingMetaPages, setLoadingMetaPages] = useState(false);
-
-  const fetchMetaPages = async (token: string) => {
-    if (!token.trim()) return;
-    setLoadingMetaPages(true);
-    try {
-      const res = await fetch('/api/channels/meta/list-pages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken') || localStorage.getItem('token') || ''}`,
-        },
-        body: JSON.stringify({ userAccessToken: token.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to retrieve Facebook pages');
-      setMetaPages(data.pages || []);
-      if ((data.pages || []).length === 0) {
-        toast({ title: 'No Pages Found', description: 'Make sure your account has admin access to Facebook pages.' });
-      }
-    } catch (e: any) {
-      toast({ title: 'Connection Failed', description: e.message, variant: 'destructive' });
-    } finally {
-      setLoadingMetaPages(false);
-    }
-  };
-
-  const handleConnectMetaPage = async (page: any) => {
-    if (!configuring) return;
-    try {
-      const res = await fetch('/api/channels/meta/connect-page', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('accessToken') || localStorage.getItem('token') || ''}`,
-        },
-        body: JSON.stringify({
-          pageId: page.id,
-          pageName: page.name,
-          pageAccessToken: page.accessToken,
-          instagramAccountId: page.instagram?.id,
-          channelType: configuring.type,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to connect page');
-
-      queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey() });
-      setConfiguring(null);
-      setMetaPages([]);
-      setMetaUserToken('');
-      toast({ title: `Connected successfully`, description: `${page.name} is now connected to ${configuring.name}.` });
-    } catch (e: any) {
-      toast({ title: 'Connection Failed', description: e.message, variant: 'destructive' });
-    }
-  };
-
-  const handleConfigure = (integration: (typeof INTEGRATION_TYPES)[0]) => {
+  const handleConfigure = async (integration: (typeof INTEGRATION_TYPES)[0]) => {
     setConfiguring(integration);
     setFormData({});
-    setMetaPages([]);
-    setMetaUserToken('');
-    setMetaAuthMode('oauth');
-    setChannelName(`${integration.name} #${(getChannelsOfType(integration.type).length + 1)}`);
-    if (integration.provider === 'whatsapp_web' && whatsappChannel) {
-      void whatsappFetch(`/api/channels/whatsapp-web/${whatsappChannel.id}/status`)
-        .then(setWhatsappStatus)
-        .catch(() => setWhatsappStatus({ status: 'idle' }));
-    }
-  };
+    setChannelName(language === 'ar' ? `${integration.name} #1` : `${integration.nameEn} #1`);
 
-  const handleCreate = async () => {
-    if (!configuring) return;
-    if (configuring.provider === 'whatsapp_web') {
+    if (integration.provider === 'whatsapp_web') {
+      setIsStartingQr(true);
       try {
         const status = await whatsappFetch('/api/channels/whatsapp-web/start', {
           method: 'POST',
-          body: JSON.stringify({ name: channelName || 'WhatsApp Web', force: true }),
+          body: JSON.stringify({ name: 'واتساب المتجر', force: false }),
         });
         setWhatsappStatus(status);
-        queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey() });
-      } catch (e) {
-        toast({ title: 'Failed to start WhatsApp Web', description: (e as Error).message, variant: 'destructive' });
+      } catch (e: any) {
+        toast({
+          title: language === 'ar' ? 'فشل بدء جلسة واتساب' : 'Failed to start WhatsApp session',
+          description: e.message,
+          variant: 'destructive',
+        });
+      } finally {
+        setIsStartingQr(false);
       }
-      return;
     }
+  };
+
+  const handleRegenerateQr = async () => {
+    setIsStartingQr(true);
+    try {
+      const status = await whatsappFetch('/api/channels/whatsapp-web/start', {
+        method: 'POST',
+        body: JSON.stringify({ name: channelName || 'واتساب المتجر', force: true }),
+      });
+      setWhatsappStatus(status);
+      toast({
+        title: language === 'ar' ? 'تم توليد رمز QR جديد' : 'New QR code generated',
+        description: language === 'ar' ? 'امسح الرمز الآن من تطبيق واتساب' : 'Scan the code with WhatsApp now',
+      });
+    } catch (e: any) {
+      toast({
+        title: language === 'ar' ? 'فشل توليد الرمز' : 'Failed to generate QR',
+        description: e.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsStartingQr(false);
+    }
+  };
+
+  const handleWhatsAppLogout = async () => {
+    if (!activeWhatsAppId) return;
+    try {
+      await whatsappFetch(`/api/channels/whatsapp-web/${activeWhatsAppId}/logout`, { method: 'POST' });
+      setWhatsappStatus({ status: 'disconnected' });
+      queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey() });
+      toast({ title: language === 'ar' ? 'تم فصل جلسة واتساب بنجاح' : 'WhatsApp disconnected' });
+    } catch (e: any) {
+      toast({ title: 'Failed to disconnect', description: e.message, variant: 'destructive' });
+    }
+  };
+
+  const handleCreate = () => {
+    if (!configuring) return;
     createChannel.mutate(
       {
         data: {
@@ -266,102 +247,102 @@ export default function Integrations() {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey() });
           setConfiguring(null);
-          toast({ title: `${configuring.name} connected` });
+          toast({ title: language === 'ar' ? 'تم حفظ وربط القناة بنجاح' : 'Channel connected successfully' });
         },
         onError: (e) => {
-          toast({ title: 'Failed to connect', description: e.message, variant: 'destructive' });
+          toast({ title: language === 'ar' ? 'فشل الربط' : 'Failed to connect', description: e.message, variant: 'destructive' });
         },
       }
     );
   };
 
-  const handleWhatsAppLogout = async () => {
-    if (!whatsappChannel) return;
-    try {
-      await whatsappFetch(`/api/channels/whatsapp-web/${whatsappChannel.id}/logout`, { method: 'POST' });
-      setWhatsappStatus({ status: 'disconnected' });
-      queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey() });
-      toast({ title: 'WhatsApp Web disconnected' });
-    } catch (e) {
-      toast({ title: 'Failed to disconnect', description: (e as Error).message, variant: 'destructive' });
-    }
-  };
-
   const handleDelete = (id: number) => {
-    if (!confirm('Disconnect this channel?')) return;
+    if (!confirm(language === 'ar' ? 'هل أنت متأكد من رغبتك في حذف هذه القناة؟' : 'Disconnect this channel?')) return;
     deleteChannel.mutate(
       { id },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey() });
-          toast({ title: 'Channel disconnected' });
+          toast({ title: language === 'ar' ? 'تم حذف القناة' : 'Channel disconnected' });
         },
         onError: (e) => toast({ title: 'Failed', description: e.message, variant: 'destructive' }),
       }
     );
   };
 
+  const getChannelsOfType = (type: string) =>
+    (channels ?? []).filter((c) => c.channelType === type);
+
   return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="p-6 space-y-6">
+    <div className="flex-1 overflow-y-auto bg-background/50">
+      <div className="p-6 md:p-8 space-y-6 max-w-[1600px] mx-auto">
         <div>
-          <h1 className="text-2xl font-bold">Integrations</h1>
-          <p className="text-sm text-muted-foreground mt-1">Connect messaging channels to your support platform</p>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+            {language === 'ar' ? 'قنوات التواصل والربط التقني' : 'Channels & Integrations'}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1 font-medium">
+            {language === 'ar' ? 'ربط متجر سلة، واتساب، شركات الشحن، وفيسبوك ماسنجر مع المساعد الذكي' : 'Connect Salla store, WhatsApp, couriers, and social channels with AI'}
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {INTEGRATION_TYPES.map((integration) => {
             const activeChannels = getChannelsOfType(integration.type);
             const isConnected = integration.provider === 'whatsapp_web'
-              ? whatsappStatus.status === 'connected'
+              ? whatsappStatus.status === 'connected' || (whatsappChannel && whatsappChannel.isActive)
               : activeChannels.length > 0;
 
             return (
-              <div key={integration.type} className="bg-card border border-card-border rounded-lg p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center text-2xl">
-                      {integration.icon}
+              <div key={integration.type} className="bg-card border border-border/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-all space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-2xl shadow-inner">
+                        {integration.icon}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-base text-foreground">
+                          {language === 'ar' ? integration.name : integration.nameEn}
+                        </h3>
+                        {isConnected ? (
+                          <Badge variant="secondary" className="text-xs mt-1 bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-bold">
+                            <CheckCircle2 className="w-3 h-3 me-1" />
+                            {language === 'ar' ? 'متصل ونشط' : 'Connected & Active'}
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" className="text-xs mt-1 text-muted-foreground font-medium">
+                            {language === 'ar' ? 'غير متصل' : 'Not connected'}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold">{integration.name}</h3>
-                      {isConnected ? (
-                        <Badge variant="secondary" className="text-xs mt-1 bg-green-500/10 text-green-600 border-0">
-                          <CheckCircle2 className="w-3 h-3 mr-1" />
-                          {integration.provider === 'whatsapp_web' ? 'Connected' : `${activeChannels.length} connected`}
-                        </Badge>
-                      ) : (
-                        <Badge variant="secondary" className="text-xs mt-1 text-muted-foreground">
-                          Not connected
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline" onClick={() => handleConfigure(integration)}>
-                      <Plus className="w-3 h-3 mr-1" />
-                      Connect
+
+                    <Button size="sm" variant="outline" onClick={() => handleConfigure(integration)} className="rounded-xl font-bold">
+                      <Plus className="w-3.5 h-3.5 me-1" />
+                      <span>{language === 'ar' ? 'إعداد' : 'Connect'}</span>
                     </Button>
                   </div>
+
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {language === 'ar' ? integration.description : integration.descriptionEn}
+                  </p>
                 </div>
 
-                <p className="text-sm text-muted-foreground mb-4">{integration.description}</p>
-
                 {activeChannels.length > 0 && (
-                  <div className="space-y-2 border-t border-border pt-4">
+                  <div className="space-y-2 border-t border-border/60 pt-3">
                     {activeChannels.map((ch) => (
-                      <div key={ch.id} className="flex items-center justify-between py-1">
+                      <div key={ch.id} className="flex items-center justify-between py-1 text-xs">
                         <div className="flex items-center gap-2">
-                          <Zap className="w-3 h-3 text-primary" />
-                          <span className="text-sm font-medium">{ch.name}</span>
+                          <Zap className="w-3.5 h-3.5 text-primary" />
+                          <span className="font-semibold text-foreground">{ch.name}</span>
                         </div>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7"
+                          className="h-7 w-7 text-muted-foreground hover:text-destructive"
                           onClick={() => handleDelete(ch.id)}
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <Trash2 className="w-3.5 h-3.5" />
                         </Button>
                       </div>
                     ))}
@@ -373,165 +354,112 @@ export default function Integrations() {
         </div>
       </div>
 
-      {/* Configure Dialog */}
+      {/* Integration Configuration Dialog */}
       <Dialog open={!!configuring} onOpenChange={(o) => !o && setConfiguring(null)}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Settings className="w-4 h-4" />
-              Connect {configuring?.name}
+              <Settings className="w-4 h-4 text-primary" />
+              <span>{language === 'ar' ? `ربط ${configuring?.name}` : `Connect ${configuring?.nameEn}`}</span>
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Channel Name</Label>
-              <Input
-                value={channelName}
-                onChange={(e) => setChannelName(e.target.value)}
-                placeholder="e.g. Support WhatsApp"
-              />
-            </div>
+
+          <div className="space-y-4 pt-2">
             {isWhatsApp ? (
-              <div className="rounded-lg border border-border bg-muted/30 p-4 text-center space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  Open WhatsApp on your phone, then tap <strong>Settings &gt; Linked Devices &gt; Link a Device</strong>
-                </p>
-                {whatsappStatus.qrCode ? (
-                  <img src={whatsappStatus.qrCode} alt="WhatsApp Web QR code" className="mx-auto w-64 h-64 rounded-lg bg-white p-2" />
-                ) : whatsappStatus.status === 'connected' ? (
-                  <div className="py-8 text-emerald-600 font-medium">
-                    WhatsApp connected {whatsappStatus.phoneNumber ? `(${whatsappStatus.phoneNumber})` : ''}
-                  </div>
-                ) : (
-                  <div className="py-8 text-sm text-muted-foreground">
-                    {whatsappStatus.status === 'error' ? whatsappStatus.error : 'Generating QR code...'}
-                  </div>
-                )}
-                {whatsappStatus.qrCode && (
-                  <p className="text-xs text-muted-foreground">Scan this QR code with WhatsApp, then keep this modal open.</p>
-                )}
-              </div>
-            ) : configuring?.provider === 'meta_graph' ? (
-              <div className="space-y-4">
-                <div className="flex border-b border-border">
-                  <button
-                    type="button"
-                    onClick={() => setMetaAuthMode('oauth')}
-                    className={`pb-2 px-3 text-sm font-medium border-b-2 transition-colors ${
-                      metaAuthMode === 'oauth'
-                        ? 'border-primary text-primary'
-                        : 'border-transparent text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    Automatic Connect
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMetaAuthMode('manual')}
-                    className={`pb-2 px-3 text-sm font-medium border-b-2 transition-colors ${
-                      metaAuthMode === 'manual'
-                        ? 'border-primary text-primary'
-                        : 'border-transparent text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    Manual Credentials
-                  </button>
+              <div className="rounded-2xl border border-border bg-card p-5 text-center space-y-4 shadow-sm">
+                <div className="text-xs text-muted-foreground space-y-1 text-start bg-muted/40 p-3 rounded-xl border">
+                  <p className="font-bold text-foreground">{language === 'ar' ? '📱 خطوات الربط السريع:' : '📱 Quick Linking Steps:'}</p>
+                  <p>1. {language === 'ar' ? 'افتح تطبيق واتساب على هاتفك المحمول.' : 'Open WhatsApp on your mobile phone.'}</p>
+                  <p>2. {language === 'ar' ? 'اضغط على الإعدادات > الأجهزة المرتبطة > ربط جهاز.' : 'Tap Settings > Linked Devices > Link a Device.'}</p>
+                  <p>3. {language === 'ar' ? 'وجّه كاميرا الهاتف نحو رمز الـ QR أدناه.' : 'Point your camera at the QR code below.'}</p>
                 </div>
 
-                {metaAuthMode === 'oauth' ? (
-                  <div className="space-y-3">
-                    <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
-                      <Label className="text-xs">Facebook Access Token</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          type="password"
-                          value={metaUserToken}
-                          onChange={(e) => setMetaUserToken(e.target.value)}
-                          placeholder="Paste User Token from Facebook"
-                          className="text-sm"
-                        />
-                        <Button
-                          type="button"
-                          onClick={() => fetchMetaPages(metaUserToken)}
-                          disabled={!metaUserToken.trim() || loadingMetaPages}
-                          className="whitespace-nowrap"
-                        >
-                          {loadingMetaPages ? 'Loading...' : 'Fetch Pages'}
-                        </Button>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Get your token with page permissions from Meta Graph Explorer or Facebook login.
+                {/* QR Code Container */}
+                <div className="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-border shadow-inner min-h-[300px]">
+                  {whatsappStatus.qrCode ? (
+                    <div className="space-y-2">
+                      <img
+                        src={whatsappStatus.qrCode}
+                        alt="WhatsApp Web QR code"
+                        className="w-64 h-64 mx-auto rounded-lg"
+                      />
+                      <p className="text-[11px] text-gray-500 font-medium animate-pulse">
+                        {language === 'ar' ? '🟢 الرمز نشط وجاهز للمسح الآن' : '🟢 QR code is active and ready to scan'}
                       </p>
                     </div>
-
-                    {metaPages.length > 0 && (
-                      <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                        <Label className="text-xs font-semibold">Select Page to Connect:</Label>
-                        {metaPages.map((page) => (
-                          <div
-                            key={page.id}
-                            className="flex items-center justify-between p-3 rounded-lg border border-border bg-card hover:bg-muted/40 transition-colors"
-                          >
-                            <div className="flex items-center gap-3">
-                              {page.picture ? (
-                                <img src={page.picture} alt={page.name} className="w-8 h-8 rounded-full object-cover" />
-                              ) : (
-                                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-                                  {page.name.charAt(0)}
-                                </div>
-                              )}
-                              <div>
-                                <p className="text-sm font-medium leading-none">{page.name}</p>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  ID: {page.id} {page.instagram ? `• IG: @${page.instagram.username}` : ''}
-                                </p>
-                              </div>
-                            </div>
-                            <Button
-                              size="sm"
-                              onClick={() => handleConnectMetaPage(page)}
-                            >
-                              Connect
-                            </Button>
-                          </div>
-                        ))}
+                  ) : whatsappStatus.status === 'connected' ? (
+                    <div className="py-8 text-center space-y-2">
+                      <div className="w-14 h-14 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+                        <CheckCircle2 className="w-8 h-8" />
                       </div>
-                    )}
-                  </div>
-                ) : (
-                  configuring?.fields.map((field) => (
-                    <div key={field.key} className="space-y-2">
-                      <Label>{field.label}</Label>
-                      <Input
-                        type={field.type || 'text'}
-                        value={formData[field.key] ?? ''}
-                        onChange={(e) => setFormData((p) => ({ ...p, [field.key]: e.target.value }))}
-                      />
+                      <p className="text-sm font-bold text-emerald-600">
+                        {language === 'ar' ? 'تم ربط واتساب بنجاح!' : 'WhatsApp Connected Successfully!'}
+                      </p>
+                      {whatsappStatus.phoneNumber && (
+                        <p className="text-xs font-mono text-muted-foreground">{whatsappStatus.phoneNumber}</p>
+                      )}
                     </div>
-                  ))
-                )}
-              </div>
-            ) : configuring?.fields.map((field) => (
-              <div key={field.key} className="space-y-2">
-                <Label>{field.label}</Label>
-                <Input
-                  type={field.type || 'text'}
-                  value={formData[field.key] ?? ''}
-                  onChange={(e) => setFormData((p) => ({ ...p, [field.key]: e.target.value }))}
-                />
-              </div>
-            ))}
+                  ) : (
+                    <div className="py-12 text-center space-y-3">
+                      <QrCode className="w-10 h-10 text-muted-foreground animate-bounce mx-auto opacity-50" />
+                      <p className="text-xs text-muted-foreground">
+                        {isStartingQr ? (language === 'ar' ? 'جاري إنشاء رمز QR جديد...' : 'Generating QR code...') : (whatsappStatus.error || (language === 'ar' ? 'جاري الاتصال بخادم واتساب...' : 'Connecting to WhatsApp server...'))}
+                      </p>
+                    </div>
+                  )}
+                </div>
 
-            <div className="flex gap-2">
-              {(!configuring || configuring.provider !== 'meta_graph' || metaAuthMode === 'manual') && (
-                <Button onClick={handleCreate} className="flex-1" disabled={createChannel.isPending || (isWhatsApp && whatsappStatus.status === 'connected')}>
-                  {isWhatsApp ? (whatsappStatus.status === 'qr' ? 'Refresh QR' : 'Generate QR Code') : (createChannel.isPending ? 'Connecting...' : 'Connect Channel')}
-                </Button>
-              )}
-              {isWhatsApp && whatsappStatus.status === 'connected' && (
-                <Button onClick={handleWhatsAppLogout} variant="outline">Disconnect</Button>
-              )}
-            </div>
+                {/* Actions */}
+                <div className="flex items-center justify-between gap-3 pt-2">
+                  {whatsappStatus.status === 'connected' ? (
+                    <Button onClick={handleWhatsAppLogout} variant="destructive" className="w-full rounded-xl">
+                      {language === 'ar' ? 'فصل الحساب (Disconnect)' : 'Disconnect'}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleRegenerateQr}
+                      disabled={isStartingQr}
+                      variant="outline"
+                      className="w-full rounded-xl gap-2 text-xs font-bold"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${isStartingQr ? 'animate-spin' : ''}`} />
+                      <span>{language === 'ar' ? 'إعادة توليد رمز QR جديد' : 'Generate New QR Code'}</span>
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label>{language === 'ar' ? 'اسم القناة' : 'Channel Name'}</Label>
+                  <Input
+                    value={channelName}
+                    onChange={(e) => setChannelName(e.target.value)}
+                  />
+                </div>
+
+                {configuring?.fields.map((field) => (
+                  <div key={field.key} className="space-y-2">
+                    <Label>{field.label}</Label>
+                    <Input
+                      type={field.type || 'text'}
+                      value={formData[field.key] ?? ''}
+                      onChange={(e) => setFormData((p) => ({ ...p, [field.key]: e.target.value }))}
+                      className={field.type === 'password' ? 'font-mono' : ''}
+                    />
+                  </div>
+                ))}
+
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button variant="outline" onClick={() => setConfiguring(null)}>
+                    {t.cancel}
+                  </Button>
+                  <Button onClick={handleCreate} disabled={createChannel.isPending}>
+                    {createChannel.isPending ? t.saving : (language === 'ar' ? 'حفظ وتفعيل الربط' : 'Save & Connect')}
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>

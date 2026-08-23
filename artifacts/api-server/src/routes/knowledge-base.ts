@@ -6,21 +6,21 @@ import { requireAuth } from '../middlewares/auth.js';
 
 const router = Router();
 
-// Helper to scrape text from a website URL
-async function scrapeUrlContent(targetUrl: string): Promise<string> {
-  try {
-    let normalizedUrl = targetUrl.trim();
-    if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
-      normalizedUrl = `https://${normalizedUrl}`;
-    }
+// Enhanced Helper to scrape and extract meaningful content from a website URL
+async function scrapeUrlContent(targetUrl: string): Promise<{ title: string; content: string }> {
+  let normalizedUrl = targetUrl.trim();
+  if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
+    normalizedUrl = `https://${normalizedUrl}`;
+  }
 
+  try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
+    const timeout = setTimeout(() => controller.abort(), 12000);
 
     const res = await fetch(normalizedUrl, {
       signal: controller.signal,
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 (Sanad Store AI Scraper)',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'ar,en-US,en;q=0.9',
       },
@@ -28,16 +28,28 @@ async function scrapeUrlContent(targetUrl: string): Promise<string> {
     clearTimeout(timeout);
 
     if (!res.ok) {
-      return `محتوى مستخرج من الرابط ${normalizedUrl} (حالة الاستجابة: ${res.status})`;
+      return {
+        title: normalizedUrl,
+        content: `رابط موقع المتجر المسجل في قاعدة المعرفة: ${normalizedUrl} (حالة الاستجابة: ${res.status})`,
+      };
     }
 
     const html = await res.text();
+
+    // Extract <title> if present
+    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+    const pageTitle = titleMatch ? titleMatch[1].trim() : normalizedUrl;
+
+    // Extract meta description
+    const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i);
+    const metaDesc = descMatch ? descMatch[1].trim() : '';
 
     // Clean HTML: Remove scripts, styles, head, comments, tags
     const cleaned = html
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
       .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
       .replace(/<noscript\b[^<]*(?:(?!<\/noscript>)<[^<]*)*<\/noscript>/gi, ' ')
+      .replace(/<svg\b[^<]*(?:(?!<\/svg>)<[^<]*)*<\/svg>/gi, ' ')
       .replace(/<!--[\s\S]*?-->/g, ' ')
       .replace(/<[^>]+>/g, ' ')
       .replace(/&nbsp;/gi, ' ')
@@ -47,14 +59,26 @@ async function scrapeUrlContent(targetUrl: string): Promise<string> {
       .replace(/\s+/g, ' ')
       .trim();
 
-    return cleaned.slice(0, 10000) || `رابط الموقع: ${normalizedUrl}`;
+    const fullContent = [
+      `رابط الصفحة: ${normalizedUrl}`,
+      metaDesc ? `الوصف: ${metaDesc}` : '',
+      cleaned ? `المحتوى:\n${cleaned.slice(0, 15000)}` : '',
+    ].filter(Boolean).join('\n\n');
+
+    return {
+      title: pageTitle || normalizedUrl,
+      content: fullContent || `رابط الموقع: ${normalizedUrl}`,
+    };
   } catch (err: any) {
     console.warn(`[KnowledgeBase] Failed to scrape URL ${targetUrl}:`, err.message);
-    return `رابط الموقع المسجل في قاعدة المعرفة: ${targetUrl}`;
+    return {
+      title: normalizedUrl,
+      content: `رابط الموقع المسجل في قاعدة المعرفة: ${normalizedUrl}`,
+    };
   }
 }
 
-// Handler for listing docs (supports GET / and GET /docs)
+// Handler for listing docs
 const listDocsHandler = async (req: any, res: any) => {
   try {
     const { search, page = '1', limit = '100' } = req.query as Record<string, string>;
@@ -75,28 +99,34 @@ const listDocsHandler = async (req: any, res: any) => {
   }
 };
 
-// Handler for creating docs (supports POST / and POST /docs)
+// Handler for creating docs
 const createDocHandler = async (req: any, res: any) => {
   try {
     const body = req.body ?? {};
-    const title = body.title || body.name;
-    const fileType = body.fileType || body.contentType || 'text';
+    let title = body.title || body.name;
+    const fileType = body.fileType || body.contentType || 'txt';
     let content = body.content || '';
-    const url = body.url || (fileType === 'url' && body.title?.startsWith('http') ? body.title : undefined);
+    const url = body.url || (fileType === 'url' && (body.title?.startsWith('http') ? body.title : undefined));
 
-    if (!title) {
+    if (!title && !url) {
       res.status(400).json({ error: 'العنوان أو الرابط مطلوب' });
       return;
     }
 
-    // If it's a URL or content is missing, automatically scrape content
-    if ((fileType === 'url' || url) && !content) {
+    // If it's a URL or title is a URL, automatically scrape content
+    if (fileType === 'url' || url || title?.startsWith('http://') || title?.startsWith('https://')) {
       const targetUrl = url || title;
-      content = await scrapeUrlContent(targetUrl);
+      const scraped = await scrapeUrlContent(targetUrl);
+      if (!title || title.startsWith('http')) {
+        title = scraped.title;
+      }
+      if (!content) {
+        content = scraped.content;
+      }
     }
 
     if (!content) {
-      content = title;
+      content = title || 'مستند معرفي';
     }
 
     const [row] = await db.insert(knowledgeDocs).values({
@@ -114,7 +144,7 @@ const createDocHandler = async (req: any, res: any) => {
   }
 };
 
-// Handler for deleting docs (supports DELETE /:id and DELETE /docs/:id)
+// Handler for deleting docs
 const deleteDocHandler = async (req: any, res: any) => {
   try {
     const docId = Number(req.params.id);
@@ -153,12 +183,14 @@ const getSingleDocHandler = async (req: any, res: any) => {
   }
 };
 
-// Route definitions supporting both / and /docs
+// Route definitions supporting all route variations
 router.get('/', requireAuth, listDocsHandler);
 router.get('/docs', requireAuth, listDocsHandler);
 
 router.post('/', requireAuth, createDocHandler);
 router.post('/docs', requireAuth, createDocHandler);
+router.post('/url', requireAuth, createDocHandler);
+router.post('/website', requireAuth, createDocHandler);
 
 router.get('/search', requireAuth, async (req, res) => {
   try {
