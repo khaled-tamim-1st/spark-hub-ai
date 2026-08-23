@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #6B00FF;
+  --color-brand-light: #9B59FF;
+  --color-brand-dark: #4A00B3;
+  --color-brand-glow: rgba(107, 0, 255, 0.3);
+  --color-sanad-dark: #0A0A0F;
+  --color-sanad-card: #12121A;
+  --color-sanad-border: rgba(107, 0, 255, 0.2);
+  --font-family-sans: 'IBM Plex Sans Arabic', 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family-sans);
+  background-color: #ffffff;
+  color: #111111;
+}
+
+/* Marquee animation */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  animation: marquee 20s linear infinite;
+}
+
+/* Purple glow effect */
+.glow-brand {
+  box-shadow: 0 0 30px rgba(107, 0, 255, 0.4);
+}
+
+/* Gradient mesh for hero */
+.hero-gradient {
+  background: radial-gradient(ellipse at 30% 50%, rgba(107, 0, 255, 0.15) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 20%, rgba(155, 89, 255, 0.1) 0%, transparent 50%),
+              #0A0A0F;
+}
+
+/* Grid pattern overlay */
+.hero-grid {
+  background-image: linear-gradient(rgba(107, 0, 255, 0.05) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(107, 0, 255, 0.05) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
