@@ -8,7 +8,6 @@ import Login from '@/pages/login';
 import Register from '@/pages/register';
 import Dashboard from '@/pages/dashboard';
 import Inbox from '@/pages/inbox';
-import Voice from '@/pages/voice';
 import Contacts from '@/pages/contacts';
 import Companies from '@/pages/companies';
 import Crm from '@/pages/crm';
@@ -60,9 +59,6 @@ function AppRoutes() {
       </Route>
       <Route path="/inbox">
         <Shell><Inbox /></Shell>
-      </Route>
-      <Route path="/voice">
-        <Shell><Voice /></Shell>
       </Route>
       <Route path="/contacts">
         <Shell><Contacts /></Shell>

@@ -4,7 +4,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
   LayoutDashboard, 
   Inbox, 
-  PhoneCall,
   Users, 
   Building2, 
   Target, 
@@ -96,7 +95,6 @@ export function AppShell({ children }: AppShellProps) {
       items: [
         { name: t.navDashboard, href: '/dashboard', icon: LayoutDashboard },
         { name: t.navInbox, href: '/inbox', icon: Inbox, badge: true },
-        { name: t.navVoice, href: '/voice', icon: PhoneCall },
       ]
     },
     {

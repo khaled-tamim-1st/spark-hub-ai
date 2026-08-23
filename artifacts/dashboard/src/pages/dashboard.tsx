@@ -12,7 +12,6 @@ import {
   TrendingDown, 
   ArrowRight, 
   Inbox, 
-  PhoneCall, 
   Zap, 
   ShoppingBag, 
   Sparkles,
@@ -101,13 +100,6 @@ export default function Dashboard() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Link href="/voice">
-              <button className="inline-flex items-center justify-center rounded-xl text-xs font-semibold transition-all border border-border bg-card hover:bg-muted text-foreground h-10 px-4 gap-2 shadow-sm">
-                <PhoneCall className="w-4 h-4 text-emerald-500" />
-                سجل المكالمات
-              </button>
-            </Link>
-
             <Link href="/inbox">
               <button className="inline-flex items-center justify-center rounded-xl text-xs font-semibold transition-all bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-5 gap-2 shadow-md hover:shadow-lg">
                 <Inbox className="w-4 h-4" />
@@ -212,7 +204,7 @@ export default function Dashboard() {
             <div className="space-y-3">
               {[
                 { name: 'واتساب (WhatsApp Web)', status: 'متصل ويعمل', color: 'text-emerald-600 bg-emerald-500/10 border-emerald-500/20' },
-                { name: 'المكالمات الصوتية (Voice AI)', status: 'نشط وجاهز', color: 'text-emerald-600 bg-emerald-500/10 border-emerald-500/20' },
+                { name: 'متجر سلة (Salla Store)', status: 'متزامن ونشط', color: 'text-emerald-600 bg-emerald-500/10 border-emerald-500/20' },
                 { name: 'فيسبوك ماسنجر', status: 'مربوط بالصفحة', color: 'text-blue-600 bg-blue-500/10 border-blue-500/20' },
                 { name: 'انستغرام DM', status: 'متزامن', color: 'text-purple-600 bg-purple-500/10 border-purple-500/20' },
               ].map((ch, idx) => (

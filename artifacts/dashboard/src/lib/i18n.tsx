@@ -16,7 +16,6 @@ export interface Translations {
   // Nav Items
   navDashboard: string;
   navInbox: string;
-  navVoice: string;
   navContacts: string;
   navDeals: string;
   navCompanies: string;
@@ -100,7 +99,6 @@ export interface Translations {
   channelWhatsApp: string;
   channelInstagram: string;
   channelMessenger: string;
-  channelVoice: string;
   channelSalla: string;
   searchConversationsPlaceholder: string;
   aiCopilotSuggestion: string;
@@ -124,16 +122,6 @@ export interface Translations {
   stageWon: string;
   stageLost: string;
   dealValue: string;
-
-  // Voice AI Page
-  voiceTitle: string;
-  voiceSubtitle: string;
-  startCall: string;
-  totalCalls: string;
-  totalDuration: string;
-  resolutionRate: string;
-  protocolEngine: string;
-  callLogs: string;
 
   // Knowledge Base Page
   kbTitle: string;
@@ -169,7 +157,6 @@ const translations: Record<Language, Translations> = {
 
     navDashboard: 'لوحة المؤشرات',
     navInbox: 'صندوق الوارد',
-    navVoice: 'المكالمات الصوتية',
     navContacts: 'جهات الاتصال',
     navDeals: 'الطلبات والمبيعات',
     navCompanies: 'الشركات',
@@ -249,7 +236,6 @@ const translations: Record<Language, Translations> = {
     channelWhatsApp: 'واتساب',
     channelInstagram: 'انستغرام',
     channelMessenger: 'ماسنجر',
-    channelVoice: 'مكالمات',
     channelSalla: 'سلة',
     searchConversationsPlaceholder: 'بحث في المحادثات أو العملاء...',
     aiCopilotSuggestion: 'اقتراح الرد الذكي المباشر',
@@ -272,15 +258,6 @@ const translations: Record<Language, Translations> = {
     stageWon: 'تم التسليم بنجاح',
     stageLost: 'ملغي / مسترجع',
     dealValue: 'القيمة الإجمالية',
-
-    voiceTitle: 'المكالمات الصوتية الذكية',
-    voiceSubtitle: 'مساعد صوتي ذكي يستقبل ويجري المكالمات الهاتفية الحقيقية',
-    startCall: 'بدء مكالمة هاتفية',
-    totalCalls: 'إجمالي المكالمات',
-    totalDuration: 'إجمالي الدقائق',
-    resolutionRate: 'نسبة الإنجاز التلقائي',
-    protocolEngine: 'محرك المعالجة الصوتية',
-    callLogs: 'سجل وتفريغ المكالمات',
 
     kbTitle: 'قاعدة المعرفة والمنتجات',
     kbSubtitle: 'تدريب الذكاء الاصطناعي على سياسات المتجر، كتالوج المنتجات، والأسئلة الشائعة',
@@ -312,7 +289,6 @@ const translations: Record<Language, Translations> = {
 
     navDashboard: 'Dashboard',
     navInbox: 'Inbox',
-    navVoice: 'Voice AI Calls',
     navContacts: 'Contacts',
     navDeals: 'Orders & Deals',
     navCompanies: 'Companies',
@@ -392,7 +368,6 @@ const translations: Record<Language, Translations> = {
     channelWhatsApp: 'WhatsApp',
     channelInstagram: 'Instagram',
     channelMessenger: 'Messenger',
-    channelVoice: 'Voice Calls',
     channelSalla: 'Salla',
     searchConversationsPlaceholder: 'Search conversations or customers...',
     aiCopilotSuggestion: 'Instant AI Suggested Reply',
@@ -415,15 +390,6 @@ const translations: Record<Language, Translations> = {
     stageWon: 'Fulfilled & Delivered',
     stageLost: 'Cancelled / Returned',
     dealValue: 'Total Value',
-
-    voiceTitle: 'Voice AI Calls',
-    voiceSubtitle: 'Autonomous voice agent handling inbound and outbound phone calls',
-    startCall: 'Make Phone Call',
-    totalCalls: 'Total Calls',
-    totalDuration: 'Total Minutes',
-    resolutionRate: 'AI Resolution Rate',
-    protocolEngine: 'Voice Audio Protocol',
-    callLogs: 'Call Logs & Transcripts',
 
     kbTitle: 'Knowledge Base',
     kbSubtitle: 'Train AI on store policies, product catalogs, and customer FAQs',

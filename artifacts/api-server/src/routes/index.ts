@@ -16,7 +16,6 @@ import notesRouter from './notes.js';
 import adminRouter from './admin.js';
 import organizationsRouter from './organizations.js';
 import webhooksRouter from './webhooks.js';
-import voiceRouter from './voice.js';
 
 const router: IRouter = Router();
 
@@ -37,7 +36,6 @@ router.use('/ai-settings', aiSettingsRouter);
 router.use('/analytics', analyticsRouter);
 router.use('/tags', tagsRouter);
 router.use('/notes', notesRouter);
-router.use('/voice', voiceRouter);
 
 export default router;
 

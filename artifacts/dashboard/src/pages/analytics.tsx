@@ -15,9 +15,9 @@ const weekData = [
 ];
 
 const channelData = [
-  { channel: 'واتساب (WhatsApp)', count: 128 },
-  { channel: 'سلة (Salla)', count: 84 },
-  { channel: 'مكالمات صوتية (Voice)', count: 46 },
+  { channel: 'واتساب (WhatsApp)', count: 148 },
+  { channel: 'سلة (Salla)', count: 96 },
+  { channel: 'ودجت الموقع (Web Chat)', count: 42 },
   { channel: 'انستغرام DM', count: 32 },
   { channel: 'فيسبوك ماسنجر', count: 24 },
 ];

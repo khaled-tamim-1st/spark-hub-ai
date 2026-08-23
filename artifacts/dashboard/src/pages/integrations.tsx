@@ -87,20 +87,6 @@ const INTEGRATION_TYPES = [
       { key: 'welcomeMessage', label: 'رسالة الترحيب' },
     ],
   },
-  {
-    name: 'المكالمات الصوتية (Telephony & SIP)',
-    nameEn: 'Voice Telephony & SIP',
-    type: 'voice',
-    provider: 'generic_sip',
-    description: 'ربط السنترال السحابي وخطوط الهاتف للرد الصوتي الذكي على المكالمات',
-    descriptionEn: 'Connect Cloud PBX & SIP Trunks for conversational Voice AI',
-    icon: '📞',
-    fields: [
-      { key: 'sipServer', label: 'SIP Server / Gateway Host' },
-      { key: 'sipUsername', label: 'SIP Extension / User' },
-      { key: 'sipPassword', label: 'SIP Password', type: 'password' },
-    ],
-  },
 ];
 
 type WhatsAppStatus = {

@@ -44,7 +44,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { getToken } from '@/lib/auth';
-import { VoiceCallModal } from '@/components/voice-call-modal';
 
 const CANNED_REPLIES = [
   { label: 'ترحيب بالعميل', text: 'أهلاً بك يا فندم في سند! كيف نقدر نساعدك اليوم؟ يسعدنا جداً تواصلك معنا.' },
@@ -60,7 +59,6 @@ export default function Inbox() {
   const [channelFilter, setChannelFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isInternalNote, setIsInternalNote] = useState(false);
-  const [isCallModalOpen, setIsCallModalOpen] = useState(false);
   const [isAiGenerating, setIsAiGenerating] = useState(false);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(true);
   const [isNewDealOpen, setIsNewDealOpen] = useState(false);
@@ -306,7 +304,6 @@ export default function Inbox() {
               { id: 'whatsapp', label: 'واتساب', icon: 'whatsapp' },
               { id: 'instagram', label: 'انستغرام', icon: 'instagram' },
               { id: 'messenger', label: 'ماسنجر', icon: 'messenger' },
-              { id: 'voice', label: 'مكالمات', icon: 'voice' },
             ].map((ch) => (
               <button
                 key={ch.id}
@@ -450,18 +447,6 @@ export default function Inbox() {
                     onCheckedChange={handleToggleAiHandled}
                   />
                 </div>
-
-                {/* Voice Call Button */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-1.5 h-9 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/10 font-medium"
-                  onClick={() => setIsCallModalOpen(true)}
-                  title="بدء مكالمة صوتية فورية بالذكاء الاصطناعي"
-                >
-                  <PhoneCall className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">مكالمة صوتية</span>
-                </Button>
 
                 {/* Toggle 360 CRM Panel Button */}
                 <Button
@@ -769,25 +754,6 @@ export default function Inbox() {
             </div>
           </div>
         </div>
-      )}
-
-      {/* Voice Call Modal */}
-      {selectedConversation && isCallModalOpen && (
-        <VoiceCallModal
-          isOpen={isCallModalOpen}
-          onClose={() => {
-            setIsCallModalOpen(false);
-            queryClient.invalidateQueries({ queryKey: getListMessagesQueryKey(selectedConversationId || 0) });
-          }}
-          phoneNumber={(selectedConversation.contact as any)?.phone || '+201000000000'}
-          contactName={selectedConversation.contact ? `${selectedConversation.contact.firstName} ${selectedConversation.contact.lastName}` : 'Customer'}
-          contactId={selectedConversation.contact?.id}
-          conversationId={selectedConversation.id}
-          onCallEnded={() => {
-            queryClient.invalidateQueries({ queryKey: getListMessagesQueryKey(selectedConversationId || 0) });
-            queryClient.invalidateQueries({ queryKey: getListConversationsQueryKey({}) });
-          }}
-        />
       )}
 
       {/* New Order / Deal Dialog */}
