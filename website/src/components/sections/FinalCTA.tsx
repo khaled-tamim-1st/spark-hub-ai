@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowLeft, Shield } from "lucide-react";
+import { getAppUrl } from "@/lib/config";
 
 export default function FinalCTA() {
   return (
@@ -42,7 +43,7 @@ export default function FinalCTA() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="https://app.sanadai.com/register"
+              href={getAppUrl("/register")}
               className="group inline-flex items-center justify-center gap-2 bg-white text-[#6B00FF] hover:bg-gray-100 px-8 py-4 rounded-xl font-black text-lg transition-all hover:shadow-2xl hover:scale-105 active:scale-95"
             >
               ابدأ الآن مجاناً

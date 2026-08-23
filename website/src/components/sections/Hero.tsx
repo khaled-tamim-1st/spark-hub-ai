@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowLeft, Play, CheckCircle2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { getAppUrl } from "@/lib/config";
 
 function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
   const [count, setCount] = useState(0);
@@ -101,7 +102,7 @@ export default function Hero() {
               className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-end"
             >
               <a
-                href="https://app.sanadai.com/register"
+                href={getAppUrl("/register")}
                 className="group inline-flex items-center justify-center gap-2 bg-[#6B00FF] hover:bg-[#5800D9] text-white px-7 py-4 rounded-xl text-base font-bold transition-all hover:shadow-xl hover:shadow-[#6B00FF]/40 hover:scale-105 active:scale-95"
               >
                 ابدأ مجاناً الآن

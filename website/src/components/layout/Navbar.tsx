@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
 
+import { getAppUrl } from "@/lib/config";
+
 const navLinks = [
   { label: "الرئيسية", href: "/" },
   { label: "المميزات", href: "#features" },
@@ -62,13 +64,13 @@ export default function Navbar() {
           {/* CTA */}
           <div className="hidden md:flex items-center gap-3">
             <a
-              href="https://app.sanadai.com/login"
+              href={getAppUrl("/login")}
               className="text-white/70 hover:text-white text-sm font-medium transition-colors"
             >
               تسجيل الدخول
             </a>
             <a
-              href="https://app.sanadai.com/register"
+              href={getAppUrl("/register")}
               className="bg-[#6B00FF] hover:bg-[#5800D9] text-white px-5 py-2 rounded-xl text-sm font-semibold transition-all hover:shadow-lg hover:shadow-[#6B00FF]/30 hover:scale-105 active:scale-95"
             >
               جرّب مجاناً
@@ -100,13 +102,13 @@ export default function Navbar() {
             ))}
             <div className="pt-3 border-t border-white/10 flex flex-col gap-2">
               <a
-                href="https://app.sanadai.com/login"
+                href={getAppUrl("/login")}
                 className="text-center text-white/70 hover:text-white py-2 text-sm"
               >
                 تسجيل الدخول
               </a>
               <a
-                href="https://app.sanadai.com/register"
+                href={getAppUrl("/register")}
                 className="text-center bg-[#6B00FF] hover:bg-[#5800D9] text-white py-3 rounded-xl text-sm font-semibold transition-colors"
               >
                 جرّب مجاناً — مجاناً لمدة 14 يوم

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Link2, Brain, Coffee } from "lucide-react";
+import { getAppUrl } from "@/lib/config";
 
 const steps = [
   {
@@ -113,7 +114,7 @@ export default function HowItWorks() {
           className="text-center mt-12"
         >
           <a
-            href="https://app.sanadai.com/register"
+            href={getAppUrl("/register")}
             className="inline-flex items-center gap-2 bg-[#6B00FF] hover:bg-[#5800D9] text-white px-8 py-4 rounded-xl font-bold text-base transition-all hover:shadow-xl hover:shadow-[#6B00FF]/30 hover:scale-105"
           >
             ابدأ الآن مجاناً

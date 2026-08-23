@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Check, Zap } from "lucide-react";
 import { useState } from "react";
+import { getAppUrl } from "@/lib/config";
 
 const plans = [
   {
@@ -217,7 +218,7 @@ export default function Pricing() {
                 href={
                   plan.isEnterprise
                     ? "mailto:hello@sanadai.com"
-                    : "https://app.sanadai.com/register"
+                    : getAppUrl("/register")
                 }
                 className={`block text-center py-3.5 rounded-xl font-bold text-sm transition-all mb-8 ${
                   plan.highlighted
