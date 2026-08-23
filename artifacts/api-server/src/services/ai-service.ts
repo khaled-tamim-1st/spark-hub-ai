@@ -28,7 +28,7 @@ export interface AiServiceResult {
 export async function generateAiReplyDetailed(options: GenerateReplyOptions): Promise<AiServiceResult> {
   const { 
     organizationId, 
-    customerName = 'Customer', 
+    customerName = 'العميل', 
     incomingText, 
     conversationHistory = [], 
     forceGenerate = false,
@@ -56,11 +56,10 @@ export async function generateAiReplyDetailed(options: GenerateReplyOptions): Pr
       .limit(1) : [null];
 
     // Fallback: If this org has no API key or is unconfigured, look for any configured org with a valid API key
-    if ((!settings || !settings.apiKey || settings.apiKey.trim().length < 5 || settings.provider === 'ollama') && !overrideSettings?.apiKey) {
+    if ((!settings || !settings.apiKey || settings.apiKey.trim().length < 5) && !overrideSettings?.apiKey) {
       const allRows = await db.select().from(aiSettings);
       const configured = allRows.find(r => r.apiKey && r.apiKey.trim().length > 10 && !r.apiKey.includes('••••'));
       if (configured) {
-        console.log(`[AI Service] Using global AI configuration from org #${configured.organizationId} [${configured.provider} / ${configured.model}]`);
         settings = { ...(settings || {}), ...configured } as any;
       }
     }
@@ -84,7 +83,7 @@ export async function generateAiReplyDetailed(options: GenerateReplyOptions): Pr
         .from(knowledgeDocs)
         .where(and(eq(knowledgeDocs.organizationId, organizationId), eq(knowledgeDocs.status, 'ready')))
         .limit(10);
-      kbContext = docs.map(d => `### Document: ${d.title}\n${d.content}`).join('\n\n');
+      kbContext = docs.map(d => `### ${d.title}\n${d.content}`).join('\n\n');
     }
 
     const defaultPrompt = 'أنت مساعد ذكي ومتخصص لخدمة عملاء المتجر. أجب دائماً بأسلوب مهذب ومحترف وودود وساعد العميل بناءً على بيانات المتجر فقط.';
@@ -101,21 +100,22 @@ ${kbContext ? `=== قاعدة معرفة المتجر والمنتجات الر�
 4. الأسلوب: تحدث بأسلوب سعودي/عربي ودود، راقٍ وموجز وواضح، وخاطب العميل باحترام (اسم العميل: ${customerName}).`;
 
     const provider = (overrideSettings?.provider || settings?.provider || 'groq').toLowerCase().trim();
-    let model = (overrideSettings?.model || settings?.model || (provider === 'groq' ? 'llama-3.3-70b-versatile' : 'llama3')).trim();
+    let model = (overrideSettings?.model || settings?.model || (provider === 'groq' ? 'openai/gpt-oss-120b' : 'llama3')).trim();
     
-    // Auto-normalize legacy or inactive model names for Groq
+    // Auto-normalize legacy or inactive model names for Groq to active GPT OSS models
     if (provider === 'groq') {
       if (
         !model || 
         model === 'llama3' || 
+        model === 'llama-3.3-70b-versatile' || 
         model === 'llama-3.1-8b-instant' || 
         model === 'llama3-70b-8192' || 
         model === 'mixtral-8x7b-32768' ||
         model.toLowerCase().includes('120b')
       ) {
-        model = 'llama-3.3-70b-versatile';
+        model = 'openai/gpt-oss-120b';
       } else if (model.toLowerCase().includes('20b')) {
-        model = 'llama-3.3-70b-versatile';
+        model = 'openai/gpt-oss-20b';
       }
     }
 
@@ -161,7 +161,23 @@ ${kbContext ? `=== قاعدة معرفة المتجر والمنتجات الر�
     }
 
     // 2. Cloud Providers (Groq, OpenAI, DeepSeek, OpenRouter, Custom)
-    const apiKey = (overrideSettings?.apiKey || settings?.apiKey || '').trim();
+    let apiKey = (overrideSettings?.apiKey && !overrideSettings.apiKey.includes('••••')) ? overrideSettings.apiKey.trim() : '';
+    if (!apiKey) {
+      apiKey = (settings?.apiKey && !settings.apiKey.includes('••••')) ? settings.apiKey.trim() : '';
+    }
+    if (!apiKey) {
+      const allRows = await db.select().from(aiSettings);
+      const configured = allRows.find(r => r.apiKey && r.apiKey.trim().length > 10 && !r.apiKey.includes('••••'));
+      if (configured) {
+        apiKey = configured.apiKey!.trim();
+      }
+    }
+    if (!apiKey) {
+      if (provider === 'groq') apiKey = (process.env.GROQ_API_KEY || '').trim();
+      else if (provider === 'openai') apiKey = (process.env.OPENAI_API_KEY || '').trim();
+      else if (provider === 'deepseek') apiKey = (process.env.DEEPSEEK_API_KEY || '').trim();
+    }
+
     if (!apiKey) {
       return { 
         success: false, 
@@ -243,6 +259,6 @@ ${kbContext ? `=== قاعدة معرفة المتجر والمنتجات الر�
 }
 
 export async function generateAiReply(options: GenerateReplyOptions): Promise<string | null> {
-  const res = await generateAiReplyDetailed(options);
-  return res.success ? (res.reply ?? null) : null;
+  const result = await generateAiReplyDetailed(options);
+  return result.success ? (result.reply || null) : null;
 }

@@ -26,11 +26,11 @@ export default function AiSettings() {
 
   const [form, setForm] = useState({
     provider: 'groq',
-    model: 'llama-3.3-70b-versatile',
+    model: 'openai/gpt-oss-120b',
     baseUrl: '',
     apiKey: '',
-    systemPrompt: 'أنت مساعد ذكي ومتخصص لخدمة عملاء المتجر. أجب دائماً بأسلوب مهذب وودود وموجز، وساعد العميل في معرفة حالة الطلبات والشحن والمنتجات.',
-    temperature: 0.7,
+    systemPrompt: 'أنت مساعد ذكي ومتخصص لخدمة عملاء المتجر. أجب دائماً بأسلوب مهذب ومحترف وودود وساعد العميل بناءً على بيانات المتجر فقط.',
+    temperature: 0.3,
     maxTokens: 1000,
     autoReply: true,
     autoReplyConfidence: 0.8,
@@ -41,11 +41,11 @@ export default function AiSettings() {
       const s = settings as any;
       setForm({
         provider: s.provider ?? 'groq',
-        model: s.model ?? 'llama-3.3-70b-versatile',
+        model: s.model ?? 'openai/gpt-oss-120b',
         baseUrl: s.baseUrl ?? '',
         apiKey: s.apiKey ?? '',
-        systemPrompt: s.systemPrompt ?? 'أنت مساعد ذكي ومتخصص لخدمة عملاء المتجر. أجب دائماً بأسلوب مهذب وودود وموجز، وساعد العميل في معرفة حالة الطلبات والشحن والمنتجات.',
-        temperature: s.temperature ?? 0.7,
+        systemPrompt: s.systemPrompt ?? 'أنت مساعد ذكي ومتخصص لخدمة عملاء المتجر. أجب دائماً بأسلوب مهذب ومحترف وودود وساعد العميل بناءً على بيانات المتجر فقط.',
+        temperature: s.temperature ?? 0.3,
         maxTokens: s.maxTokens ?? 1000,
         autoReply: s.autoReply ?? true,
         autoReplyConfidence: s.autoReplyConfidence ?? 0.8,
