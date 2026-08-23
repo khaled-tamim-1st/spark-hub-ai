@@ -138,8 +138,8 @@ export function AppShell({ children }: AppShellProps) {
       >
         {/* Logo Area — سند Brand */}
         <div className="flex items-center h-16 px-3 border-b border-sidebar-border overflow-hidden shrink-0">
-          <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shrink-0 sanad-logo-glow">
-            <img src="/logo.png" alt={t.brandName} className="w-full h-full object-cover" />
+          <div className="w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center shrink-0 sanad-logo-glow bg-sidebar-accent/40 p-1 border border-sidebar-border">
+            <img src="/logo.png" alt={t.brandName} className="w-full h-full object-contain" />
           </div>
           <div 
             className={cn(

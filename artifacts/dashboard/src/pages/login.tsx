@@ -68,8 +68,8 @@ export default function Login() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl overflow-hidden mb-4 shadow-lg border border-primary/20 sanad-glow">
-            <img src="/logo.png" alt="سند" className="w-full h-full object-cover" />
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl overflow-hidden mb-4 shadow-lg border border-primary/20 sanad-glow bg-card p-2">
+            <img src="/logo.png" alt="سند" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-3xl font-extrabold mb-1 tracking-tight sanad-gradient-text">سند</h1>
           <p className="text-muted-foreground text-sm font-medium">
