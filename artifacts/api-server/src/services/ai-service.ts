@@ -87,36 +87,40 @@ export async function generateAiReplyDetailed(options: GenerateReplyOptions): Pr
       kbContext = docs.map(d => `### Document: ${d.title}\n${d.content}`).join('\n\n');
     }
 
-    const defaultPrompt = 'أنت مساعد ذكاء اصطناعي ذكي ومحترف، ودود ومتعاون. أجب على استفسارات المستخدم بذكاء وبشكل طبيعي وسلس وبحرية تامة.';
+    const defaultPrompt = 'أنت مساعد ذكي ومتخصص لخدمة عملاء المتجر. أجب دائماً بأسلوب مهذب ومحترف وودود وساعد العميل بناءً على بيانات المتجر فقط.';
     const systemPrompt = overrideSettings?.systemPrompt || settings?.systemPrompt || defaultPrompt;
 
     const fullSystemInstruction = `${systemPrompt}
-${kbContext ? `\n=== قاعدة معرفة الشركة ومعلومات المنتجات (Knowledge Base) ===\n${kbContext}\n==============================\nاستخدم معلومات قاعدة المعرفة أعلاه للإجابة على الأسئلة المتعلقة بالشركة.` : ''}
-تعليمات الأسلوب:
-- تحدث بأسلوب محترف، ودود، ومرن، وأجب بذكاء وبحرية على أي سؤال يطرحه المستخدم.
-- خاطب المستخدم بلباقة واحترام (اسم العميل: ${customerName}).`;
+
+${kbContext ? `=== قاعدة معرفة المتجر والمنتجات الرسمية (Knowledge Base) ===\n${kbContext}\n============================================================` : 'ملاحظة: لا توجد مستندات إضافية مسجلة حالياً في قاعدة المعرفة.'}
+
+قواعد صارمة للرد ومكافحة الهبد (Strict Accuracy & Anti-Hallucination Rules):
+1. الصدق التام وعدم الاختراع: ممنوع منعاً باتاً اختراع أو تأليف أي حسابات، منتجات، أسعار، سياسات، أو عروض من خيالك.
+2. الالتزام بقاعدة المعرفة: جميع اقتراحاتك ومعلوماتك للعميل يجب أن تكون مستندة ومطابقة 100% لما هو مذكور فقط في قاعدة المعرفة أعلاه.
+3. التعامل مع البيانات غير المتوفرة: إذا سألك العميل عن اقتراح حساب أو منتج غير مذكور في قاعدة المعرفة، لا تؤلف حسابات وهمية؛ بل وضح له بلباقة المنتجات المتاحة فقط أو وجهه لمراجعة رابط المتجر مباشرة.
+4. الأسلوب: تحدث بأسلوب سعودي/عربي ودود، راقٍ وموجز وواضح، وخاطب العميل باحترام (اسم العميل: ${customerName}).`;
 
     const provider = (overrideSettings?.provider || settings?.provider || 'groq').toLowerCase().trim();
-    let model = (overrideSettings?.model || settings?.model || (provider === 'groq' ? 'openai/gpt-oss-120b' : 'llama3')).trim();
+    let model = (overrideSettings?.model || settings?.model || (provider === 'groq' ? 'llama-3.3-70b-versatile' : 'llama3')).trim();
     
-    // Auto-normalize legacy or inactive model names for Groq to active GPT OSS models
+    // Auto-normalize legacy or inactive model names for Groq
     if (provider === 'groq') {
       if (
         !model || 
         model === 'llama3' || 
-        model === 'llama-3.3-70b-versatile' || 
         model === 'llama-3.1-8b-instant' || 
         model === 'llama3-70b-8192' || 
         model === 'mixtral-8x7b-32768' ||
         model.toLowerCase().includes('120b')
       ) {
-        model = 'openai/gpt-oss-120b';
+        model = 'llama-3.3-70b-versatile';
       } else if (model.toLowerCase().includes('20b')) {
-        model = 'openai/gpt-oss-20b';
+        model = 'llama-3.3-70b-versatile';
       }
     }
 
-    const temperature = Number(overrideSettings?.temperature ?? settings?.temperature ?? 0.7);
+    // Default to low temperature (0.3) for high factual accuracy in ecommerce support
+    const temperature = Number(overrideSettings?.temperature ?? settings?.temperature ?? 0.3);
 
     console.log(`[AI Service] Processing request -> Provider: [${provider}], Model: [${model}]`);
 
