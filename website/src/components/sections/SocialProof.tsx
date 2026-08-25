@@ -51,47 +51,47 @@ const duplicatedStores = [...stores, ...stores];
 
 export default function SocialProof() {
   return (
-    <section className="py-16 bg-[#0B0B14] border-y border-white/5 relative overflow-hidden">
+    <section className="py-16 bg-[#FAFAFE] border-y border-[#EDE9FE] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-8">
-        <div className="inline-flex items-center gap-2 text-xs font-bold text-[#C499FF] uppercase tracking-wider bg-[#6B00FF]/15 border border-[#6B00FF]/30 px-3.5 py-1.5 rounded-full mb-3">
+        <div className="inline-flex items-center gap-2 text-xs font-extrabold text-[#6B00FF] uppercase tracking-wider bg-[#EDE9FE] border border-[#DDD6FE] px-3.5 py-1.5 rounded-full mb-3 shadow-sm">
           <ShieldCheck size={14} />
           <span>شركاء النجاح في التجارة الإلكترونية السعودية</span>
         </div>
-        <h2 className="text-xl sm:text-2xl font-bold text-white">
+        <h2 className="text-xl sm:text-2xl font-black text-slate-900">
           تعتمد عليه كبرى المتاجر الرائدة على منصة سلة
         </h2>
       </div>
 
-      {/* Marquee Slider with Gradient Edge Fades */}
+      {/* Marquee Slider with Soft Gradient Edge Fades */}
       <div className="relative">
-        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#0B0B14] to-transparent z-10 pointer-events-none" />
-        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#0B0B14] to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-28 bg-gradient-to-l from-[#FAFAFE] to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-28 bg-gradient-to-r from-[#FAFAFE] to-transparent z-10 pointer-events-none" />
 
         <div className="flex overflow-hidden py-2">
           <div className="flex gap-4 marquee-track">
             {duplicatedStores.map((store, i) => (
               <div
                 key={i}
-                className="flex-shrink-0 bg-[#141422]/90 border border-[#6B00FF]/15 hover:border-[#9B59FF]/50 rounded-2xl p-4 w-[280px] transition-all hover:bg-[#1A1A2E] shadow-lg shadow-black/20"
+                className="flex-shrink-0 bg-white border border-[#EDE9FE] hover:border-[#C4B5FD] rounded-2xl p-4 w-[280px] transition-all hover:shadow-md hover:shadow-purple-900/5"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-1.5 font-bold text-white text-sm">
-                    <ShoppingBag size={14} className="text-[#9B59FF]" />
+                  <div className="flex items-center gap-1.5 font-bold text-slate-900 text-sm">
+                    <ShoppingBag size={14} className="text-[#6B00FF]" />
                     <span className="truncate">{store.name}</span>
                   </div>
-                  <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1 font-bold">
                     <CheckCircle size={10} />
                     {store.platform}
                   </span>
                 </div>
 
-                <div className="text-[11px] text-gray-400 mb-2">
+                <div className="text-[11px] text-slate-500 font-medium mb-2">
                   {store.category}
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] pt-2 border-t border-white/5">
-                  <span className="text-gray-300 font-medium">{store.sales}</span>
-                  <span className="text-[#C499FF] font-bold flex items-center gap-0.5">
+                <div className="flex items-center justify-between text-[11px] pt-2 border-t border-slate-100">
+                  <span className="text-slate-600 font-semibold">{store.sales}</span>
+                  <span className="text-[#6B00FF] font-bold flex items-center gap-0.5">
                     <TrendingUp size={11} />
                     {store.growth}
                   </span>

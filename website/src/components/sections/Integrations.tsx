@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle2, Globe, Layers, ArrowLeft } from "lucide-react";
-import { getAppUrl } from "@/lib/config";
+import { CheckCircle2, Layers } from "lucide-react";
 
 const integrationCategories = [
   {
@@ -47,19 +46,19 @@ const integrationCategories = [
 
 export default function Integrations() {
   return (
-    <section id="integrations" className="py-28 bg-[#0B0B14] border-y border-white/5 relative overflow-hidden">
+    <section id="integrations" className="py-28 bg-[#FAFAFE] border-y border-[#EDE9FE] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-20">
-          <div className="inline-flex items-center gap-2 bg-[#6B00FF]/15 border border-[#6B00FF]/30 text-[#C499FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+          <div className="inline-flex items-center gap-2 bg-[#EDE9FE] border border-[#DDD6FE] text-[#6B00FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
             <Layers size={14} />
             <span>منظومة متكاملة 100%</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-5">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-tight mb-5">
             يتكامل بسلاسة مع كل أدوات متجرك
           </h2>
-          <p className="text-gray-400 text-base sm:text-lg">
+          <p className="text-slate-600 text-base sm:text-lg font-medium">
             لا داعي لتغيير نظامك الحالي. سند يندمج مع منصاتك وشركات شحنك في دقائق معدودة.
           </p>
         </div>
@@ -73,13 +72,13 @@ export default function Integrations() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
-              className="glass-card rounded-3xl p-7 border border-[#6B00FF]/20 flex flex-col justify-between hover:border-[#9B59FF]/40 transition-all duration-300 shadow-xl"
+              className="bg-white rounded-3xl p-7 border border-[#EDE9FE] hover:border-[#C4B5FD] flex flex-col justify-between transition-all duration-300 shadow-lg shadow-purple-900/5"
             >
               <div className="mb-5">
-                <h3 className="text-lg font-bold text-white mb-1">
+                <h3 className="text-lg font-black text-slate-900 mb-1">
                   {cat.category}
                 </h3>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-slate-500 font-medium">
                   {cat.description}
                 </p>
               </div>
@@ -88,15 +87,15 @@ export default function Integrations() {
                 {cat.items.map((item) => (
                   <div
                     key={item.name}
-                    className="bg-[#0E0E17] border border-white/5 hover:border-[#6B00FF]/30 rounded-2xl p-3.5 flex flex-col justify-between transition-all group"
+                    className="bg-[#F8F6FF] border border-[#EDE9FE] hover:border-[#C4B5FD] rounded-2xl p-3.5 flex flex-col justify-between transition-all group"
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-2xl">{item.icon}</span>
-                      <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md font-medium">
+                      <span className="text-[10px] text-emerald-800 bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-md font-bold">
                         {item.status}
                       </span>
                     </div>
-                    <span className="text-xs font-bold text-gray-200 group-hover:text-white transition-colors truncate">
+                    <span className="text-xs font-bold text-slate-800 group-hover:text-[#6B00FF] transition-colors truncate">
                       {item.name}
                     </span>
                   </div>
@@ -107,8 +106,8 @@ export default function Integrations() {
         </div>
 
         {/* Integration Footnote */}
-        <div className="mt-12 text-center text-xs text-gray-400 flex items-center justify-center gap-2">
-          <CheckCircle2 size={14} className="text-emerald-400" />
+        <div className="mt-12 text-center text-xs text-slate-500 font-semibold flex items-center justify-center gap-2">
+          <CheckCircle2 size={14} className="text-emerald-600" />
           <span>هل تستخدم منصة أو أداة مخصصة؟ نوفر ربط REST API متكامل لجميع المتاجر.</span>
         </div>
 

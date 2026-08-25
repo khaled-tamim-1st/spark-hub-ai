@@ -12,7 +12,7 @@ import FinalCTA from "@/components/sections/FinalCTA";
 
 export default function Home() {
   return (
-    <div className="bg-[#07070C] text-white min-h-screen flex flex-col selection:bg-[#6B00FF] selection:text-white">
+    <div className="bg-white text-slate-900 min-h-screen flex flex-col selection:bg-[#6B00FF]/15 selection:text-[#6B00FF]">
       <Navbar />
       <main className="flex-1">
         <Hero />

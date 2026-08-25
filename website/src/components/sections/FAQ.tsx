@@ -53,19 +53,19 @@ export default function FAQ() {
     : faqs.filter((f) => f.category === activeCategory);
 
   return (
-    <section id="faq" className="py-28 bg-[#0B0B14] border-t border-white/5 relative overflow-hidden">
+    <section id="faq" className="py-28 bg-[#FAFAFE] border-t border-[#EDE9FE] relative overflow-hidden">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 bg-[#6B00FF]/15 border border-[#6B00FF]/30 text-[#C499FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+          <div className="inline-flex items-center gap-2 bg-[#EDE9FE] border border-[#DDD6FE] text-[#6B00FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
             <HelpCircle size={14} />
             <span>إجابات واضحة ومباشرة</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight mb-4">
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 leading-tight mb-4">
             الأسئلة الأكثر شيوعاً حول سند
           </h2>
-          <p className="text-gray-400 text-sm sm:text-base">
+          <p className="text-slate-600 text-sm sm:text-base font-medium">
             كل ما يدور في ذهنك حول عمل سند وتكامله مع متجرك على سلة
           </p>
         </div>
@@ -82,7 +82,7 @@ export default function FAQ() {
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activeCategory === cat.id
                   ? "bg-[#6B00FF] text-white shadow-md shadow-[#6B00FF]/25"
-                  : "bg-[#141422] text-gray-400 hover:text-white border border-white/5 hover:border-white/10"
+                  : "bg-white text-slate-600 hover:text-slate-900 border border-[#EDE9FE] hover:border-[#DDD6FE]"
               }`}
             >
               {cat.label}
@@ -97,17 +97,17 @@ export default function FAQ() {
             return (
               <div
                 key={faq.q}
-                className="glass-card rounded-2xl border border-white/10 overflow-hidden transition-all duration-200"
+                className="bg-white rounded-2xl border border-[#EDE9FE] hover:border-[#C4B5FD] overflow-hidden transition-all duration-200 shadow-sm"
               >
                 <button
                   onClick={() => setOpenIndex(isOpen ? null : i)}
-                  className="w-full p-5 text-right flex items-center justify-between gap-4 select-none hover:bg-white/[0.02]"
+                  className="w-full p-5 text-right flex items-center justify-between gap-4 select-none hover:bg-[#F8F6FF]"
                   aria-expanded={isOpen}
                 >
-                  <span className={`text-sm sm:text-base font-bold transition-colors ${isOpen ? "text-[#C499FF]" : "text-white"}`}>
+                  <span className={`text-sm sm:text-base font-bold transition-colors ${isOpen ? "text-[#6B00FF]" : "text-slate-900"}`}>
                     {faq.q}
                   </span>
-                  <div className={`w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180 bg-[#6B00FF]/20 text-[#C499FF]" : "text-gray-400"}`}>
+                  <div className={`w-8 h-8 rounded-xl bg-[#F8F6FF] flex items-center justify-center flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180 bg-[#EDE9FE] text-[#6B00FF]" : "text-slate-400"}`}>
                     <ChevronDown size={18} />
                   </div>
                 </button>
@@ -120,7 +120,7 @@ export default function FAQ() {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.25, ease: "easeInOut" }}
                     >
-                      <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-gray-300 leading-relaxed border-t border-white/5">
+                      <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 font-medium">
                         {faq.a}
                       </div>
                     </motion.div>
@@ -132,18 +132,18 @@ export default function FAQ() {
         </div>
 
         {/* Still have questions card */}
-        <div className="mt-12 text-center bg-[#141422] border border-[#6B00FF]/20 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-12 text-center bg-white border border-[#EDE9FE] rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
           <div className="text-center sm:text-right">
-            <p className="text-white font-bold text-sm">
+            <p className="text-slate-900 font-bold text-sm">
               لديك استفسار خاص بمتجرك لم تجد إجابته هنا؟
             </p>
-            <p className="text-gray-400 text-xs mt-0.5">
+            <p className="text-slate-500 text-xs mt-0.5 font-medium">
               فريق خدمة العملاء لدينا متاح لمساعدتك والإجابة على كل أسئلتك.
             </p>
           </div>
           <a
             href="mailto:hello@sanadai.com"
-            className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-colors border border-white/10"
+            className="inline-flex items-center gap-2 bg-[#F8F6FF] hover:bg-[#EDE9FE] text-[#6B00FF] px-5 py-2.5 rounded-xl text-xs font-bold transition-colors border border-[#DDD6FE]"
           >
             <MessageCircle size={15} />
             <span>تواصل مع الدعم الفني</span>

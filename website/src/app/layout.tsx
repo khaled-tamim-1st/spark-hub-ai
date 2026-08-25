@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans_Arabic, Inter } from "next/font/google";
+import { Cairo, Inter } from "next/font/google";
 import "./globals.css";
 
-const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
-  subsets: ["arabic"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-arabic",
+const cairo = Cairo({
+  subsets: ["arabic", "latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-cairo",
   display: "swap",
 });
 
@@ -84,7 +84,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl" className={`${ibmPlexSansArabic.variable} ${inter.variable}`}>
+    <html lang="ar" dir="rtl" className={`${cairo.variable} ${inter.variable}`}>
       <head>
         <script
           type="application/ld+json"
@@ -112,7 +112,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`font-[family-name:var(--font-arabic)] antialiased`}>
+      <body className="font-[family-name:var(--font-cairo)] antialiased bg-white text-slate-900 selection:bg-[#6B00FF]/15 selection:text-[#6B00FF]">
         {children}
       </body>
     </html>
