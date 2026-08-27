@@ -15,8 +15,8 @@ const INTEGRATION_TYPES = [
   {
     name: 'واتساب ويب (WhatsApp Web)',
     nameEn: 'WhatsApp Web',
-    type: 'whatsapp',
-    provider: 'whatsapp_web',
+    type: 'whatsapp' as any,
+    provider: 'whatsapp_web' as any,
     description: 'ربط رقم واتساب المتجر لمسح الرمز والاستقبال والرد التلقائي عبر الذكاء الاصطناعي',
     descriptionEn: 'Connect store WhatsApp number by scanning QR code for AI auto-reply',
     icon: '💬',
@@ -25,8 +25,8 @@ const INTEGRATION_TYPES = [
   {
     name: 'ودجت المحادثة للموقع (Web Chat Widget)',
     nameEn: 'Web Chat Widget',
-    type: 'web',
-    provider: 'widget',
+    type: 'web' as any,
+    provider: 'web_widget' as any,
     description: 'تثبيت زر المحادثة الحية المباشرة في متجرك أو موقعك الإلكتروني مع ردود الذكاء الاصطناعي الفورية',
     descriptionEn: 'Embed a modern live chat widget with instant AI replies on your store or website',
     icon: '🌐',
@@ -40,8 +40,8 @@ const INTEGRATION_TYPES = [
   {
     name: 'متجر سلة (Salla)',
     nameEn: 'Salla Store',
-    type: 'salla',
-    provider: 'salla_ecommerce',
+    type: 'salla' as any,
+    provider: 'salla_ecommerce' as any,
     description: 'ربط متجرك على منصة سلة لمزامنة الطلبات والمنتجات وحالات الشحن والخصومات مع الـ AI',
     descriptionEn: 'Connect your Salla store for orders, products, and AI store automation',
     icon: '🛒',
@@ -53,8 +53,8 @@ const INTEGRATION_TYPES = [
   {
     name: 'شركات الشحن والتوصيل (Shipping & Couriers)',
     nameEn: 'Saudi Shipping & Couriers',
-    type: 'shipping',
-    provider: 'saudi_shipping',
+    type: 'shipping' as any,
+    provider: 'saudi_shipping' as any,
     description: 'ربط شركات الشحن (SMSA, Aramex, RedBox, SPL, OTO) لتمكين الـ AI من تتبع الشحنات للعملاء',
     descriptionEn: 'Connect SMSA, Aramex, RedBox, SPL & OTO for instant order tracking',
     icon: '🚚',
@@ -66,8 +66,8 @@ const INTEGRATION_TYPES = [
   {
     name: 'فيسبوك ماسنجر (Facebook Messenger)',
     nameEn: 'Facebook Messenger',
-    type: 'messenger',
-    provider: 'meta_graph',
+    type: 'messenger' as any,
+    provider: 'meta_graph' as any,
     description: 'ربط صفحة فيسبوك لإدارة محادثات الصفحة والردود التلقائية',
     descriptionEn: 'Connect Facebook Page to manage customer inquiries and messages',
     icon: '📘',
@@ -79,8 +79,8 @@ const INTEGRATION_TYPES = [
   {
     name: 'انستغرام (Instagram Direct)',
     nameEn: 'Instagram Direct',
-    type: 'instagram',
-    provider: 'meta_graph',
+    type: 'instagram' as any,
+    provider: 'meta_graph' as any,
     description: 'استقبال والرد على الرسائل المباشرة لحساب انستغرام التجاري',
     descriptionEn: 'Handle Instagram Direct Messages from your professional account',
     icon: '📸',
@@ -165,8 +165,8 @@ export default function Integrations() {
     setFormData({});
     setChannelName(language === 'ar' ? `${integration.name} #1` : `${integration.nameEn} #1`);
 
-    if (integration.provider === 'widget') {
-      const existing = channels?.find((c) => c.provider === 'widget');
+    if ((integration.provider as string) === 'widget' || (integration.provider as string) === 'web_widget') {
+      const existing = (channels as any[])?.find((c) => c.provider === 'widget' || c.provider === 'web_widget');
       let cfg: any = {};
       if (existing?.config) {
         try {
@@ -272,49 +272,55 @@ export default function Integrations() {
           queryClient.invalidateQueries({ queryKey: getListChannelsQueryKey() });
           toast({ title: language === 'ar' ? 'تم حذف القناة' : 'Channel disconnected' });
         },
-        onError: (e) => toast({ title: 'Failed', description: e.message, variant: 'destructive' }),
+        onError: (e) => {
+          toast({ title: language === 'ar' ? 'فشل الحذف' : 'Failed to delete', description: e.message, variant: 'destructive' });
+        },
       }
     );
   };
 
-  const getChannelsOfType = (type: string) =>
-    (channels ?? []).filter((c) => c.channelType === type);
-
   return (
-    <div className="flex-1 overflow-y-auto bg-background/50">
-      <div className="p-6 md:p-8 space-y-6 max-w-[1600px] mx-auto">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-            {language === 'ar' ? 'قنوات التواصل والربط التقني' : 'Channels & Integrations'}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1 font-medium">
-            {language === 'ar' ? 'ربط متجر سلة، واتساب، شركات الشحن، وفيسبوك ماسنجر مع المساعد الذكي' : 'Connect Salla store, WhatsApp, couriers, and social channels with AI'}
-          </p>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">{language === 'ar' ? 'التكاملات والربط' : 'Integrations'}</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          {language === 'ar'
+            ? 'اربط قنوات التواصل ومتاجر سلة وشركات الشحن لتمكين الردود الآلية بالذكاء الاصطناعي وتتبع الطلبات'
+            : 'Connect communication channels, Salla stores & Saudi shipping couriers'}
+        </p>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {INTEGRATION_TYPES.map((integration) => {
-            const activeChannels = getChannelsOfType(integration.type);
-            const isConnected = integration.provider === 'whatsapp_web'
-              ? whatsappStatus.status === 'connected' || (whatsappChannel && whatsappChannel.isActive)
-              : activeChannels.length > 0;
+            const activeChannels = (channels ?? []).filter((c) => {
+              if (integration.provider === 'whatsapp_web') return c.provider === 'whatsapp_web';
+              if ((integration.provider as string) === 'web_widget' || (integration.provider as string) === 'widget') {
+                return (c.provider as string) === 'web_widget' || (c.provider as string) === 'widget' || c.channelType === 'web';
+              }
+              return c.channelType === integration.type;
+            });
+            const isConnected = activeChannels.length > 0;
 
             return (
-              <div key={integration.type} className="bg-card border border-border/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-all space-y-4">
+              <div
+                key={integration.name}
+                className="rounded-2xl border border-border/80 bg-card p-5 space-y-4 hover:border-primary/40 hover:shadow-md transition-all flex flex-col justify-between"
+              >
                 <div className="space-y-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-2xl shadow-inner">
+                      <div className="text-2xl p-2.5 rounded-xl bg-muted/60 border border-border/40 shadow-xs">
                         {integration.icon}
                       </div>
                       <div>
-                        <h3 className="font-bold text-base text-foreground">
+                        <h3 className="font-bold text-sm text-foreground">
                           {language === 'ar' ? integration.name : integration.nameEn}
                         </h3>
                         {isConnected ? (
-                          <Badge variant="secondary" className="text-xs mt-1 bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-bold">
-                            <CheckCircle2 className="w-3 h-3 me-1" />
-                            {language === 'ar' ? 'متصل ونشط' : 'Connected & Active'}
+                          <Badge variant="outline" className="text-xs mt-1 text-emerald-700 bg-emerald-500/10 border-emerald-500/30 gap-1 font-bold">
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>{language === 'ar' ? 'متصل' : 'Connected'}</span>
                           </Badge>
                         ) : (
                           <Badge variant="secondary" className="text-xs mt-1 text-muted-foreground font-medium">
@@ -344,7 +350,7 @@ export default function Integrations() {
                           <span className="font-semibold text-foreground">{ch.name}</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          {integration.provider === 'widget' && (
+                          {((integration.provider as string) === 'widget' || (integration.provider as string) === 'web_widget') && (
                             <Button
                               variant="outline"
                               size="sm"
@@ -448,7 +454,7 @@ export default function Integrations() {
                   )}
                 </div>
               </div>
-            ) : configuring?.provider === 'widget' ? (
+            ) : ((configuring?.provider as string) === 'widget' || (configuring?.provider as string) === 'web_widget') ? (
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>{language === 'ar' ? 'اسم القناة' : 'Channel Name'}</Label>
@@ -499,7 +505,7 @@ export default function Integrations() {
                       variant="ghost"
                       className="h-7 text-xs text-primary hover:text-white gap-1"
                       onClick={() => {
-                        const activeId = channels?.find(c => c.provider === 'widget')?.id || 1;
+                        const activeId = (channels as any[])?.find(c => c.provider === 'widget' || c.provider === 'web_widget')?.id || 1;
                         const code = `<!-- ECOMATE AI Live Chat Widget -->\n<script src="${window.location.origin}/widget.js" data-channel="${activeId}" data-color="${formData.primaryColor || '#3B4FE8'}" data-title="${formData.widgetName || 'مساعد المتجر الذكي'}" data-welcome="${formData.welcomeMessage || 'أهلاً بك 👋 كيف يمكننا مساعدتك اليوم؟'}" data-position="right"></script>`;
                         navigator.clipboard.writeText(code);
                         toast({ title: language === 'ar' ? 'تم نسخ كود التضمين بنجاح!' : 'Embed code copied to clipboard!' });
@@ -513,7 +519,7 @@ export default function Integrations() {
 {`<!-- ECOMATE AI Live Chat Widget -->
 <script
   src="${typeof window !== 'undefined' ? window.location.origin : ''}/widget.js"
-  data-channel="${channels?.find(c => c.provider === 'widget')?.id || 1}"
+  data-channel="${(channels as any[])?.find(c => c.provider === 'widget' || c.provider === 'web_widget')?.id || 1}"
   data-color="${formData.primaryColor || '#3B4FE8'}"
   data-title="${formData.widgetName || 'مساعد المتجر الذكي'}"
   data-welcome="${formData.welcomeMessage || 'أهلاً بك 👋 كيف يمكننا مساعدتك اليوم؟'}"
@@ -533,7 +539,7 @@ export default function Integrations() {
                     variant="outline"
                     className="rounded-xl text-xs gap-1.5"
                     onClick={() => {
-                      const activeId = channels?.find(c => c.provider === 'widget')?.id || 1;
+                      const activeId = (channels as any[])?.find(c => c.provider === 'widget' || c.provider === 'web_widget')?.id || 1;
                       if (!document.getElementById('ecomate-test-script')) {
                         const script = document.createElement('script');
                         script.id = 'ecomate-test-script';
