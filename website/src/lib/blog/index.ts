@@ -1,9 +1,11 @@
 import { Article } from './types';
 import { article01AbandonedCarts } from './articles/01-abandoned-carts';
+import { article02CartRecovery } from './articles/02-cart-recovery';
 
 // Registry of all articles
 const allArticles: Article[] = [
   article01AbandonedCarts,
+  article02CartRecovery,
 ];
 
 /**
