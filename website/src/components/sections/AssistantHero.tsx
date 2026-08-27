@@ -141,6 +141,41 @@ export default function AssistantHero() {
   };
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const lastMsgIdRef = useRef<number>(0);
+
+  // Poll for live agent replies from dashboard
+  useEffect(() => {
+    if (!conversationId) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/widget/messages/${conversationId}?afterId=${lastMsgIdRef.current}`);
+        const data = await res.json();
+        if (data.success && data.messages && data.messages.length > 0) {
+          data.messages.forEach((m: any) => {
+            if (m.id > lastMsgIdRef.current) {
+              lastMsgIdRef.current = m.id;
+              if (m.senderType === 'agent') {
+                const now = new Date(m.createdAt).toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
+                setMessages((prev) => [
+                  ...prev,
+                  {
+                    id: String(m.id),
+                    sender: "ai",
+                    text: m.content,
+                    time: now,
+                  },
+                ]);
+              }
+            }
+          });
+        }
+      } catch {
+        // silent
+      }
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [conversationId]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
