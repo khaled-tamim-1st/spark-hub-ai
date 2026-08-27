@@ -165,6 +165,25 @@ export default function Integrations() {
     setFormData({});
     setChannelName(language === 'ar' ? `${integration.name} #1` : `${integration.nameEn} #1`);
 
+    if (integration.provider === 'widget') {
+      const existing = channels?.find((c) => c.provider === 'widget');
+      let cfg: any = {};
+      if (existing?.config) {
+        try {
+          cfg = typeof existing.config === 'object' ? existing.config : JSON.parse(String(existing.config));
+        } catch {
+          cfg = {};
+        }
+      }
+      setFormData({
+        widgetName: cfg.widgetName || 'مساعد المتجر الذكي',
+        welcomeMessage: cfg.welcomeMessage || 'أهلاً بك 👋 كيف يمكننا مساعدتك اليوم؟',
+        primaryColor: cfg.primaryColor || '#3B4FE8',
+        position: cfg.position || 'right',
+      });
+      setChannelName(existing?.name || (language === 'ar' ? 'ودجت المتجر الإلكتروني' : 'Store Web Chat Widget'));
+    }
+
     if (integration.provider === 'whatsapp_web') {
       setIsStartingQr(true);
       try {
@@ -324,14 +343,27 @@ export default function Integrations() {
                           <Zap className="w-3.5 h-3.5 text-primary" />
                           <span className="font-semibold text-foreground">{ch.name}</span>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                          onClick={() => handleDelete(ch.id)}
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
+                        <div className="flex items-center gap-1.5">
+                          {integration.provider === 'widget' && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-6 text-[11px] font-bold gap-1 px-2 rounded-lg text-primary border-primary/30 hover:bg-primary/5"
+                              onClick={() => handleConfigure(integration)}
+                            >
+                              <Code className="w-3 h-3" />
+                              <span>{language === 'ar' ? 'كود التضمين' : 'Get Code'}</span>
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                            onClick={() => handleDelete(ch.id)}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
