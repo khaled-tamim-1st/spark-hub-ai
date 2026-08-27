@@ -1,15 +1,9 @@
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import Hero from "@/components/sections/Hero";
-import ProblemSolution from "@/components/sections/ProblemSolution";
-import CorporateServices from "@/components/sections/CorporateServices";
-import DigitalProducts from "@/components/sections/DigitalProducts";
-import TargetAudience from "@/components/sections/TargetAudience";
-import WhyUs from "@/components/sections/WhyUs";
-import HowWeWork from "@/components/sections/HowWeWork";
-import Integrations from "@/components/sections/Integrations";
-import KnowledgeSection from "@/components/sections/KnowledgeSection";
-import CorporateCTA from "@/components/sections/CorporateCTA";
+import SimpleHero from "@/components/corporate/SimpleHero";
+import SimpleServices from "@/components/corporate/SimpleServices";
+import SimpleBlog from "@/components/corporate/SimpleBlog";
+import SimpleContactCTA from "@/components/corporate/SimpleContactCTA";
 
 export const metadata = {
   title: "ECOMATE — Business Solutions & Digital Products",
@@ -21,35 +15,23 @@ export default function Home() {
     <div className="bg-white text-slate-900 min-h-screen flex flex-col selection:bg-[#3B4FE8]/15 selection:text-[#3B4FE8]">
       <Navbar />
       <main className="flex-1">
-        {/* 1. Corporate Hero */}
-        <Hero />
+        {/* 1. قسم التعريف والترحيب (About & Intro) */}
+        <section id="about">
+          <SimpleHero />
+        </section>
         
-        {/* 2. Problem & Growth Challenges */}
-        <ProblemSolution />
+        {/* 2. قسم الخدمات والحلول + إبراز المنتج الرقمي (Services & Digital Products) */}
+        <section id="services">
+          <SimpleServices />
+        </section>
         
-        {/* 3. Business Solutions Pillars */}
-        <CorporateServices />
+        {/* 3. قسم البلوجز والمقالات المعرفية (Blog & Insights) */}
+        <section id="blog">
+          <SimpleBlog />
+        </section>
         
-        {/* 4. Digital Products Portfolio (Featuring ECOMATE AI Assistant) */}
-        <DigitalProducts />
-        
-        {/* 5. Target Audience Segments */}
-        <TargetAudience />
-        
-        {/* 6. Why ECOMATE Philosophy */}
-        <WhyUs />
-        
-        {/* 7. How We Work (4 Steps) */}
-        <HowWeWork />
-        
-        {/* 8. Integrations & Partner Ecosystem */}
-        <Integrations />
-        
-        {/* 9. Knowledge & Blog Insights */}
-        <KnowledgeSection />
-        
-        {/* 10. Corporate Call to Action */}
-        <CorporateCTA />
+        {/* 4. قسم التواصل والدعوة للبدء (Contact & Consultation) */}
+        <SimpleContactCTA />
       </main>
       <Footer />
     </div>
