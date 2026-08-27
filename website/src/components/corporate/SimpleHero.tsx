@@ -1,9 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowLeft, Sparkles, MessageSquare, CheckCircle2, Bot, Layers, ArrowUpRight } from "lucide-react";
+import { ArrowLeft, Sparkles, MessageSquare, Bot, Layers } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 
 export default function SimpleHero() {
   return (
@@ -25,7 +24,7 @@ export default function SimpleHero() {
           className="inline-flex items-center gap-2 bg-white border border-[#3B4FE8]/20 text-[#3B4FE8] px-4.5 py-1.5 rounded-full text-xs font-bold mb-6 shadow-xs"
         >
           <Sparkles size={13} />
-          <span>ECOMATE • Business Solutions & Digital Products</span>
+          <span>ECOMATE • حلول الأعمال والمنتجات الرقمية</span>
         </motion.div>
 
         {/* Main Headline */}
@@ -33,11 +32,11 @@ export default function SimpleHero() {
           initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-950 leading-[1.2] mb-6 tracking-tight"
+          className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-950 leading-[1.25] mb-6 tracking-tight"
         >
-          نبني حلولًا تخلي أعمالك{" "}
+          نبني حلولاً رقمية تجعل أعمالك{" "}
           <span className="ecomate-gradient-text">
-            تشتغل بشكل أذكى
+            تعمل بكفاءة وذكاء
           </span>
         </motion.h1>
 
@@ -48,7 +47,7 @@ export default function SimpleHero() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-slate-600 text-base sm:text-xl leading-relaxed mb-8 max-w-3xl mx-auto font-medium"
         >
-          في <strong className="text-slate-950 font-bold">ECOMATE</strong> نساعد الشركات والمتاجر الإلكترونية على تبسيط عملياتها اليومية، أتمتة المهام المتكررة، وتحسين تجربة عملائها عبر حلول رقمية عملية مدعومة بالذكاء الاصطناعي.
+          في <strong className="text-slate-950 font-bold">ECOMATE</strong> نساعد الشركات والمتاجر على تبسيط عملياتها التشغيلية، أتمتة المهام اليومية المتكررة، وتحسين تجربة خدمة العملاء من خلال حلول تقنية عملية ومدروسة.
         </motion.p>
 
         {/* Punchline Statement */}
@@ -56,9 +55,9 @@ export default function SimpleHero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.25 }}
-          className="inline-block bg-blue-50 text-[#3B4FE8] text-sm sm:text-base font-bold px-5 py-2 rounded-2xl mb-10 border border-[#3B4FE8]/15"
+          className="inline-block bg-blue-50 text-[#3B4FE8] text-sm sm:text-base font-bold px-6 py-2 rounded-2xl mb-10 border border-[#3B4FE8]/15"
         >
-          من مشكلة في التشغيل إلى حل رقمي يساعدك تنمو.
+          نحوّل التحديات التشغيلية إلى أدوات رقمية تدفع نمو تجارتك.
         </motion.div>
 
         {/* CTA Buttons */}
@@ -92,24 +91,24 @@ export default function SimpleHero() {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-8 border-t border-slate-200/80 text-right"
         >
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-4.5 shadow-xs">
-            <span className="text-[#3B4FE8] font-black text-sm block mb-1">01. الأعمال أولاً</span>
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+            <span className="text-[#3B4FE8] font-black text-sm block mb-1.5">01. فهم نموذج العمل أولاً</span>
             <p className="text-slate-600 text-xs font-medium leading-relaxed">
-              نفهم هدفك التجاري ونموذج عملك قبل اقتراح أي أداة تقنية.
+              ندرس التحدي التشغيلي وهدفك التجاري بدقة قبل اقتراح أي أداة تقنية.
             </p>
           </div>
 
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-4.5 shadow-xs">
-            <span className="text-[#3B4FE8] font-black text-sm block mb-1">02. حلول عملية</span>
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+            <span className="text-[#3B4FE8] font-black text-sm block mb-1.5">02. حلول عملية ومباشرة</span>
             <p className="text-slate-600 text-xs font-medium leading-relaxed">
-              تطبيقات حقيقية تعالج التحدي التشغيلي وتوفر الوقت والتكاليف.
+              أدوات وتطبيقات رقمية تعالج المشكلة الفعلية وتوفر الوقت والجهد وتكاليف التشغيل.
             </p>
           </div>
 
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-4.5 shadow-xs">
-            <span className="text-[#3B4FE8] font-black text-sm block mb-1">03. أتمتة وذكاء اصطناعي</span>
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+            <span className="text-[#3B4FE8] font-black text-sm block mb-1.5">03. أتمتة وذكاء اصطناعي</span>
             <p className="text-slate-600 text-xs font-medium leading-relaxed">
-              توظيف التقنية لخدمة عملائك 24/7 وبناء عمليات قابلة للتوسع.
+              توظيف ذكي للتقنية لخدمة عملائك على مدار الساعة وبناء عمليات قابلة للتوسع.
             </p>
           </div>
         </motion.div>

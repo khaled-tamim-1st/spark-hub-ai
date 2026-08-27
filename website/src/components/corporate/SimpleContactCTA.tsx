@@ -18,17 +18,17 @@ export default function SimpleContactCTA() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white px-4 py-1 rounded-full text-xs font-bold mb-5 backdrop-blur-md shadow-xs">
               <Sparkles size={13} className="text-yellow-300" />
-              <span>جاهز تطور طريقة تشغيل عملك؟</span>
+              <span>جاهز لتطوير طريقة تشغيل عملك؟</span>
             </div>
 
             {/* Title */}
             <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight mb-4">
-              خلنا نفهم التحدي… <span className="text-yellow-300">ونبني له الحل</span>
+              نستمع لتحدياتك... <span className="text-yellow-300">ونبني لك الحل الرقمي المناسب</span>
             </h2>
 
             {/* Subtext */}
             <p className="text-blue-100 text-sm sm:text-base leading-relaxed mb-8 font-medium">
-              سواء كنت تدير متجرًا إلكترونيًا أو شركة تنمو بسرعة، نساعدك تعرف أين يمكن للتقنية والأتمتة أن تصنع فرقًا حقيقيًا في عملك وأرباحك.
+              سواء كنت تدير متجراً إلكترونياً أو شركة تواجه تحديات تشغيلية مع التوسع، يسعدنا مناقشة احتياجاتك وتحديد الحلول الرقمية الأكثر جدوى وتأثيراً على أرباحك.
             </p>
 
             {/* Buttons */}
@@ -38,7 +38,7 @@ export default function SimpleContactCTA() {
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white text-[#1A1B3C] hover:bg-blue-50 px-8 py-3.5 rounded-xl font-black text-sm transition-all hover:scale-105 shadow-lg"
               >
                 <MessageSquare size={16} className="text-[#3B4FE8]" />
-                <span>تحدث مع فريق ECOMATE</span>
+                <span>تحدث مع مستشارينا</span>
               </a>
 
               <a
@@ -54,11 +54,11 @@ export default function SimpleContactCTA() {
             <div className="flex flex-wrap justify-center gap-y-2 gap-x-6 mt-8 text-xs text-blue-100 font-bold pt-6 border-t border-white/15">
               <span className="flex items-center gap-1.5">
                 <ShieldCheck size={14} className="text-yellow-300" />
-                استشارة واضحة ومباشرة
+                استشارة تشغيلية متخصصة
               </span>
               <span className="flex items-center gap-1.5">
                 <Zap size={14} className="text-yellow-300" />
-                حلول رقمية قابلة للتطبيق
+                حلول رقمية قابلة للتطبيق السريع
               </span>
             </div>
 

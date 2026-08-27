@@ -1,36 +1,35 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Workflow, Users, BarChart3, Wrench, Sparkles, ArrowLeft, Bot, ShoppingBag, ShieldCheck } from "lucide-react";
+import { Workflow, Users, BarChart3, Wrench, Sparkles, ArrowLeft, Bot } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 
 const services = [
   {
     icon: Workflow,
-    title: "أتمتة العمليات والمهام",
-    desc: "نقلل المهام اليدوية المتكررة ونربط أنظمتك ببعضها ليتفرغ فريقك للأعمال الاستراتيجية وصناعة القيمة.",
+    title: "أتمتة العمليات والمهام اليومية",
+    desc: "تقليل المهام اليدوية المتكررة وربط أنظمتك ببعضها بسلاسة، ليتفرغ فريقك للأعمال الاستراتيجية وصناعة القيمة.",
     color: "from-blue-600 to-[#3B4FE8]",
     tag: "كفاءة وإنتاجية",
   },
   {
     icon: Users,
-    title: "إدارة وتجربة العملاء (CX & CRM)",
-    desc: "تنظيم محادثات وتفاعلات العملاء عبر مختلف القنوات، وتحسين سرعة وجودة الاستجابة في كل نقطة اتصال.",
+    title: "إدارة وتجربة العملاء (خدمة العملاء والـ CRM)",
+    desc: "تنظيم محادثات واستفسارات العملاء عبر مختلف القنوات، وتحسين سرعة وجودة الرد في كل نقطة تواصل لرفع رضا العميل.",
     color: "from-emerald-500 to-emerald-600",
-    tag: "ولاء وسرعة",
+    tag: "سرعة وولاء",
   },
   {
     icon: BarChart3,
-    title: "البيانات والتحليلات الذكية",
-    desc: "تحويل بيانات عملائك وسجلات مشترياتك إلى معلومات واضحة وتقارير تساعدك على اتخاذ قرارات دقيقة مبنية على الأرقام.",
+    title: "تحليل البيانات والتقارير الذكية",
+    desc: "تحويل سجلات المحادثات والمبيعات إلى مؤشرات واضحة وتقارير دورية تساعدك على اتخاذ قرارات دقيقة مبنية على الأرقام.",
     color: "from-indigo-500 to-indigo-600",
     tag: "قرارات مدروسة",
   },
   {
     icon: Wrench,
-    title: "حلول رقمية مخصصة",
-    desc: "عندما لا تكفي الحلول الجاهزة في السوق، ندرس احتياجك ونبني نظاماً رقمياً مخصصاً يلائم طبيعة عملك 100%.",
+    title: "تطوير حلول برمجية مخصصة",
+    desc: "عندما لا تلبي الأدوات الجاهزة طبيعة عملك، ندرس احتياجك ونبني نظاماً رقمياً مخصصاً يلائم نموذج عملك بالكامل.",
     color: "from-slate-800 to-slate-900",
     tag: "تطوير خاص",
   },
@@ -45,15 +44,15 @@ export default function SimpleServices() {
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 bg-blue-50 border border-[#3B4FE8]/20 text-[#3B4FE8] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-xs">
             <Sparkles size={14} />
-            <span>خدماتنا وحلولنا</span>
+            <span>خدمات وحلول ECOMATE</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 leading-tight mb-4">
-            ماذا نقدم لشركتك ومتجرك؟
+            حلول متكاملة لمشاكل الأعمال والتشغيل
           </h2>
 
           <p className="text-slate-600 text-base sm:text-lg font-medium leading-relaxed">
-            نساعدك على تحسين وتطوير العمليات التشغيلية باستخدام الأتمتة والذكاء الاصطناعي العملي.
+            نساعدك على تطوير العمليات التشغيلية وتوفير الوقت والتكاليف بالاعتماد على الأتمتة والحلول الرقمية العملية.
           </p>
         </div>
 
@@ -73,7 +72,7 @@ export default function SimpleServices() {
                   <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-md`}>
                     <item.icon size={22} />
                   </div>
-                  <span className="text-xs font-bold text-slate-500 bg-white border border-slate-200 px-3 py-1 rounded-full">
+                  <span className="text-xs font-bold text-slate-500 bg-white border border-slate-200 px-3.5 py-1 rounded-full">
                     {item.tag}
                   </span>
                 </div>
@@ -88,7 +87,7 @@ export default function SimpleServices() {
               </div>
 
               <div className="pt-5 mt-5 border-t border-slate-200/80 flex items-center justify-between text-xs font-bold text-[#3B4FE8]">
-                <span>حلول قابلة للتطبيق السريع</span>
+                <span>حلول مصممة للتطبيق العملي السريع</span>
                 <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
               </div>
             </motion.div>
@@ -109,21 +108,21 @@ export default function SimpleServices() {
             <div className="lg:col-span-8 space-y-4">
               <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-3.5 py-1 rounded-full text-xs font-bold backdrop-blur-md">
                 <Bot size={14} className="text-yellow-300" />
-                <span>المنتج الرقمي الأول لـ ECOMATE 🚀</span>
+                <span>المنتج الرقمي الأول لمتاجر التجارة الإلكترونية 🚀</span>
               </div>
 
               <h3 className="text-2xl sm:text-4xl font-black text-white leading-tight">
-                ECOMATE AI Assistant للمتاجر الإلكترونية
+                المساعد الذكي للمتاجر الإلكترونية
               </h3>
 
               <p className="text-blue-100 text-sm sm:text-base leading-relaxed font-medium max-w-2xl">
-                مساعد ذكي متكامل لمتاجر سلة وزد: أتمتة خدمة العملاء 24/7 بلهجة خليجية طبيعية، استرجاع السلات المتروكة، تتبع الشحنات، وتنظيم بيانات العملاء في مكان واحد.
+                مساعد رقمي متكامل لمتاجر سلة وزد: ردود فورية على واتساب بلهجة طبيعية، متابعة واسترجاع السلات المتروكة، تتبع الشحنات، وتنظيم خدمة العملاء على مدار 24 ساعة.
               </p>
 
               <div className="flex flex-wrap gap-4 text-xs font-bold text-blue-200 pt-2">
-                <span>✓ ربط رسمي مع سلة وزد</span>
-                <span>✓ محاكي واتساب حي</span>
-                <span>✓ تجربة مجانية 30 يوم</span>
+                <span>✓ ربط رسمي مع منصتي سلة وزد</span>
+                <span>✓ محاكي واتساب تفاعلي للتجربة</span>
+                <span>✓ تجربة مجانية لمدة 30 يوماً</span>
               </div>
             </div>
 
@@ -132,7 +131,7 @@ export default function SimpleServices() {
                 href="/assistant"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white text-[#1A1B3C] hover:bg-blue-50 px-8 py-4 rounded-xl font-black text-sm sm:text-base transition-all hover:scale-105 shadow-xl"
               >
-                <span>اكتشف صفحة المساعد</span>
+                <span>استكشف صفحة المساعد</span>
                 <ArrowLeft size={16} />
               </Link>
               <span className="text-[11px] text-blue-200 mt-2 font-medium">

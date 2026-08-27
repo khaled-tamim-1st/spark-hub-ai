@@ -1,26 +1,30 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BookOpen, Clock, ArrowUpRight, ArrowLeft } from "lucide-react";
+import { BookOpen, Clock, ArrowUpLeft, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
-const articles = [
+const featuredArticles = [
   {
-    title: "كيف تسترجع حتى 35% من السلات المتروكة في متجرك بدون إزعاج العميل؟",
+    slug: "abandoned-cart-reasons-and-solutions",
+    title: "السلات المتروكة: ليش العميل يضيف للسلة وما يكمل الطلب؟",
     category: "التجارة الإلكترونية",
-    readTime: "4 دقائق",
-    desc: "استراتيجيات عملية مجربة لأتمتة رسائل المتابعة وتقديم عروض تحفيزية ذكية ترفع معدل إتمام الطلبات.",
+    readTime: "9 دقائق",
+    desc: "دليل تشخيصي لأصحاب المتاجر: كيف تحدد أسباب ترك السلة في متجرك، ما الأرقام التي تراقبها، وما الذي تصلحه بيدك أولاً.",
   },
   {
+    slug: "cart-recovery-without-annoying-customers",
+    title: "كيف تسترجع السلات المتروكة بدون إزعاج العميل؟",
+    category: "التشغيل والمبيعات",
+    readTime: "8 دقائق",
+    desc: "دليل عملي لبناء آلية متابعة مهنية تحترم العميل — تبدأ يدوياً أولاً وتنتقل للأتمتة فقط عندما تصبح ضرورة تشغيلية.",
+  },
+  {
+    slug: "ecommerce-customer-service-guide",
     title: "أتمتة خدمة العملاء: متى تتدخل التقنية ومتى يكون التدخل البشري ضرورة؟",
     category: "خدمة العملاء والتشغيل",
-    readTime: "5 دقائق",
-    desc: "دليل عملي لإدارة نقاط الاتصال لضمان سرعة الرد اللحظي مع الحفاظ على اللمسة الإنسانية وبناء الولاء.",
-  },
-  {
-    title: "دليل الشركات لتنظيم بيانات العملاء واستخدامها في مضاعفة المبيعات",
-    category: "البيانات والنمو",
     readTime: "6 دقائق",
-    desc: "كيف تحول سجلات المحادثات والطلبات السابقة إلى حملات إعادة استهداف موسمية تحقق أعلى عائد على الاستثمار.",
+    desc: "كيف تدير نقاط التواصل لضمان الرد اللحظي على الاستفسارات المتكررة مع الحفاظ على اللمسة الإنسانية في الحالات الحرجة.",
   },
 ];
 
@@ -34,30 +38,30 @@ export default function SimpleBlog() {
           <div>
             <div className="inline-flex items-center gap-2 bg-blue-50 border border-[#3B4FE8]/20 text-[#3B4FE8] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-xs">
               <BookOpen size={14} />
-              <span>المدونة والمعرفة</span>
+              <span>المدونة والمعرفة التشغيلية</span>
             </div>
 
             <h2 className="text-3xl sm:text-4xl font-black text-slate-950 leading-tight mb-3">
-              المعرفة التي تساعدك تنمو
+              المعرفة التي تدعم نمو أعمالك
             </h2>
 
             <p className="text-slate-600 text-sm sm:text-base max-w-2xl font-medium leading-relaxed">
-              مواضيع وتجارب عملية مبنية على الأسئلة والتحديات التي يواجهها أصحاب الشركات والمتاجر في السوق السعودي.
+              مقالات وأدلة تشخيصية مبنية على التحديات والأسئلة الواقعية التي تواجه أصحاب الشركات والمتاجر في السوق السعودي.
             </p>
           </div>
 
-          <a
-            href="#blog"
+          <Link
+            href="/blog"
             className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-900 border border-slate-300 px-6 py-3 rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-all self-start md:self-auto shrink-0"
           >
-            <span>استكشف كافة المقالات</span>
+            <span>استعراض كافة المقالات</span>
             <ArrowLeft size={16} className="text-[#3B4FE8]" />
-          </a>
+          </Link>
         </div>
 
         {/* 3 Articles Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {articles.map((art, idx) => (
+          {featuredArticles.map((art, idx) => (
             <motion.div
               key={art.title}
               initial={{ opacity: 0, y: 20 }}
@@ -85,10 +89,13 @@ export default function SimpleBlog() {
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-900 group-hover:text-[#3B4FE8] transition-colors">
+              <Link
+                href={`/blog/${art.slug}`}
+                className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-900 group-hover:text-[#3B4FE8] transition-colors"
+              >
                 <span>قراءة المقال</span>
-                <ArrowUpRight size={16} />
-              </div>
+                <ArrowUpLeft size={16} />
+              </Link>
             </motion.div>
           ))}
         </div>

@@ -50,7 +50,7 @@ export default function Navbar() {
                 <span>ECOM</span><span className="text-[#3B4FE8]">ATE</span>
               </span>
               <span className="text-[10px] text-slate-500 font-bold -mt-0.5">
-                Business Solutions & Digital Products
+                حلول الأعمال والمنتجات الرقمية
               </span>
             </div>
           </Link>

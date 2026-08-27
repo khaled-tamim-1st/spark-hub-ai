@@ -2,32 +2,31 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ShieldCheck, Heart, ArrowUpLeft } from "lucide-react";
-import { getAppUrl } from "@/lib/config";
+import { ShieldCheck } from "lucide-react";
 
 const footerNavigation = {
   solutions: [
-    { name: "أتمتة العمليات", href: "/#solutions" },
-    { name: "إدارة وتجربة العملاء", href: "/#solutions" },
-    { name: "البيانات والتحليلات", href: "/#solutions" },
-    { name: "حلول رقمية مخصصة", href: "/#solutions" },
+    { name: "أتمتة العمليات والمهام", href: "/#services" },
+    { name: "إدارة وتجربة العملاء (CRM)", href: "/#services" },
+    { name: "تحليل البيانات والتقارير", href: "/#services" },
+    { name: "تطوير حلول برمجية مخصصة", href: "/#services" },
   ],
   products: [
-    { name: "ECOMATE AI Assistant 🚀", href: "/assistant" },
-    { name: "محاكي الواتساب الحي", href: "/assistant" },
-    { name: "حاسبة التوفير للمتاجر", href: "/assistant#roi-calculator" },
+    { name: "المساعد الذكي للمتاجر 🚀", href: "/assistant" },
+    { name: "محاكي واتساب التفاعلي", href: "/assistant" },
+    { name: "حاسبة التوفير والعائد (ROI)", href: "/assistant#roi-calculator" },
     { name: "باقات وأسعار المساعد", href: "/pricing" },
   ],
   company: [
-    { name: "عن ECOMATE", href: "/#why-us" },
-    { name: "منهجية العمل", href: "/#how-we-work" },
-    { name: "المدونة والمعرفة", href: "/#knowledge" },
+    { name: "عن ECOMATE", href: "/" },
+    { name: "خدماتنا وحلولنا", href: "/#services" },
+    { name: "المدونة والمعرفة", href: "/blog" },
     { name: "تواصل معنا", href: "mailto:hello@ecomate.ai" },
   ],
   legal: [
-    { name: "شروط الخدمة", href: "#" },
+    { name: "شروط الاستخدام", href: "#" },
     { name: "سياسة الخصوصية", href: "#" },
-    { name: "حماية البيانات والأمان", href: "#" },
+    { name: "أمان وحماية البيانات", href: "#" },
   ],
 };
 
@@ -54,13 +53,13 @@ export default function Footer() {
                   <span className="text-[#7B8FFF]">ATE</span>
                 </span>
                 <span className="text-[10px] text-slate-400 font-bold -mt-0.5">
-                  Business Solutions & Digital Products
+                  حلول الأعمال والمنتجات الرقمية
                 </span>
               </div>
             </Link>
 
             <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-sm font-medium">
-              حلول رقمية تساعد أعمالك تعمل بشكل أذكى، وتخدم عملاءها بشكل أفضل، وتنمو بكفاءة واستدامة.
+              حلول رقمية وأتمتة ذكية تساعد أعمالك على العمل بكفاءة أعلى، وخدمة عملائها بشكل أفضل، والنمو باستدامة.
             </p>
 
             {/* Trust badge */}
