@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -41,22 +41,18 @@ export default function Navbar() {
             <div className="w-10 h-10 relative flex-shrink-0 rounded-xl bg-white p-1 border border-slate-200 group-hover:border-[#3B4FE8]/50 transition-all duration-300 shadow-sm">
               <Image
                 src="/logo.png"
-                alt="Ecomate Logo"
+                alt="ECOMATE Logo"
                 fill
                 className="object-contain p-0.5"
                 priority
               />
             </div>
-            <div className="flex flex-col">
-              <span className="text-slate-950 font-black text-xl tracking-tight flex items-center gap-1.5 font-sans">
-                <span>ECOM</span>
-                <span className="text-[#3B4FE8]">ATE</span>
-                <span className="text-[10px] uppercase font-bold tracking-wider text-[#3B4FE8] bg-blue-50 px-1.5 py-0.5 rounded-md border border-blue-200">
-                  AI
-                </span>
+            <div className="flex flex-col text-right">
+              <span className="text-slate-950 font-black text-xl tracking-tight font-sans flex items-center justify-end" dir="ltr">
+                <span>ECOM</span><span className="text-[#3B4FE8]">ATE</span>
               </span>
               <span className="text-[10px] text-slate-500 font-medium -mt-0.5">
-                المساعد الذكي لمتاجر سلة
+                المساعد الذكي لمتاجر سلة وزد
               </span>
             </div>
           </Link>

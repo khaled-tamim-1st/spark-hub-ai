@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import Image from "next/image";
 import { ShieldCheck, Heart, ExternalLink } from "lucide-react";
 import { getAppUrl } from "@/lib/config";
@@ -46,9 +46,9 @@ export default function Footer() {
                   className="object-contain p-0.5"
                 />
               </div>
-              <span className="text-white font-black text-2xl tracking-tight font-sans">
+              <span className="text-white font-black text-2xl tracking-tight font-sans flex items-center" dir="ltr">
                 <span>ECOM</span>
-                <span className="text-[#3B82F6]">ATE</span>
+                <span className="text-[#7B8FFF]">ATE</span>
               </span>
             </Link>
 

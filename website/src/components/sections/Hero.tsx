@@ -276,7 +276,7 @@ export default function Hero() {
                   </div>
                   <div>
                     <div className="flex items-center gap-1">
-                      <span className="text-white text-xs font-bold">ECOMATE AI</span>
+                      <span className="text-white text-xs font-bold">ECOMATE</span>
                       <CheckCircle2 size={12} className="text-emerald-300" />
                     </div>
                     <span className="text-[10px] text-emerald-200 flex items-center gap-1 font-medium">
@@ -358,7 +358,7 @@ export default function Hero() {
                         )}
 
                         <div className="flex items-center justify-between text-[9px] text-slate-500 mt-1.5 font-medium">
-                          <span>ECOMATE AI • موثق</span>
+                          <span>ECOMATE • موثق</span>
                           <span className="flex items-center gap-0.5 text-blue-500 font-bold">
                             11:42 ص <CheckCheck size={12} />
                           </span>
