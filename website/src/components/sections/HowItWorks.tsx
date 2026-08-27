@@ -1,44 +1,44 @@
-﻿"use client";
+"use client";
 
 import { motion } from "framer-motion";
-import { Link2, Brain, Rocket, CheckCircle2, ArrowLeft, QrCode, FileText, Bot } from "lucide-react";
+import { Link2, Bot, BarChart3, CheckCircle2, ArrowLeft, Store, Sparkles, TrendingUp } from "lucide-react";
 import { getAppUrl } from "@/lib/config";
 
 const steps = [
   {
     step: "01",
     icon: Link2,
-    badgeIcon: QrCode,
-    title: "ربط متجرك بسلة وواتساب",
-    desc: "بنقرة واحدة من متجر تطبيقات سلة أو مسح رمز QR لواتساب ويب، يتصل Ecomate بمتجرك ويبدأ مزامنة الطلبات والمنتجات فورياً.",
+    badgeIcon: Store,
+    title: "اربط متجرك",
+    desc: "اربط ECOMATE بمتجرك وخل النظام يتعرف على منتجاتك وبيانات متجرك بشكل تلقائي وسلس.",
     visual: {
       type: "connection",
-      tag: "ربط سحابي مشفر",
-      items: ["تطبيق سلة الرسمي ✓", "واتساب ويب فوري ✓", "شركات الشحن (SMSA/Aramex) ✓"],
+      tag: "ربط متجر سلة وزد",
+      items: ["مزامنة المنتجات الحية ✓", "ربط بوالص الشحن ✓", "تكامل واتساب ويب ✓"],
     },
   },
   {
     step: "02",
-    icon: Brain,
-    badgeIcon: FileText,
-    title: "تدريب قاعدة المعرفة الخاصة بك",
-    desc: "أضف سياسات متجرك، شروط الاستبدال، جدول المقاسات، والأسئلة المكررة. Ecomate يستوعبها بدقة متناهية ويجيب منها حصراً.",
+    icon: Bot,
+    badgeIcon: Sparkles,
+    title: "خل ECOMATE يتولى الرد والمتابعة",
+    desc: "المساعد الذكي يرد على العملاء، ويتعامل مع الاستفسارات، ويتابع الفرص اللي تحتاج متابعة 24/7.",
     visual: {
-      type: "knowledge",
-      tag: "فهرسة ذكية",
-      items: ["كتالوج المنتجات الحية", "سياسة الاسترجاع والضمان", "تخصيص نبرة وأسلوب البراند"],
+      type: "automation",
+      tag: "أتمتة فورية 24/7",
+      items: ["رد فوري بلهجة طبيعية", "متابعة السلات المتروكة", "تحويل الحالات المعقدة للبشر"],
     },
   },
   {
     step: "03",
-    icon: Rocket,
-    badgeIcon: Bot,
-    title: "الانطلاق بالأتمتة الكاملة 24/7",
-    desc: "Ecomate يتولى الرد على العملاء وتتبع الشحنات وزيادة المبيعات على مدار الساعة، مع إمكانية التدخل البشري في أي وقت بضغطة زر.",
+    icon: BarChart3,
+    badgeIcon: TrendingUp,
+    title: "تابع النتائج",
+    desc: "شوف أداء المساعد، العملاء اللي تم التعامل معهم، والسلات اللي تم استرجاعها بدقة ووضوح.",
     visual: {
-      type: "autopilot",
-      tag: "أتمتة ذاتية",
-      items: ["رد فوري في 1.2 ثانية", "تتبع تلقائي للشحنات", "تحويل ذكي للموظف عند الحاجة"],
+      type: "insights",
+      tag: "لوحة أداء وتحليلات",
+      items: ["تقارير السلات المسترجعة", "بيانات العملاء منظمة", "معدل الرضا والتحويل"],
     },
   },
 ];
@@ -47,20 +47,20 @@ export default function HowItWorks() {
   return (
     <section id="how-it-works" className="py-28 bg-white relative overflow-hidden">
       {/* Background soft blue glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-blue-100/40 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#3B4FE8]/5 rounded-full blur-[160px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-20">
-          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#3B4FE8] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+          <div className="inline-flex items-center gap-2 bg-blue-50 border border-[#3B4FE8]/20 text-[#3B4FE8] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
             <span>سهولة الإعداد والانطلاق</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 leading-tight mb-5">
-            كيف يعمل Ecomate في 3 خطوات بسيطة؟
+            فعّل ECOMATE في 3 خطوات
           </h2>
           <p className="text-slate-600 text-base sm:text-lg font-medium">
-            لا تحتاج لأي مبرمج أو خبرة تقنية. Ecomate مجهز للعمل مع متجرك في أقل من 10 دقائق.
+            إعداد بسيط، وبدون الحاجة لخبرة تقنية أو مبرمجين.
           </p>
         </div>
 
@@ -73,7 +73,7 @@ export default function HowItWorks() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.15 }}
-              className="bg-white rounded-3xl p-8 border border-slate-200 hover:border-blue-300 relative flex flex-col justify-between group transition-all duration-300 shadow-xl shadow-blue-900/5 hover:shadow-2xl hover:shadow-blue-900/10 hover:-translate-y-1"
+              className="bg-white rounded-3xl p-8 border border-slate-200 hover:border-[#3B4FE8]/40 relative flex flex-col justify-between group transition-all duration-300 shadow-xl shadow-blue-900/5 hover:shadow-2xl hover:shadow-blue-900/10 hover:-translate-y-1"
             >
               <div>
                 {/* Step number watermark */}
@@ -90,7 +90,7 @@ export default function HowItWorks() {
                   الخطوة {item.step}
                 </div>
 
-                <h3 className="text-xl font-black text-slate-950 mb-3 leading-snug">
+                <h3 className="text-2xl font-black text-slate-950 mb-3 leading-snug">
                   {item.title}
                 </h3>
 
@@ -124,11 +124,11 @@ export default function HowItWorks() {
             href={getAppUrl("/register")}
             className="inline-flex items-center gap-2.5 bg-[#3B4FE8] hover:bg-[#2D3ED0] text-white px-8 py-4 rounded-xl text-base font-bold shadow-md shadow-[#3B4FE8]/25 transition-all hover:scale-105"
           >
-            <span>ابدأ ربط متجرك الآن مجاناً</span>
+            <span>ابدأ الآن مجانًا</span>
             <ArrowLeft size={18} />
           </a>
           <p className="text-xs text-slate-500 font-medium mt-3">
-            تجربة كاملة لمدة 30 يوم بدون أي التزام مالي
+            إعداد بسيط، وبدون الحاجة لخبرة تقنية
           </p>
         </div>
 

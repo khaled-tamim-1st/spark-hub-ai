@@ -1,31 +1,38 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
-import { Calculator, Clock, DollarSign, TrendingUp, ArrowLeft } from "lucide-react";
+import { Calculator, Clock, DollarSign, TrendingUp, ArrowLeft, HelpCircle } from "lucide-react";
 import { getAppUrl } from "@/lib/config";
 
 export default function RoiCalculator() {
   const [conversations, setConversations] = useState(2500);
 
-  // Business Math assumptions for Saudi e-commerce:
+  // Business Math assumptions:
   const agentsSaved = (conversations / 1200).toFixed(1);
   const moneySaved = Math.round(Number(agentsSaved) * 4000);
   const hoursSaved = Math.round((conversations * 4) / 60);
 
   return (
-    <section id="roi-calculator" className="py-24 bg-slate-50/70 border-y border-slate-200 relative overflow-hidden">
+    <section id="roi-calculator" className="py-28 bg-slate-50/70 border-y border-slate-200 relative overflow-hidden">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        
         {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#3B4FE8] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-2 bg-blue-50 border border-[#3B4FE8]/20 text-[#3B4FE8] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
             <Calculator size={14} />
-            <span>حاسبة العائد على الاستثمار (ROI)</span>
+            <span>حاسبة الأثر المالي والتشغيلي</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-slate-950 mb-4">
-            احسب كم ستوفر شهرياً مع Ecomate
+
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 leading-tight mb-5">
+            كم يكلفك عدم أتمتة متجرك؟
           </h2>
-          <p className="text-slate-600 text-sm sm:text-base font-medium">
-            حرّك المؤشر وحدد عدد المحادثات أو الطلبات التي يستقبلها متجرك شهرياً لرؤية التوفير الفوري.
+
+          <p className="text-slate-600 text-base sm:text-lg leading-relaxed font-medium mb-3">
+            موظف خدمة العملاء له تكلفة شهرية، والسلات المتروكة لها تكلفة، والوقت اللي يضيع في الرد على الأسئلة المتكررة له تكلفة.
+          </p>
+
+          <p className="text-slate-950 font-black text-base sm:text-lg">
+            استخدم الحاسبة وشوف كم ممكن توفر مع ECOMATE.
           </p>
         </div>
 
@@ -38,7 +45,7 @@ export default function RoiCalculator() {
               <label htmlFor="conv-slider" className="text-sm sm:text-base font-bold text-slate-900">
                 عدد المحادثات الشهرية المقدرة لمتجرك:
               </label>
-              <div className="bg-blue-50 border border-blue-200 text-[#3B4FE8] font-black text-lg sm:text-xl px-4 py-1.5 rounded-2xl shadow-sm">
+              <div className="bg-blue-50 border border-[#3B4FE8]/25 text-[#3B4FE8] font-black text-lg sm:text-xl px-4 py-1.5 rounded-2xl shadow-sm">
                 {conversations.toLocaleString("ar-SA")} محادثة
               </div>
             </div>
@@ -55,9 +62,9 @@ export default function RoiCalculator() {
             />
             
             <div className="flex justify-between text-xs text-slate-500 font-semibold mt-2">
-              <span>300 محادثة (متجر مبتدئ)</span>
+              <span>300 محادثة (متجر ناشئ)</span>
               <span>7,500 محادثة (متجر متوسط)</span>
-              <span>15,000+ محادثة (براند كبير)</span>
+              <span>15,000+ محادثة (متجر كبير)</span>
             </div>
           </div>
 
@@ -69,7 +76,7 @@ export default function RoiCalculator() {
               <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto mb-3">
                 <DollarSign size={20} />
               </div>
-              <span className="text-slate-500 text-xs block mb-1 font-semibold">توفير تكاليف توظيف</span>
+              <span className="text-slate-500 text-xs block mb-1 font-semibold">توفير تكاليف تشغيل وتوظيف</span>
               <span className="text-2xl sm:text-3xl font-black text-emerald-600">
                 {moneySaved.toLocaleString("ar-SA")} ر.س
               </span>
@@ -85,7 +92,7 @@ export default function RoiCalculator() {
               <span className="text-2xl sm:text-3xl font-black text-slate-900">
                 {hoursSaved.toLocaleString("ar-SA")} ساعة
               </span>
-              <span className="text-[11px] text-[#3B4FE8] block mt-1 font-bold">تتفرغ فيها للتسويق والنمو</span>
+              <span className="text-[11px] text-[#3B4FE8] block mt-1 font-bold">تتفرغ فيها للنمو والتسويق</span>
             </div>
 
             {/* Speed & Resolution */}
@@ -93,11 +100,11 @@ export default function RoiCalculator() {
               <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-3">
                 <TrendingUp size={20} />
               </div>
-              <span className="text-slate-500 text-xs block mb-1 font-semibold">سرعة الرد التلقائي</span>
+              <span className="text-slate-500 text-xs block mb-1 font-semibold">سرعة استجابة فورية</span>
               <span className="text-2xl sm:text-3xl font-black text-amber-600">
                 1.2 ثانية
               </span>
-              <span className="text-[11px] text-slate-400 block mt-1 font-medium">مقارنة بـ 45 دقيقة للموظف</span>
+              <span className="text-[11px] text-slate-400 block mt-1 font-medium">بدون انتظار أو فقدان عملاء</span>
             </div>
 
           </div>
@@ -106,18 +113,18 @@ export default function RoiCalculator() {
           <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-center sm:text-right">
               <p className="text-slate-950 font-bold text-sm">
-                ابدأ بتوفير وقتك وفلوسك من اليوم — تجربة مجانية 30 يوم
+                ابدأ بحساب أثر الأتمتة الحقيقي لمتجرك
               </p>
-              <p className="text-slate-500 text-xs mt-0.5 font-medium">
-                تفعيل فوري مع سلة خلال أقل من 5 دقائق بدون أي عقود
+              <p className="text-slate-500 text-xs mt-0.5 font-medium italic">
+                *الأرقام تقديرية لمساعدتك على فهم أثر الأتمتة على تكاليف التشغيل.
               </p>
             </div>
 
             <a
               href={getAppUrl("/register")}
-              className="inline-flex items-center gap-2 bg-[#3B4FE8] hover:bg-[#2D3ED0] text-white px-7 py-3 rounded-xl text-sm font-bold shadow-md shadow-[#3B4FE8]/20 transition-all hover:scale-105"
+              className="inline-flex items-center gap-2 bg-[#3B4FE8] hover:bg-[#2D3ED0] text-white px-7 py-3.5 rounded-xl text-sm font-bold shadow-md shadow-[#3B4FE8]/25 transition-all hover:scale-105"
             >
-              <span>جرّب Ecomate مجاناً الآن</span>
+              <span>احسب وفورات متجرك</span>
               <ArrowLeft size={16} />
             </a>
           </div>

@@ -1,64 +1,64 @@
-﻿"use client";
+"use client";
 
 import { motion } from "framer-motion";
-import { Check, Zap, Sparkles, Shield, ArrowLeft } from "lucide-react";
+import { Check, Zap, Sparkles, Shield, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { getAppUrl } from "@/lib/config";
 
 const plans = [
   {
     name: "الباقة الأساسية",
-    badge: "للمتاجر الناشئة",
+    badge: "للبدء السريع",
     emoji: "🌱",
     monthlyPrice: 149,
     yearlyPrice: 119,
-    desc: "مثالية للمتاجر التي تريد أتمتة الرد على الواتساب وتتبع طلبات سلة الأساسية.",
+    desc: "للمتاجر اللي تبغى تبدأ بالأتمتة وتخفف ضغط خدمة العملاء.",
     features: [
       "قناة تواصل واحدة (واتساب ويب)",
       "حتى 750 محادثة شهرياً",
-      "ربط متجر سلة واحد (تتبع الطلبات)",
+      "ربط متجر سلة وزد (تتبع الطلبات)",
+      "رد تلقائي 24/7 بلهجة طبيعية",
       "قاعدة معرفة حتى 10 مستندات",
-      "تقارير وإحصائيات شهرية",
-      "دعم فني سريع عبر الواتساب",
+      "دعم فني سريع",
     ],
-    cta: "ابدأ تجربتك المجانية (30 يوم)",
+    cta: "ابدأ تجربتك المجانية",
     highlighted: false,
   },
   {
     name: "الباقة الاحترافية",
-    badge: "الأكثر طلباً لمتاجر سلة ⭐",
+    badge: "الأكثر طلباً ⭐",
     emoji: "⚡",
     monthlyPrice: 349,
     yearlyPrice: 279,
-    desc: "الحل الشامل والمفضل لأصحاب المتاجر المتنامية لتغطية كل قنوات التواصل وزيادة المبيعات.",
+    desc: "للمتاجر اللي تبغى أتمتة أوسع + متابعة العملاء + أدوات النمو.",
     features: [
-      "3 قنوات تواصل (واتساب + سلة + انستغرام)",
+      "3 قنوات تواصل (واتساب + سلة/زد + انستغرام)",
       "حتى 3,500 محادثة شهرياً",
-      "ربط متقدم مع سلة وشركات الشحن (SMSA, Aramex)",
-      "قاعدة معرفة غير محدودة (بدون هلوسة)",
-      "استرداد السلات المتروكة تلقائياً",
-      "لوحة تحليلات وتقارير أداء لحظية",
-      "أولوية دعم فني على مدار الساعة",
+      "متابعة واسترجاع السلات المتروكة تلقائياً",
+      "تنظيم بيانات العملاء وسجل المشتريات (CRM)",
+      "ربط متقدم مع شركات الشحن (SMSA, Aramex)",
+      "قاعدة معرفة غير محدودة وبدون هلوسة",
+      "لوحة تحليلات وتقارير نمو لحظية",
     ],
-    cta: "ابدأ تجربتك المجانية (30 يوم)",
+    cta: "ابدأ تجربتك المجانية",
     highlighted: true,
   },
   {
-    name: "الباقة المؤسسية",
-    badge: "للعلامات التجارية الكبرى",
+    name: "الباقة المتقدمة",
+    badge: "للعمليات الكبرى",
     emoji: "🏢",
     monthlyPrice: null,
     yearlyPrice: null,
-    desc: "بنية تحتية مخصصة ومحادثات غير محدودة مع تدريب مخصص لذكاء اصطناعي يعكس هوية براندك.",
+    desc: "للمتاجر اللي تحتاج قدرات أكبر وإدارة أوسع للعمليات.",
     features: [
       "قنوات تواصل غير محدودة",
-      "محادثات شهرية غير محدودة",
-      "تدريب مخصص للذكاء الاصطناعي على نبرة البراند",
-      "مدير حساب مخصص ومتابعة دورية",
-      "ربط API مخصص ودعم فني 24/7",
-      "اتفاقية مستوى الخدمة (SLA 99.9%)",
+      "محادثات وحركات غير محدودة",
+      "تخصيص كامل لنبرة الذكاء الاصطناعي",
+      "إدارة بيانات متقدمة وتكامل API مخصص",
+      "مدير حساب ومتابعة دورية للنمو",
+      "أولوية قصوى ودعم فني على مدار الساعة",
     ],
-    cta: "تحدث مع المبيعات",
+    cta: "تواصل مع المبيعات",
     highlighted: false,
     isEnterprise: true,
   },
@@ -70,24 +70,40 @@ export default function Pricing() {
   return (
     <section id="pricing" className="py-28 bg-white relative overflow-hidden">
       {/* Background ambient lighting */}
-      <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-blue-100/40 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-[#3B4FE8]/10 rounded-full blur-[150px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#3B4FE8] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+          <div className="inline-flex items-center gap-2 bg-blue-50 border border-[#3B4FE8]/20 text-[#3B4FE8] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
             <Sparkles size={14} />
-            <span>باقات شفافة وبدون أي رسوم خفية</span>
+            <span>باقات مرنة ومصممة لنموك</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 leading-tight mb-5">
-            استثمر في ذكاء متجرك ووفر تكاليف التوظيف
+            ابدأ بدون مخاطرة
           </h2>
 
-          <p className="text-slate-600 text-base sm:text-lg mb-8 font-medium">
-            ابدأ بتجربة مجانية كاملة لمدة 30 يوماً على أي باقة — بدون إدخال أي بطاقة بنكية.
+          <p className="text-slate-700 text-base sm:text-xl font-bold mb-6">
+            جرّب ECOMATE لمدة 30 يوم مجانًا، وشوف بنفسك الفرق في خدمة العملاء والمبيعات.
           </p>
+
+          {/* 3 Value Pillars Bullet Points */}
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-6 text-xs sm:text-sm font-semibold text-slate-600 mb-10">
+            <div className="flex items-center gap-1.5 bg-slate-50 px-3.5 py-1.5 rounded-full border border-slate-200">
+              <CheckCircle2 size={16} className="text-[#3B4FE8]" />
+              <span>لا تحتاج توظف فريق أكبر عشان ترد على كل عميل.</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-slate-50 px-3.5 py-1.5 rounded-full border border-slate-200">
+              <CheckCircle2 size={16} className="text-[#3B4FE8]" />
+              <span>ولا تحتاج تتابع السلات يدويًا.</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-slate-50 px-3.5 py-1.5 rounded-full border border-slate-200">
+              <CheckCircle2 size={16} className="text-[#3B4FE8]" />
+              <span>ولا تحتاج تجمع بيانات عملائك بنفسك.</span>
+            </div>
+          </div>
 
           {/* Billing Switcher */}
           <div className="inline-flex items-center bg-slate-100 border border-slate-200 rounded-full p-1.5 gap-1 shadow-sm">
@@ -146,7 +162,7 @@ export default function Pricing() {
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-3xl">{plan.emoji}</span>
                   {!plan.highlighted && (
-                    <span className="text-[11px] font-bold text-[#3B4FE8] bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">
+                    <span className="text-[11px] font-bold text-[#3B4FE8] bg-blue-50 border border-[#3B4FE8]/20 px-2.5 py-1 rounded-full">
                       {plan.badge}
                     </span>
                   )}
@@ -156,7 +172,7 @@ export default function Pricing() {
                   {plan.name}
                 </h3>
 
-                <p className="text-slate-600 text-xs leading-relaxed mb-6 min-h-[36px] font-medium">
+                <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-6 min-h-[40px] font-medium">
                   {plan.desc}
                 </p>
 
@@ -168,13 +184,13 @@ export default function Pricing() {
                         تواصل معنا
                       </span>
                       <span className="text-xs text-slate-500 mt-1 block font-medium">
-                        عرض سعر مخصص حسب احتياج متجرك
+                        عرض مخصص حسب حجم عمليات متجرك
                       </span>
                     </div>
                   ) : (
                     <div>
                       <div className="flex items-baseline gap-1.5">
-                        <span className="text-5xl font-black text-slate-950">
+                        <span className="text-5xl font-black text-slate-950 font-sans">
                           {yearly ? plan.yearlyPrice : plan.monthlyPrice}
                         </span>
                         <span className="text-sm font-bold text-slate-500">
@@ -216,7 +232,7 @@ export default function Pricing() {
                 }
                 className={`w-full py-4 rounded-xl font-bold text-sm text-center transition-all flex items-center justify-center gap-2 ${
                   plan.highlighted
-                    ? "bg-[#3B4FE8] hover:bg-[#2D3ED0] text-white shadow-lg shadow-[#3B4FE8]/20 hover:scale-[1.02]"
+                    ? "bg-[#3B4FE8] hover:bg-[#2D3ED0] text-white shadow-lg shadow-[#3B4FE8]/25 hover:scale-[1.02]"
                     : "bg-slate-100 hover:bg-blue-50 text-[#3B4FE8] border border-slate-200 hover:border-blue-200"
                 }`}
               >
@@ -228,10 +244,10 @@ export default function Pricing() {
           ))}
         </div>
 
-        {/* Money back guarantee footer */}
-        <div className="mt-14 text-center flex items-center justify-center gap-2 text-xs text-slate-500 font-bold">
+        {/* Footnote */}
+        <div className="mt-14 text-center flex items-center justify-center gap-2 text-xs sm:text-sm text-slate-500 font-bold">
           <Shield size={16} className="text-emerald-600" />
-          <span>ضمان استرجاع كامل المبلغ خلال 30 يوماً إذا لم تكن راضياً 100% عن Ecomate.</span>
+          <span>*لا التزام خلال فترة التجربة — إلغاء في أي وقت بنقرة واحدة.*</span>
         </div>
 
       </div>
