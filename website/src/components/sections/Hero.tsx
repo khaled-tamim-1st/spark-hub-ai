@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { motion } from "framer-motion";
 import {
@@ -13,13 +13,29 @@ import {
   CreditCard,
   Ruler,
   CheckCheck,
+  Clock,
+  ShoppingCart,
+  Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { getAppUrl } from "@/lib/config";
 
 // Simulation scenarios
 const scenarios = [
+  {
+    id: "cart",
+    title: "🛒 استرجاع سلة متروكة",
+    icon: ShoppingCart,
+    customerMsg: "كنت ناوي أطلب بس ترددت بخصوص التوصيل للدمام",
+    aiReply: "أهلاً بك! طلبك في السلة جاهز ونوفر توصيل سريع للدمام خلال 24-48 ساعة. وخصم خاص 10% لك إذا أتممت الطلب الآن بكود (SAVE10) 🎁",
+    extraData: {
+      type: "cart-recovery",
+      cartValue: "340 ر.س",
+      discount: "كود خصم: SAVE10 (10%-)",
+      status: "تم استرجاع السلة وتأكيد الطلب بنجاح ✓",
+    },
+  },
   {
     id: "tracking",
     title: "📦 تتبع شحنة سمسا",
@@ -47,18 +63,6 @@ const scenarios = [
     },
   },
   {
-    id: "size",
-    title: "👗 استفسار المقاسات",
-    icon: Ruler,
-    customerMsg: "وزني 65 وطولي 168، أي مقاس أنسب لي في الفستان؟",
-    aiReply: "بناءً على جدول القياسات الدقيق للمنتج، مقاس (M - Medium) سيكون ملائماً ومريحاً جداً لكِ! يمكنكِ أيضاً الاستفادة من ميزة التبديل المجاني إذا رغبتِ في تعديل المقاس.",
-    extraData: {
-      type: "recommendation",
-      recommendedSize: "مقاس M (Medium)",
-      policy: "التبديل مجاني خلال 7 أيام",
-    },
-  },
-  {
     id: "return",
     title: "🔄 استبدال واسترجاع",
     icon: RotateCcw,
@@ -71,33 +75,6 @@ const scenarios = [
     },
   },
 ];
-
-function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    let start = 0;
-    const duration = 2000;
-    const step = Math.ceil(target / (duration / 16));
-    const timer = setInterval(() => {
-      start += step;
-      if (start >= target) {
-        setCount(target);
-        clearInterval(timer);
-      } else {
-        setCount(start);
-      }
-    }, 16);
-    return () => clearInterval(timer);
-  }, [target]);
-
-  return (
-    <span>
-      +{count.toLocaleString("ar-SA")}
-      {suffix}
-    </span>
-  );
-}
 
 export default function Hero() {
   const [activeScenario, setActiveScenario] = useState(scenarios[0]);
@@ -113,7 +90,7 @@ export default function Hero() {
     setTimeout(() => {
       setIsTyping(false);
       setDisplayedReply(scenario.aiReply);
-    }, 600);
+    }, 500);
   };
 
   return (
@@ -121,27 +98,28 @@ export default function Hero() {
       {/* Subtle Background Grid Pattern */}
       <div className="absolute inset-0 bg-grid-light opacity-75 pointer-events-none" />
 
-      {/* Ambient Electric Blue Lighting Orbs */}
-      <div className="absolute top-1/6 right-1/4 w-[550px] h-[550px] bg-blue-200/40 rounded-full blur-[140px] pointer-events-none animate-pulse-glow" />
-      <div className="absolute bottom-1/4 left-1/4 w-[450px] h-[450px] bg-sky-200/40 rounded-full blur-[120px] pointer-events-none" />
+      {/* Ambient Cobalt Blue Lighting Orbs */}
+      <div className="absolute top-1/6 right-1/4 w-[550px] h-[550px] bg-[#3B4FE8]/10 rounded-full blur-[140px] pointer-events-none animate-pulse-glow" />
+      <div className="absolute bottom-1/4 left-1/4 w-[450px] h-[450px] bg-[#5B6EFF]/10 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           
           {/* Right Column (Text in RTL): 7 Cols */}
           <div className="lg:col-span-7 text-center lg:text-right">
+            
             {/* Live Status Pill */}
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="inline-flex items-center gap-2.5 bg-white border border-blue-200 text-[#3B4FE8] px-4 py-2 rounded-full text-xs font-bold mb-6 shadow-sm"
+              className="inline-flex items-center gap-2.5 bg-white border border-[#3B4FE8]/20 text-[#3B4FE8] px-4 py-2 rounded-full text-xs font-bold mb-6 shadow-sm"
             >
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#5B6EFF] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#3B4FE8]"></span>
               </span>
-              <span>Ecomate AI • المساعد الذكي لمتاجر سلة والتجارة الإلكترونية</span>
+              <span>ابدأ تجربتك المجانية لمدة 30 يوم</span>
               <Sparkles size={14} className="text-[#3B4FE8]" />
             </motion.div>
 
@@ -150,13 +128,12 @@ export default function Hero() {
               initial={{ opacity: 0, y: 25 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-950 leading-[1.2] mb-6 tracking-tight"
+              className="text-4xl sm:text-5xl lg:text-[3.5rem] font-black text-slate-950 leading-[1.2] mb-6 tracking-tight"
             >
-              ردّ على عملاء متجرك{" "}
+              خل متجرك يبيع ويرد ويتابع عملاءه{" "}
               <span className="ecomate-gradient-text">
-                تلقائياً في ثوانٍ
+                تلقائيًا
               </span>
-              {" "}وبلا توقف
             </motion.h1>
 
             {/* Subtitle */}
@@ -166,8 +143,7 @@ export default function Hero() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-slate-600 text-base sm:text-lg leading-relaxed mb-8 max-w-2xl mx-auto lg:mr-0 font-medium"
             >
-              <strong className="text-slate-950 font-bold">Ecomate (إيكوميت)</strong> يتصل مباشرة بمتجرك على <strong className="text-slate-950 font-bold">سلة</strong> وشركات الشحن وواتساب. 
-              يرد على الاستفسارات، يتتبع الطلبات، ويحول السلات المتروكة لمبيعات بدقة 100% وبدون أي هلوسة.
+              <strong className="text-slate-950 font-bold">ECOMATE</strong> يساعدك ترد على عملائك 24/7، تسترجع السلات المتروكة، وتنظم بيانات عملائك في مكان واحد — بدون ما تكبّر فريق خدمة العملاء.
             </motion.p>
 
             {/* Call to Actions */}
@@ -179,17 +155,17 @@ export default function Hero() {
             >
               <a
                 href={getAppUrl("/register")}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-[#3B4FE8] hover:bg-[#2D3ED0] text-white px-8 py-4 rounded-xl text-base font-bold transition-all duration-300 shadow-md shadow-[#3B4FE8]/20 hover:shadow-lg hover:shadow-[#3B4FE8]/30 hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-[#3B4FE8] hover:bg-[#2D3ED0] text-white px-8 py-4 rounded-xl text-base font-bold transition-all duration-300 shadow-md shadow-[#3B4FE8]/25 hover:shadow-lg hover:shadow-[#3B4FE8]/35 hover:scale-[1.02] active:scale-[0.98]"
               >
-                <span>ابدأ تجربتك المجانية (14 يوم)</span>
+                <span>ابدأ تجربتك المجانية</span>
                 <ArrowLeft size={18} />
               </a>
 
               <a
-                href="#features"
+                href="#how-it-works"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 hover:border-slate-300 px-7 py-4 rounded-xl text-base font-bold transition-all shadow-sm"
               >
-                <span>استكشف المميزات</span>
+                <span>شوف كيف يعمل ECOMATE</span>
               </a>
             </motion.div>
 
@@ -202,42 +178,53 @@ export default function Hero() {
             >
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 size={15} className="text-emerald-600" />
-                <span>ربط فوري بسلة (أقل من 5 دقائق)</span>
+                <span>بدون التزام</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <ShieldCheck size={15} className="text-emerald-600" />
-                <span>لا يلزم إدخال بطاقة ائتمانية</span>
+                <span>إعداد وربط مجاني</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Zap size={15} className="text-emerald-600" />
-                <span>دعم فني سعودي 24/7</span>
+                <span>مصمم لمتاجر سلة وزد</span>
               </div>
             </motion.div>
 
-            {/* KPI Metrics Row */}
+            {/* Supporting Metrics (3 Cards) */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.5 }}
-              className="grid grid-cols-3 gap-3 sm:gap-4 mt-10 pt-6 border-t border-slate-200"
+              className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-10 pt-6 border-t border-slate-200 text-right"
             >
-              <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center shadow-sm">
-                <p className="text-2xl sm:text-3xl font-black text-slate-950">
-                  <AnimatedCounter target={500} />
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:border-[#3B4FE8]/30 transition-all">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#3B4FE8] flex items-center justify-center mb-2">
+                  <Clock size={18} />
+                </div>
+                <p className="text-xl sm:text-2xl font-black text-slate-950 font-sans">
+                  24/7
                 </p>
-                <p className="text-slate-500 text-xs mt-1 font-semibold">متجر سلة نشط</p>
+                <p className="text-slate-500 text-xs mt-1 font-semibold">خدمة عملاء تلقائية</p>
               </div>
-              <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center shadow-sm">
-                <p className="text-2xl sm:text-3xl font-black text-[#3B4FE8]">
-                  +99.2%
+
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:border-[#3B4FE8]/30 transition-all">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center mb-2">
+                  <ShoppingCart size={18} />
+                </div>
+                <p className="text-lg sm:text-xl font-black text-[#3B4FE8]">
+                  استرجاع السلات
                 </p>
-                <p className="text-slate-500 text-xs mt-1 font-semibold">دقة الردود الفورية</p>
+                <p className="text-slate-500 text-xs mt-1 font-semibold">متابعة تلقائية للعملاء</p>
               </div>
-              <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center shadow-sm">
-                <p className="text-2xl sm:text-3xl font-black text-[#2563EB]">
-                  &lt;1.2 ثانية
+
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:border-[#3B4FE8]/30 transition-all">
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center mb-2">
+                  <Users size={18} />
+                </div>
+                <p className="text-lg sm:text-xl font-black text-slate-950">
+                  قاعدة عملاء واحدة
                 </p>
-                <p className="text-slate-500 text-xs mt-1 font-semibold">متوسط زمن الاستجابة</p>
+                <p className="text-slate-500 text-xs mt-1 font-semibold">بياناتك منظمة وجاهزة لإعادة التسويق</p>
               </div>
             </motion.div>
           </div>
@@ -248,8 +235,8 @@ export default function Hero() {
             {/* Interactive Scenario Buttons */}
             <div className="w-full max-w-sm mb-3">
               <div className="text-xs font-bold text-slate-600 mb-2 flex items-center justify-between">
-                <span>جرّب المحاكي المباشر بنفسك:</span>
-                <span className="text-[#3B4FE8] text-[11px] font-extrabold">اضغط لتغيير السؤال 👇</span>
+                <span>جرّب محاكي ECOMATE المباشر:</span>
+                <span className="text-[#3B4FE8] text-[11px] font-extrabold">اضغط للتجربة 👇</span>
               </div>
               <div className="grid grid-cols-2 gap-1.5">
                 {scenarios.map((sc) => {
@@ -260,7 +247,7 @@ export default function Hero() {
                       onClick={() => handleScenarioChange(sc)}
                       className={`text-xs py-2 px-2.5 rounded-xl font-bold transition-all text-right flex items-center gap-1.5 border ${
                         isCurrent
-                          ? "bg-blue-50 border-blue-300 text-[#3B4FE8] shadow-sm"
+                          ? "bg-blue-50 border-[#3B4FE8]/40 text-[#3B4FE8] shadow-sm"
                           : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300"
                       }`}
                     >
@@ -289,7 +276,7 @@ export default function Hero() {
                   </div>
                   <div>
                     <div className="flex items-center gap-1">
-                      <span className="text-white text-xs font-bold">Ecomate AI</span>
+                      <span className="text-white text-xs font-bold">ECOMATE AI</span>
                       <CheckCircle2 size={12} className="text-emerald-300" />
                     </div>
                     <span className="text-[10px] text-emerald-200 flex items-center gap-1 font-medium">
@@ -298,7 +285,7 @@ export default function Hero() {
                   </div>
                 </div>
                 <div className="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-md border border-white/30">
-                  سلة 🛒
+                  سلة & زد 🛒
                 </div>
               </div>
 
@@ -327,6 +314,22 @@ export default function Hero() {
                         <p className="leading-relaxed font-medium">{displayedReply}</p>
                         
                         {/* Extra Rich UI Cards */}
+                        {activeScenario.extraData?.type === "cart-recovery" && (
+                          <div className="mt-2.5 bg-white border border-emerald-300 rounded-xl p-2.5 text-[11px] space-y-1 shadow-sm">
+                            <div className="flex justify-between text-slate-600">
+                              <span>قيمة السلة:</span>
+                              <strong className="text-slate-900">{activeScenario.extraData.cartValue}</strong>
+                            </div>
+                            <div className="flex justify-between text-slate-600">
+                              <span>العرض:</span>
+                              <span className="text-[#3B4FE8] font-bold">{activeScenario.extraData.discount}</span>
+                            </div>
+                            <div className="text-emerald-700 font-bold text-[10px] pt-1 border-t border-slate-100">
+                              {activeScenario.extraData.status}
+                            </div>
+                          </div>
+                        )}
+
                         {activeScenario.extraData?.type === "order-card" && "carrier" in activeScenario.extraData && (
                           <div className="mt-2.5 bg-white border border-emerald-300 rounded-xl p-2.5 text-[11px] space-y-1 shadow-sm">
                             <div className="flex justify-between text-slate-600">
@@ -354,15 +357,8 @@ export default function Hero() {
                           </div>
                         )}
 
-                        {activeScenario.extraData?.type === "recommendation" && "recommendedSize" in activeScenario.extraData && (
-                          <div className="mt-2 bg-white rounded-lg p-2 text-[10px] text-emerald-800 flex items-center gap-1 border border-emerald-200">
-                            <Package size={12} />
-                            <span className="font-bold">{activeScenario.extraData.recommendedSize} • {activeScenario.extraData.policy}</span>
-                          </div>
-                        )}
-
                         <div className="flex items-center justify-between text-[9px] text-slate-500 mt-1.5 font-medium">
-                          <span>Ecomate AI • موثق بسلة</span>
+                          <span>ECOMATE AI • موثق</span>
                           <span className="flex items-center gap-0.5 text-blue-500 font-bold">
                             11:42 ص <CheckCheck size={12} />
                           </span>
@@ -375,10 +371,10 @@ export default function Hero() {
                 {/* Quick Action Suggestion Bar */}
                 <div className="pt-2 border-t border-black/5 flex gap-1.5">
                   <span className="text-[10px] bg-white text-slate-700 font-bold px-2 py-1 rounded-full flex-1 text-center truncate shadow-sm">
-                    👍 شكراً، واضحة
+                    👍 استكمال الطلب فوراً
                   </span>
                   <span className="text-[10px] bg-white text-slate-700 font-bold px-2 py-1 rounded-full flex-1 text-center truncate shadow-sm">
-                    📞 تحويل لموظف بشري
+                    📞 تحويل للموظف
                   </span>
                 </div>
               </div>

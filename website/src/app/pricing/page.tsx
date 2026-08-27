@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import Pricing from "@/components/sections/Pricing";
@@ -9,7 +9,7 @@ import FinalCTA from "@/components/sections/FinalCTA";
 export const metadata: Metadata = {
   title: "الأسعار وباقات الاشتراك",
   description:
-    "اختر الباقة المناسبة لمتجرك على سلة. سند يقدم باقات مرنة تبدأ من 119 ريال شهرياً مع تجربة مجانية 14 يوم بدون بطاقة ائتمانية.",
+    "اختر الباقة المناسبة لمتجرك على سلة. سند يقدم باقات مرنة تبدأ من 119 ريال شهرياً مع تجربة مجانية 30 يوم بدون بطاقة ائتمانية.",
 };
 
 export default function PricingPage() {

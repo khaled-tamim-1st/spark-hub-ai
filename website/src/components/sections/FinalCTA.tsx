@@ -41,7 +41,7 @@ export default function FinalCTA() {
                 href={getAppUrl("/register")}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white text-[#3B4FE8] hover:bg-blue-50 px-9 py-4 rounded-xl font-black text-base transition-all hover:shadow-2xl hover:scale-105 active:scale-95 shadow-xl"
               >
-                <span>ابدأ الآن مجاناً (14 يوم)</span>
+                <span>ابدأ الآن مجاناً (30 يوم)</span>
                 <ArrowLeft size={18} />
               </a>
 

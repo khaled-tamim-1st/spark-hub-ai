@@ -106,7 +106,7 @@ export default function RoiCalculator() {
           <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-center sm:text-right">
               <p className="text-slate-950 font-bold text-sm">
-                ابدأ بتوفير وقتك وفلوسك من اليوم — تجربة مجانية 14 يوم
+                ابدأ بتوفير وقتك وفلوسك من اليوم — تجربة مجانية 30 يوم
               </p>
               <p className="text-slate-500 text-xs mt-0.5 font-medium">
                 تفعيل فوري مع سلة خلال أقل من 5 دقائق بدون أي عقود

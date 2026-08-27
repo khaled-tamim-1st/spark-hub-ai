@@ -21,7 +21,7 @@ const plans = [
       "تقارير وإحصائيات شهرية",
       "دعم فني سريع عبر الواتساب",
     ],
-    cta: "ابدأ تجربتك المجانية (14 يوم)",
+    cta: "ابدأ تجربتك المجانية (30 يوم)",
     highlighted: false,
   },
   {
@@ -40,7 +40,7 @@ const plans = [
       "لوحة تحليلات وتقارير أداء لحظية",
       "أولوية دعم فني على مدار الساعة",
     ],
-    cta: "ابدأ تجربتك المجانية (14 يوم)",
+    cta: "ابدأ تجربتك المجانية (30 يوم)",
     highlighted: true,
   },
   {
@@ -86,7 +86,7 @@ export default function Pricing() {
           </h2>
 
           <p className="text-slate-600 text-base sm:text-lg mb-8 font-medium">
-            ابدأ بتجربة مجانية كاملة لمدة 14 يوماً على أي باقة — بدون إدخال أي بطاقة بنكية.
+            ابدأ بتجربة مجانية كاملة لمدة 30 يوماً على أي باقة — بدون إدخال أي بطاقة بنكية.
           </p>
 
           {/* Billing Switcher */}
@@ -231,7 +231,7 @@ export default function Pricing() {
         {/* Money back guarantee footer */}
         <div className="mt-14 text-center flex items-center justify-center gap-2 text-xs text-slate-500 font-bold">
           <Shield size={16} className="text-emerald-600" />
-          <span>ضمان استرجاع كامل المبلغ خلال 14 يوماً إذا لم تكن راضياً 100% عن Ecomate.</span>
+          <span>ضمان استرجاع كامل المبلغ خلال 30 يوماً إذا لم تكن راضياً 100% عن Ecomate.</span>
         </div>
 
       </div>

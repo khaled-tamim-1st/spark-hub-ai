@@ -128,7 +128,7 @@ export default function HowItWorks() {
             <ArrowLeft size={18} />
           </a>
           <p className="text-xs text-slate-500 font-medium mt-3">
-            تجربة كاملة لمدة 14 يوم بدون أي التزام مالي
+            تجربة كاملة لمدة 30 يوم بدون أي التزام مالي
           </p>
         </div>
 

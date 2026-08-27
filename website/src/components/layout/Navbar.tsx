@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -86,7 +86,7 @@ export default function Navbar() {
               href={getAppUrl("/register")}
               className="relative group overflow-hidden bg-[#3B4FE8] hover:bg-[#0040CC] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 shadow-md shadow-[#3B4FE8]/20 hover:shadow-lg hover:shadow-[#3B4FE8]/30 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
             >
-              <span>جرّب مجاناً 14 يوم</span>
+              <span>جرّب مجاناً 30 يوم</span>
               <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
             </a>
           </div>
@@ -129,7 +129,7 @@ export default function Navbar() {
                 className="w-full text-center bg-[#3B4FE8] text-white py-3 rounded-xl text-sm font-bold shadow-md shadow-[#3B4FE8]/25 transition-transform active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 <Sparkles size={16} />
-                <span>ابدأ تجربتك المجانية (14 يوم)</span>
+                <span>ابدأ تجربتك المجانية (30 يوم)</span>
               </a>
             </div>
           </div>
