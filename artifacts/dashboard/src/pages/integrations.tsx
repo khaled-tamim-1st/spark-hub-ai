@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { getToken } from '@/lib/auth';
 import { useLanguage } from '@/lib/i18n';
-import { Plus, Trash2, CheckCircle2, Settings, Zap, RefreshCw, QrCode, Phone, ExternalLink } from 'lucide-react';
+import { Plus, Trash2, CheckCircle2, Settings, Zap, RefreshCw, QrCode, Phone, ExternalLink, Copy, Code, Eye, Globe } from 'lucide-react';
 
 const INTEGRATION_TYPES = [
   {
@@ -21,6 +21,21 @@ const INTEGRATION_TYPES = [
     descriptionEn: 'Connect store WhatsApp number by scanning QR code for AI auto-reply',
     icon: '💬',
     fields: [],
+  },
+  {
+    name: 'ودجت المحادثة للموقع (Web Chat Widget)',
+    nameEn: 'Web Chat Widget',
+    type: 'web',
+    provider: 'widget',
+    description: 'تثبيت زر المحادثة الحية المباشرة في متجرك أو موقعك الإلكتروني مع ردود الذكاء الاصطناعي الفورية',
+    descriptionEn: 'Embed a modern live chat widget with instant AI replies on your store or website',
+    icon: '🌐',
+    fields: [
+      { key: 'widgetName', label: 'اسم الودجت / عنوان المحادثة' },
+      { key: 'welcomeMessage', label: 'رسالة الترحيب الأولى للزائر' },
+      { key: 'primaryColor', label: 'لون الثيم الأساسي (Hex Color مثل #3B4FE8)' },
+      { key: 'position', label: 'موضع الودجت في الشاشة (right أو left)' },
+    ],
   },
   {
     name: 'متجر سلة (Salla)',
@@ -72,19 +87,6 @@ const INTEGRATION_TYPES = [
     fields: [
       { key: 'pageId', label: 'Instagram Account ID' },
       { key: 'accessToken', label: 'Access Token', type: 'password' },
-    ],
-  },
-  {
-    name: 'ودجت المحادثة للموقع (Web Chat Widget)',
-    nameEn: 'Web Chat Widget',
-    type: 'web',
-    provider: 'widget',
-    description: 'تثبيت زر المحادثة الحية المباشرة في متجرك أو موقعك الإلكتروني',
-    descriptionEn: 'Embed a modern live chat widget on your store or website',
-    icon: '🌐',
-    fields: [
-      { key: 'widgetName', label: 'اسم الودجت' },
-      { key: 'welcomeMessage', label: 'رسالة الترحيب' },
     ],
   },
 ];
@@ -412,6 +414,121 @@ export default function Integrations() {
                       <span>{language === 'ar' ? 'إعادة توليد رمز QR جديد' : 'Generate New QR Code'}</span>
                     </Button>
                   )}
+                </div>
+              </div>
+            ) : configuring?.provider === 'widget' ? (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>{language === 'ar' ? 'اسم القناة' : 'Channel Name'}</Label>
+                  <Input
+                    value={channelName}
+                    onChange={(e) => setChannelName(e.target.value)}
+                    placeholder="ودجت شات المتجر الرئيسي"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">{language === 'ar' ? 'عنوان الودجت' : 'Widget Title'}</Label>
+                    <Input
+                      value={formData.widgetName || ''}
+                      onChange={(e) => setFormData(p => ({ ...p, widgetName: e.target.value }))}
+                      placeholder="مساعد المتجر الذكي"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">{language === 'ar' ? 'لون الثيم' : 'Brand Color'}</Label>
+                    <Input
+                      value={formData.primaryColor || '#3B4FE8'}
+                      onChange={(e) => setFormData(p => ({ ...p, primaryColor: e.target.value }))}
+                      placeholder="#3B4FE8"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs">{language === 'ar' ? 'رسالة الترحيب الأولى' : 'Welcome Message'}</Label>
+                  <Input
+                    value={formData.welcomeMessage || ''}
+                    onChange={(e) => setFormData(p => ({ ...p, welcomeMessage: e.target.value }))}
+                    placeholder="أهلاً بك 👋 كيف يمكننا مساعدتك اليوم؟"
+                  />
+                </div>
+
+                {/* Embed Code Snippet */}
+                <div className="rounded-2xl border border-border bg-slate-950 p-4 text-slate-200 text-xs space-y-2 font-mono">
+                  <div className="flex items-center justify-between text-slate-400 font-sans pb-1 border-b border-slate-800">
+                    <span className="flex items-center gap-1.5 font-bold text-slate-200">
+                      <Code className="w-3.5 h-3.5 text-primary" />
+                      <span>{language === 'ar' ? 'كود التضمين للموقع:' : 'Embed Script Code:'}</span>
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 text-xs text-primary hover:text-white gap-1"
+                      onClick={() => {
+                        const activeId = channels?.find(c => c.provider === 'widget')?.id || 1;
+                        const code = `<!-- ECOMATE AI Live Chat Widget -->\n<script src="${window.location.origin}/widget.js" data-channel="${activeId}" data-color="${formData.primaryColor || '#3B4FE8'}" data-title="${formData.widgetName || 'مساعد المتجر الذكي'}" data-welcome="${formData.welcomeMessage || 'أهلاً بك 👋 كيف يمكننا مساعدتك اليوم؟'}" data-position="right"></script>`;
+                        navigator.clipboard.writeText(code);
+                        toast({ title: language === 'ar' ? 'تم نسخ كود التضمين بنجاح!' : 'Embed code copied to clipboard!' });
+                      }}
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>{language === 'ar' ? 'نسخ الكود' : 'Copy'}</span>
+                    </Button>
+                  </div>
+                  <pre className="overflow-x-auto text-[11px] leading-relaxed text-emerald-400">
+{`<!-- ECOMATE AI Live Chat Widget -->
+<script
+  src="${typeof window !== 'undefined' ? window.location.origin : ''}/widget.js"
+  data-channel="${channels?.find(c => c.provider === 'widget')?.id || 1}"
+  data-color="${formData.primaryColor || '#3B4FE8'}"
+  data-title="${formData.widgetName || 'مساعد المتجر الذكي'}"
+  data-welcome="${formData.welcomeMessage || 'أهلاً بك 👋 كيف يمكننا مساعدتك اليوم؟'}"
+  data-position="right">
+</script>`}
+                  </pre>
+                  <p className="text-[10.5px] text-slate-400 font-sans pt-1">
+                    {language === 'ar'
+                      ? '💡 انسخ هذا الكود والصقه قبل إغلاق وسام </body> في متجرك على سلة أو زد أو أي موقع ويب.'
+                      : '💡 Paste this snippet before the closing </body> tag on your website or store.'}
+                  </p>
+                </div>
+
+                <div className="flex justify-between items-center gap-2 pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="rounded-xl text-xs gap-1.5"
+                    onClick={() => {
+                      const activeId = channels?.find(c => c.provider === 'widget')?.id || 1;
+                      if (!document.getElementById('ecomate-test-script')) {
+                        const script = document.createElement('script');
+                        script.id = 'ecomate-test-script';
+                        script.src = `${window.location.origin}/widget.js`;
+                        script.setAttribute('data-channel', String(activeId));
+                        script.setAttribute('data-color', formData.primaryColor || '#3B4FE8');
+                        script.setAttribute('data-title', formData.widgetName || 'مساعد المتجر الذكي');
+                        script.setAttribute('data-welcome', formData.welcomeMessage || 'أهلاً بك 👋 كيف يمكننا مساعدتك اليوم؟');
+                        document.body.appendChild(script);
+                        toast({ title: language === 'ar' ? 'تم تشغيل ودجت التجربة في أسفل الصفحة!' : 'Live widget launched in bottom corner!' });
+                      } else {
+                        toast({ title: language === 'ar' ? 'الودجت مشغل بالفعل في الصفحة!' : 'Widget is already running on this page!' });
+                      }
+                    }}
+                  >
+                    <Eye className="w-3.5 h-3.5 text-primary" />
+                    <span>{language === 'ar' ? 'معاينة حية وتجربة الودجت' : 'Live Preview'}</span>
+                  </Button>
+
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => setConfiguring(null)}>
+                      {t.cancel}
+                    </Button>
+                    <Button onClick={handleCreate} disabled={createChannel.isPending}>
+                      {createChannel.isPending ? t.saving : (language === 'ar' ? 'حفظ الإعدادات' : 'Save Settings')}
+                    </Button>
+                  </div>
                 </div>
               </div>
             ) : (

@@ -40,6 +40,10 @@ app.use('/api/media', express.static(mediaDir, {
 // API Routes
 app.use("/api", router);
 
+// Serve static assets (such as widget.js)
+const publicDir = path.join(process.cwd(), 'artifacts', 'api-server', 'public');
+app.use(express.static(publicDir));
+
 // Serve dashboard static build files (SPA)
 const dashboardDist = path.join(process.cwd(), 'artifacts', 'dashboard', 'dist', 'public');
 app.use(express.static(dashboardDist));

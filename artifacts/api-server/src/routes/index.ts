@@ -16,10 +16,12 @@ import notesRouter from './notes.js';
 import adminRouter from './admin.js';
 import organizationsRouter from './organizations.js';
 import webhooksRouter from './webhooks.js';
+import widgetRouter from './widget.js';
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use('/widget', widgetRouter);
 router.use('/webhooks', webhooksRouter);
 router.use('/auth', authRouter);
 router.use('/admin', adminRouter);
