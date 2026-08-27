@@ -46,7 +46,7 @@ import { cn } from '@/lib/utils';
 import { getToken } from '@/lib/auth';
 
 const CANNED_REPLIES = [
-  { label: 'ترحيب بالعميل', text: 'أهلاً بك يا فندم في سند! كيف نقدر نساعدك اليوم؟ يسعدنا جداً تواصلك معنا.' },
+  { label: 'ترحيب بالعميل', text: 'أهلاً بك يا فندم في Ecomate! كيف نقدر نساعدك اليوم؟ يسعدنا جداً تواصلك معنا.' },
   { label: 'تأكيد استلام الطلب', text: 'تم استلام طلبك بنجاح وجاري تجهيزه للشحن فوراً. سنرسل لك رقم التتبع بمجرد خروج الشحنة مع المندوب.' },
   { label: 'سياسة الاستبدال والاسترجاع', text: 'نوفر إمكانية الاستبدال والاسترجاع خلال 14 يوماً من استلام الشحنة، بشرط أن يكون المنتج بحالته الأصلية.' },
   { label: 'طرق الدفع المتاحة', text: 'طرق الدفع المتاحة: الدفع عند الاستلام (COD)، المحافظ الإلكترونية (فودافون كاش / إنستاباي)، والبطاقات البنكية.' },
@@ -533,7 +533,7 @@ export default function Inbox() {
                           <div className="flex items-center gap-1.5 text-[10px] opacity-80 pb-0.5 border-b border-white/15">
                             {isAi ? (
                               <span className="flex items-center gap-1 font-bold">
-                                <Sparkles className="w-2.5 h-2.5" /> سند AI
+                                <Sparkles className="w-2.5 h-2.5" /> Ecomate AI
                               </span>
                             ) : (
                               <span>{msg.senderName || 'موظف الدعم'}</span>

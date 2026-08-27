@@ -70,18 +70,18 @@ export default function Pricing() {
   return (
     <section id="pricing" className="py-28 bg-white relative overflow-hidden">
       {/* Background ambient lighting */}
-      <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-[#EDE9FE]/60 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-blue-100/40 rounded-full blur-[150px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 bg-[#EDE9FE] border border-[#DDD6FE] text-[#6B00FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#0052FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
             <Sparkles size={14} />
             <span>باقات شفافة وبدون أي رسوم خفية</span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-tight mb-5">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 leading-tight mb-5">
             استثمر في ذكاء متجرك ووفر تكاليف التوظيف
           </h2>
 
@@ -90,12 +90,12 @@ export default function Pricing() {
           </p>
 
           {/* Billing Switcher */}
-          <div className="inline-flex items-center bg-[#F8F6FF] border border-[#DDD6FE] rounded-full p-1.5 gap-1 shadow-sm">
+          <div className="inline-flex items-center bg-slate-100 border border-slate-200 rounded-full p-1.5 gap-1 shadow-sm">
             <button
               onClick={() => setYearly(false)}
               className={`px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all ${
                 !yearly
-                  ? "bg-[#6B00FF] text-white shadow-md shadow-[#6B00FF]/25"
+                  ? "bg-[#0052FF] text-white shadow-md shadow-[#0052FF]/20"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -106,7 +106,7 @@ export default function Pricing() {
               onClick={() => setYearly(true)}
               className={`px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
                 yearly
-                  ? "bg-[#6B00FF] text-white shadow-md shadow-[#6B00FF]/25"
+                  ? "bg-[#0052FF] text-white shadow-md shadow-[#0052FF]/20"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -129,13 +129,13 @@ export default function Pricing() {
               transition={{ delay: i * 0.1 }}
               className={`relative rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 ${
                 plan.highlighted
-                  ? "bg-gradient-to-b from-[#FAF8FF] via-white to-[#F5F1FF] border-2 border-[#7C3AED] shadow-xl shadow-purple-900/10 lg:-translate-y-3"
-                  : "bg-white border border-[#EDE9FE] hover:border-[#C4B5FD] shadow-lg shadow-purple-900/5"
+                  ? "bg-gradient-to-b from-blue-50/40 via-white to-slate-50 border-2 border-[#0052FF] shadow-xl shadow-blue-900/10 lg:-translate-y-3"
+                  : "bg-white border border-slate-200 hover:border-blue-200 shadow-lg shadow-blue-900/5"
               }`}
             >
               {/* Highlight Badge */}
               {plan.highlighted && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#6B00FF] to-[#7C3AED] text-white text-xs font-black px-4 py-1.5 rounded-full shadow-md shadow-[#6B00FF]/30 border border-white/40 flex items-center gap-1.5">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#0052FF] text-white text-xs font-black px-4 py-1.5 rounded-full shadow-md shadow-[#0052FF]/25 border border-white/40 flex items-center gap-1.5">
                   <Zap size={13} />
                   <span>{plan.badge}</span>
                 </div>
@@ -146,13 +146,13 @@ export default function Pricing() {
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-3xl">{plan.emoji}</span>
                   {!plan.highlighted && (
-                    <span className="text-[11px] font-bold text-[#6B00FF] bg-[#EDE9FE] border border-[#DDD6FE] px-2.5 py-1 rounded-full">
+                    <span className="text-[11px] font-bold text-[#0052FF] bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">
                       {plan.badge}
                     </span>
                   )}
                 </div>
 
-                <h3 className="text-2xl font-black text-slate-900 mb-2">
+                <h3 className="text-2xl font-black text-slate-950 mb-2">
                   {plan.name}
                 </h3>
 
@@ -164,7 +164,7 @@ export default function Pricing() {
                 <div className="mb-8 pb-6 border-b border-slate-100">
                   {plan.isEnterprise ? (
                     <div>
-                      <span className="text-3xl font-black text-slate-900 block">
+                      <span className="text-3xl font-black text-slate-950 block">
                         تواصل معنا
                       </span>
                       <span className="text-xs text-slate-500 mt-1 block font-medium">
@@ -174,7 +174,7 @@ export default function Pricing() {
                   ) : (
                     <div>
                       <div className="flex items-baseline gap-1.5">
-                        <span className="text-5xl font-black text-slate-900">
+                        <span className="text-5xl font-black text-slate-950">
                           {yearly ? plan.yearlyPrice : plan.monthlyPrice}
                         </span>
                         <span className="text-sm font-bold text-slate-500">
@@ -190,7 +190,7 @@ export default function Pricing() {
 
                 {/* Features List */}
                 <div className="space-y-3.5 mb-8">
-                  <span className="text-xs font-black text-slate-900 block mb-2">
+                  <span className="text-xs font-black text-slate-950 block mb-2">
                     المميزات المتضمنة:
                   </span>
                   {plan.features.map((feat) => (
@@ -198,7 +198,7 @@ export default function Pricing() {
                       <Check
                         size={15}
                         className={`flex-shrink-0 mt-0.5 ${
-                          plan.highlighted ? "text-[#6B00FF]" : "text-emerald-600"
+                          plan.highlighted ? "text-[#0052FF]" : "text-emerald-600"
                         }`}
                       />
                       <span>{feat}</span>
@@ -211,13 +211,13 @@ export default function Pricing() {
               <a
                 href={
                   plan.isEnterprise
-                    ? "mailto:hello@sanadai.com"
+                    ? "mailto:hello@ecomate.ai"
                     : getAppUrl("/register")
                 }
                 className={`w-full py-4 rounded-xl font-bold text-sm text-center transition-all flex items-center justify-center gap-2 ${
                   plan.highlighted
-                    ? "bg-gradient-to-r from-[#6B00FF] to-[#7C3AED] hover:from-[#5800D9] hover:to-[#6D28D9] text-white shadow-lg shadow-[#6B00FF]/25 hover:scale-[1.02]"
-                    : "bg-[#F8F6FF] hover:bg-[#EDE9FE] text-[#6B00FF] border border-[#DDD6FE] hover:border-[#C4B5FD]"
+                    ? "bg-[#0052FF] hover:bg-[#0040CC] text-white shadow-lg shadow-[#0052FF]/20 hover:scale-[1.02]"
+                    : "bg-slate-100 hover:bg-blue-50 text-[#0052FF] border border-slate-200 hover:border-blue-200"
                 }`}
               >
                 <span>{plan.cta}</span>
@@ -231,7 +231,7 @@ export default function Pricing() {
         {/* Money back guarantee footer */}
         <div className="mt-14 text-center flex items-center justify-center gap-2 text-xs text-slate-500 font-bold">
           <Shield size={16} className="text-emerald-600" />
-          <span>ضمان استرجاع كامل المبلغ خلال 14 يوماً إذا لم تكن راضياً 100% عن سند.</span>
+          <span>ضمان استرجاع كامل المبلغ خلال 14 يوماً إذا لم تكن راضياً 100% عن Ecomate.</span>
         </div>
 
       </div>

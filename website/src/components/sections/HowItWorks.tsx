@@ -10,7 +10,7 @@ const steps = [
     icon: Link2,
     badgeIcon: QrCode,
     title: "ربط متجرك بسلة وواتساب",
-    desc: "بنقرة واحدة من متجر تطبيقات سلة أو مسح رمز QR لواتساب ويب، يتصل سند بمتجرك ويبدأ مزامنة الطلبات والمنتجات فورياً.",
+    desc: "بنقرة واحدة من متجر تطبيقات سلة أو مسح رمز QR لواتساب ويب، يتصل Ecomate بمتجرك ويبدأ مزامنة الطلبات والمنتجات فورياً.",
     visual: {
       type: "connection",
       tag: "ربط سحابي مشفر",
@@ -22,7 +22,7 @@ const steps = [
     icon: Brain,
     badgeIcon: FileText,
     title: "تدريب قاعدة المعرفة الخاصة بك",
-    desc: "أضف سياسات متجرك، شروط الاستبدال، جدول المقاسات، والأسئلة المكررة. سند يستوعبها بدقة متناهية ويجيب منها حصراً.",
+    desc: "أضف سياسات متجرك، شروط الاستبدال، جدول المقاسات، والأسئلة المكررة. Ecomate يستوعبها بدقة متناهية ويجيب منها حصراً.",
     visual: {
       type: "knowledge",
       tag: "فهرسة ذكية",
@@ -34,7 +34,7 @@ const steps = [
     icon: Rocket,
     badgeIcon: Bot,
     title: "الانطلاق بالأتمتة الكاملة 24/7",
-    desc: "سند يتولى الرد على العملاء وتتبع الشحنات وزيادة المبيعات على مدار الساعة، مع إمكانية التدخل البشري في أي وقت بضغطة زر.",
+    desc: "Ecomate يتولى الرد على العملاء وتتبع الشحنات وزيادة المبيعات على مدار الساعة، مع إمكانية التدخل البشري في أي وقت بضغطة زر.",
     visual: {
       type: "autopilot",
       tag: "أتمتة ذاتية",
@@ -46,21 +46,21 @@ const steps = [
 export default function HowItWorks() {
   return (
     <section id="how-it-works" className="py-28 bg-white relative overflow-hidden">
-      {/* Background soft lavender glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#EDE9FE]/50 rounded-full blur-[160px] pointer-events-none" />
+      {/* Background soft blue glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-blue-100/40 rounded-full blur-[160px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-20">
-          <div className="inline-flex items-center gap-2 bg-[#EDE9FE] border border-[#DDD6FE] text-[#6B00FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#0052FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
             <span>سهولة الإعداد والانطلاق</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-tight mb-5">
-            كيف يعمل سند في 3 خطوات بسيطة؟
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 leading-tight mb-5">
+            كيف يعمل Ecomate في 3 خطوات بسيطة؟
           </h2>
           <p className="text-slate-600 text-base sm:text-lg font-medium">
-            لا تحتاج لأي مبرمج أو خبرة تقنية. سند مجهز للعمل مع متجرك في أقل من 10 دقائق.
+            لا تحتاج لأي مبرمج أو خبرة تقنية. Ecomate مجهز للعمل مع متجرك في أقل من 10 دقائق.
           </p>
         </div>
 
@@ -73,24 +73,24 @@ export default function HowItWorks() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.15 }}
-              className="bg-white rounded-3xl p-8 border border-[#EDE9FE] hover:border-[#C4B5FD] relative flex flex-col justify-between group transition-all duration-300 shadow-xl shadow-purple-900/5 hover:shadow-2xl hover:shadow-purple-900/10 hover:-translate-y-1"
+              className="bg-white rounded-3xl p-8 border border-slate-200 hover:border-blue-300 relative flex flex-col justify-between group transition-all duration-300 shadow-xl shadow-blue-900/5 hover:shadow-2xl hover:shadow-blue-900/10 hover:-translate-y-1"
             >
               <div>
                 {/* Step number watermark */}
-                <div className="text-6xl font-black text-[#EDE9FE] absolute top-6 left-6 select-none font-mono">
+                <div className="text-6xl font-black text-slate-100 absolute top-6 left-6 select-none font-mono">
                   {item.step}
                 </div>
 
                 {/* Step icon */}
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#6B00FF] to-[#7C3AED] flex items-center justify-center text-white mb-6 shadow-md shadow-[#6B00FF]/25">
+                <div className="w-14 h-14 rounded-2xl bg-[#0052FF] flex items-center justify-center text-white mb-6 shadow-md shadow-[#0052FF]/25">
                   <item.icon size={26} />
                 </div>
 
-                <div className="text-xs font-extrabold text-[#6B00FF] mb-2 font-mono">
+                <div className="text-xs font-extrabold text-[#0052FF] mb-2 font-mono">
                   الخطوة {item.step}
                 </div>
 
-                <h3 className="text-xl font-black text-slate-900 mb-3 leading-snug">
+                <h3 className="text-xl font-black text-slate-950 mb-3 leading-snug">
                   {item.title}
                 </h3>
 
@@ -100,10 +100,10 @@ export default function HowItWorks() {
               </div>
 
               {/* Visual Box */}
-              <div className="bg-[#F8F6FF] border border-[#EDE9FE] rounded-2xl p-4 space-y-2">
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2">
                 <div className="text-[11px] font-bold text-slate-500 flex items-center justify-between pb-2 border-b border-slate-200">
                   <span>{item.visual.tag}</span>
-                  <item.badgeIcon size={13} className="text-[#6B00FF]" />
+                  <item.badgeIcon size={13} className="text-[#0052FF]" />
                 </div>
                 <div className="space-y-1.5 pt-1">
                   {item.visual.items.map((sub) => (
@@ -122,7 +122,7 @@ export default function HowItWorks() {
         <div className="mt-16 text-center">
           <a
             href={getAppUrl("/register")}
-            className="inline-flex items-center gap-2.5 bg-gradient-to-r from-[#6B00FF] to-[#7C3AED] hover:from-[#5800D9] hover:to-[#6D28D9] text-white px-8 py-4 rounded-xl text-base font-bold shadow-md shadow-[#6B00FF]/25 transition-all hover:scale-105"
+            className="inline-flex items-center gap-2.5 bg-[#0052FF] hover:bg-[#0040CC] text-white px-8 py-4 rounded-xl text-base font-bold shadow-md shadow-[#0052FF]/25 transition-all hover:scale-105"
           >
             <span>ابدأ ربط متجرك الآن مجاناً</span>
             <ArrowLeft size={18} />

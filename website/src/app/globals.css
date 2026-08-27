@@ -1,18 +1,16 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #6B00FF;
-  --color-brand-light: #7C3AED;
-  --color-brand-purple: #8B5CF6;
-  --color-lavender: #A78BFA;
-  --color-lavender-light: #C4B5FD;
-  --color-lavender-soft: #DDD6FE;
-  --color-lavender-subtle: #EDE9FE;
-  --color-lavender-bg: #F8F6FF;
-  --color-lavender-surface: #F3F0FF;
+  --color-brand: #0052FF;
+  --color-brand-dark: #0040CC;
+  --color-brand-blue: #2563EB;
+  --color-brand-light: #3B82F6;
+  --color-brand-cyan: #60A5FA;
+  --color-brand-subtle: #EFF6FF;
+  --color-brand-surface: #F8FAFC;
 
-  --color-text-dark: #0F0F1A;
-  --color-text-navy: #1E1B4B;
+  --color-text-dark: #0A0D1A;
+  --color-text-navy: #0F172A;
   --color-text-muted: #64748B;
   --color-text-subtle: #94A3B8;
 
@@ -30,7 +28,7 @@ html {
 body {
   font-family: var(--font-family-sans);
   background-color: #FFFFFF;
-  color: #0F0F1A;
+  color: #0A0D1A;
   overflow-x: hidden;
 }
 
@@ -39,23 +37,23 @@ body {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #F8F6FF;
+  background: #F8FAFC;
 }
 ::-webkit-scrollbar-thumb {
-  background: #DDD6FE;
+  background: #CBD5E1;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #A78BFA;
+  background: #94A3B8;
 }
 
-/* Glassmorphism on Light / White & Lavender */
+/* Glassmorphism on Light / Ecomate Blue */
 .glass-card-light {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(221, 214, 254, 0.6);
-  box-shadow: 0 10px 30px -10px rgba(107, 0, 255, 0.05);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 10px 30px -10px rgba(0, 82, 255, 0.05);
 }
 
 .glass-card-light-hover {
@@ -63,25 +61,18 @@ body {
 }
 .glass-card-light-hover:hover {
   background: #FFFFFF;
-  border-color: #C4B5FD;
-  box-shadow: 0 15px 35px -10px rgba(107, 0, 255, 0.12);
+  border-color: #93C5FD;
+  box-shadow: 0 15px 35px -10px rgba(0, 82, 255, 0.12);
   transform: translateY(-3px);
 }
 
-.glass-panel-light {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(237, 233, 254, 0.8);
+/* Ecomate Glow */
+.ecomate-glow {
+  box-shadow: 0 0 50px rgba(0, 82, 255, 0.2), 0 0 100px rgba(59, 130, 246, 0.08);
 }
 
-/* Soft Lavender Glow */
-.lavender-glow {
-  box-shadow: 0 0 50px rgba(167, 139, 250, 0.25), 0 0 100px rgba(107, 0, 255, 0.08);
-}
-
-.lavender-glow-sm {
-  box-shadow: 0 0 25px rgba(167, 139, 250, 0.2);
+.ecomate-glow-sm {
+  box-shadow: 0 0 25px rgba(0, 82, 255, 0.15);
 }
 
 /* Pulse Glow */
@@ -107,22 +98,22 @@ body {
   animation-play-state: paused;
 }
 
-/* Light Lavender Grid Pattern */
+/* Grid Pattern */
 .bg-grid-light {
-  background-image: linear-gradient(to right, rgba(167, 139, 250, 0.09) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(167, 139, 250, 0.09) 1px, transparent 1px);
+  background-image: linear-gradient(to right, rgba(0, 82, 255, 0.06) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(0, 82, 255, 0.06) 1px, transparent 1px);
   background-size: 36px 36px;
   mask-image: radial-gradient(ellipse 65% 55% at 50% 50%, #000 70%, transparent 100%);
   -webkit-mask-image: radial-gradient(ellipse 65% 55% at 50% 50%, #000 70%, transparent 100%);
 }
 
-/* Hero Lavender Radial Background */
-.hero-lavender-bg {
-  background: radial-gradient(ellipse at 50% -10%, rgba(221, 214, 254, 0.6) 0%, rgba(243, 240, 255, 0.4) 40%, #FFFFFF 85%);
+/* Hero Electric Blue Gradient Background */
+.hero-ecomate-bg {
+  background: radial-gradient(ellipse at 50% -10%, rgba(191, 219, 254, 0.5) 0%, rgba(239, 246, 255, 0.4) 40%, #FFFFFF 85%);
 }
 
-.lavender-gradient-text {
-  background: linear-gradient(135deg, #6B00FF 0%, #7C3AED 40%, #9333EA 100%);
+.ecomate-gradient-text {
+  background: linear-gradient(135deg, #0A0D1A 0%, #0052FF 50%, #2563EB 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

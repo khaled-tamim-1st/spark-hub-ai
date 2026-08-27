@@ -17,13 +17,14 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "سند | المساعد الذكي لمتجرك على سلة",
-    template: "%s | سند AI",
+    default: "Ecomate | إيكوميت — المساعد الذكي لمتاجر سلة والتجارة الإلكترونية",
+    template: "%s | Ecomate AI",
   },
   description:
-    "سند هو المساعد الذكي المتخصص في خدمة عملاء المتاجر السعودية على سلة. ردود تلقائية على واتساب، تتبع الطلبات، وإدارة المحادثات بالذكاء الاصطناعي.",
+    "Ecomate (إيكوميت) هو المساعد الذكي المتخصص في أتمتة خدمة عملاء المتاجر الإلكترونية على سلة. ردود فورية على واتساب، تتبع الشحنات، وزيادة المبيعات بالذكاء الاصطناعي.",
   keywords: [
-    "سند",
+    "Ecomate",
+    "إيكوميت",
     "مساعد ذكي",
     "سلة",
     "واتساب",
@@ -33,48 +34,38 @@ export const metadata: Metadata = {
     "متجر إلكتروني",
     "سعودي",
     "ردود ذكية",
-    "مساعد ذكي سلة",
+    "E-commerce AI",
   ],
-  authors: [{ name: "سند AI" }],
-  creator: "سند AI",
-  metadataBase: new URL("https://sanadai.com"),
+  authors: [{ name: "Ecomate AI" }],
+  creator: "Ecomate AI",
+  metadataBase: new URL("https://ecomate.ai"),
   openGraph: {
     type: "website",
     locale: "ar_SA",
-    url: "https://sanadai.com",
-    siteName: "سند AI",
-    title: "سند | المساعد الذكي لمتجرك على سلة",
+    url: "https://ecomate.ai",
+    siteName: "Ecomate AI",
+    title: "Ecomate | إيكوميت — المساعد الذكي لمتجرك الإلكتروني",
     description:
-      "سند يرد على عملاء متجرك على واتساب وسلة تلقائياً بالذكاء الاصطناعي. جرّبه مجاناً الآن.",
+      "Ecomate يرد على عملاء متجرك على واتساب وسلة تلقائياً بالذكاء الاصطناعي. جرّبه مجاناً الآن.",
     images: [
       {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "سند AI - المساعد الذكي لمتجرك",
+        url: "/logo.png",
+        width: 800,
+        height: 800,
+        alt: "Ecomate AI Logo",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "سند | المساعد الذكي لمتجرك على سلة",
+    title: "Ecomate | إيكوميت — المساعد الذكي لمتجرك",
     description:
-      "ردود تلقائية على واتساب وسلة بالذكاء الاصطناعي. جرّب سند مجاناً.",
-    images: ["/og-image.png"],
+      "ردود تلقائية على واتساب وسلة بالذكاء الاصطناعي. جرّب Ecomate مجاناً.",
+    images: ["/logo.png"],
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-  alternates: {
-    canonical: "https://sanadai.com",
   },
 };
 
@@ -92,7 +83,7 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "SoftwareApplication",
-              name: "سند AI",
+              name: "Ecomate AI",
               applicationCategory: "BusinessApplication",
               description:
                 "مساعد ذكي لخدمة عملاء المتاجر على سلة عبر واتساب والقنوات المتعددة",
@@ -105,14 +96,14 @@ export default function RootLayout({
               },
               publisher: {
                 "@type": "Organization",
-                name: "سند AI",
-                url: "https://sanadai.com",
+                name: "Ecomate AI",
+                url: "https://ecomate.ai",
               },
             }),
           }}
         />
       </head>
-      <body className="font-[family-name:var(--font-cairo)] antialiased bg-white text-slate-900 selection:bg-[#6B00FF]/15 selection:text-[#6B00FF]">
+      <body className="font-[family-name:var(--font-cairo)] antialiased bg-white text-slate-900 selection:bg-[#0052FF]/15 selection:text-[#0052FF]">
         {children}
       </body>
     </html>

@@ -15,6 +15,7 @@ import {
   CheckCheck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { getAppUrl } from "@/lib/config";
 
 // Simulation scenarios
@@ -116,13 +117,13 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative min-h-[92vh] flex items-center overflow-hidden pt-28 pb-20 hero-lavender-bg">
+    <section className="relative min-h-[92vh] flex items-center overflow-hidden pt-28 pb-20 hero-ecomate-bg">
       {/* Subtle Background Grid Pattern */}
-      <div className="absolute inset-0 bg-grid-light opacity-80 pointer-events-none" />
+      <div className="absolute inset-0 bg-grid-light opacity-75 pointer-events-none" />
 
-      {/* Ambient Lavender Lighting Orbs */}
-      <div className="absolute top-1/6 right-1/4 w-[550px] h-[550px] bg-[#DDD6FE]/40 rounded-full blur-[140px] pointer-events-none animate-pulse-glow" />
-      <div className="absolute bottom-1/4 left-1/4 w-[450px] h-[450px] bg-[#EDE9FE]/50 rounded-full blur-[120px] pointer-events-none" />
+      {/* Ambient Electric Blue Lighting Orbs */}
+      <div className="absolute top-1/6 right-1/4 w-[550px] h-[550px] bg-blue-200/40 rounded-full blur-[140px] pointer-events-none animate-pulse-glow" />
+      <div className="absolute bottom-1/4 left-1/4 w-[450px] h-[450px] bg-sky-200/40 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
@@ -134,14 +135,14 @@ export default function Hero() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="inline-flex items-center gap-2.5 bg-white border border-[#DDD6FE] text-[#6B00FF] px-4 py-2 rounded-full text-xs font-bold mb-6 shadow-sm shadow-purple-900/5"
+              className="inline-flex items-center gap-2.5 bg-white border border-blue-200 text-[#0052FF] px-4 py-2 rounded-full text-xs font-bold mb-6 shadow-sm"
             >
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0052FF]"></span>
               </span>
-              <span>سند v2.0 • مساعد الذكاء الاصطناعي لمتاجر سلة</span>
-              <Sparkles size={14} className="text-[#8B5CF6]" />
+              <span>Ecomate AI • المساعد الذكي لمتاجر سلة والتجارة الإلكترونية</span>
+              <Sparkles size={14} className="text-[#0052FF]" />
             </motion.div>
 
             {/* Main Headline */}
@@ -149,10 +150,10 @@ export default function Hero() {
               initial={{ opacity: 0, y: 25 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-[1.2] mb-6 tracking-tight"
+              className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-950 leading-[1.2] mb-6 tracking-tight"
             >
               ردّ على عملاء متجرك{" "}
-              <span className="lavender-gradient-text">
+              <span className="ecomate-gradient-text">
                 تلقائياً في ثوانٍ
               </span>
               {" "}وبلا توقف
@@ -165,7 +166,7 @@ export default function Hero() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-slate-600 text-base sm:text-lg leading-relaxed mb-8 max-w-2xl mx-auto lg:mr-0 font-medium"
             >
-              سند يتصل مباشرة بمتجرك على <strong className="text-slate-900 font-bold">سلة</strong> وشركات الشحن وواتساب. 
+              <strong className="text-slate-950 font-bold">Ecomate (إيكوميت)</strong> يتصل مباشرة بمتجرك على <strong className="text-slate-950 font-bold">سلة</strong> وشركات الشحن وواتساب. 
               يرد على الاستفسارات، يتتبع الطلبات، ويحول السلات المتروكة لمبيعات بدقة 100% وبدون أي هلوسة.
             </motion.p>
 
@@ -178,7 +179,7 @@ export default function Hero() {
             >
               <a
                 href={getAppUrl("/register")}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-[#6B00FF] to-[#7C3AED] hover:from-[#5800D9] hover:to-[#6D28D9] text-white px-8 py-4 rounded-xl text-base font-bold transition-all duration-300 shadow-md shadow-[#6B00FF]/25 hover:shadow-lg hover:shadow-[#6B00FF]/35 hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-[#0052FF] hover:bg-[#0040CC] text-white px-8 py-4 rounded-xl text-base font-bold transition-all duration-300 shadow-md shadow-[#0052FF]/20 hover:shadow-lg hover:shadow-[#0052FF]/30 hover:scale-[1.02] active:scale-[0.98]"
               >
                 <span>ابدأ تجربتك المجانية (14 يوم)</span>
                 <ArrowLeft size={18} />
@@ -186,7 +187,7 @@ export default function Hero() {
 
               <a
                 href="#features"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white hover:bg-[#F8F6FF] text-slate-800 border border-[#DDD6FE] hover:border-[#C4B5FD] px-7 py-4 rounded-xl text-base font-bold transition-all shadow-sm"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 hover:border-slate-300 px-7 py-4 rounded-xl text-base font-bold transition-all shadow-sm"
               >
                 <span>استكشف المميزات</span>
               </a>
@@ -218,22 +219,22 @@ export default function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.5 }}
-              className="grid grid-cols-3 gap-3 sm:gap-4 mt-10 pt-6 border-t border-[#EDE9FE]"
+              className="grid grid-cols-3 gap-3 sm:gap-4 mt-10 pt-6 border-t border-slate-200"
             >
-              <div className="bg-white border border-[#EDE9FE] rounded-2xl p-4 text-center shadow-sm">
-                <p className="text-2xl sm:text-3xl font-black text-slate-900">
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center shadow-sm">
+                <p className="text-2xl sm:text-3xl font-black text-slate-950">
                   <AnimatedCounter target={500} />
                 </p>
                 <p className="text-slate-500 text-xs mt-1 font-semibold">متجر سلة نشط</p>
               </div>
-              <div className="bg-white border border-[#EDE9FE] rounded-2xl p-4 text-center shadow-sm">
-                <p className="text-2xl sm:text-3xl font-black text-[#6B00FF]">
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center shadow-sm">
+                <p className="text-2xl sm:text-3xl font-black text-[#0052FF]">
                   +99.2%
                 </p>
                 <p className="text-slate-500 text-xs mt-1 font-semibold">دقة الردود الفورية</p>
               </div>
-              <div className="bg-white border border-[#EDE9FE] rounded-2xl p-4 text-center shadow-sm">
-                <p className="text-2xl sm:text-3xl font-black text-[#7C3AED]">
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center shadow-sm">
+                <p className="text-2xl sm:text-3xl font-black text-[#2563EB]">
                   &lt;1.2 ثانية
                 </p>
                 <p className="text-slate-500 text-xs mt-1 font-semibold">متوسط زمن الاستجابة</p>
@@ -248,7 +249,7 @@ export default function Hero() {
             <div className="w-full max-w-sm mb-3">
               <div className="text-xs font-bold text-slate-600 mb-2 flex items-center justify-between">
                 <span>جرّب المحاكي المباشر بنفسك:</span>
-                <span className="text-[#6B00FF] text-[11px] font-extrabold">اضغط لتغيير السؤال 👇</span>
+                <span className="text-[#0052FF] text-[11px] font-extrabold">اضغط لتغيير السؤال 👇</span>
               </div>
               <div className="grid grid-cols-2 gap-1.5">
                 {scenarios.map((sc) => {
@@ -259,11 +260,11 @@ export default function Hero() {
                       onClick={() => handleScenarioChange(sc)}
                       className={`text-xs py-2 px-2.5 rounded-xl font-bold transition-all text-right flex items-center gap-1.5 border ${
                         isCurrent
-                          ? "bg-[#EDE9FE] border-[#A78BFA] text-[#6B00FF] shadow-sm"
-                          : "bg-white border-[#EDE9FE] text-slate-700 hover:bg-[#F8F6FF] hover:border-[#DDD6FE]"
+                          ? "bg-blue-50 border-blue-300 text-[#0052FF] shadow-sm"
+                          : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300"
                       }`}
                     >
-                      <sc.icon size={13} className={isCurrent ? "text-[#6B00FF]" : "text-slate-400"} />
+                      <sc.icon size={13} className={isCurrent ? "text-[#0052FF]" : "text-slate-400"} />
                       <span className="truncate">{sc.title}</span>
                     </button>
                   );
@@ -271,8 +272,8 @@ export default function Hero() {
               </div>
             </div>
 
-            {/* Smartphone Device Frame (Crisp White/Lavender Frame) */}
-            <div className="relative w-full max-w-[340px] sm:max-w-[360px] rounded-[2.5rem] bg-slate-900 border-4 border-slate-800 shadow-2xl shadow-purple-900/10 p-2.5">
+            {/* Smartphone Device Frame */}
+            <div className="relative w-full max-w-[340px] sm:max-w-[360px] rounded-[2.5rem] bg-slate-900 border-4 border-slate-800 shadow-2xl shadow-blue-900/15 p-2.5">
               
               {/* Dynamic Island / Notch */}
               <div className="w-28 h-4 bg-black rounded-full mx-auto mb-2 flex items-center justify-center">
@@ -280,15 +281,15 @@ export default function Hero() {
                 <div className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse"></div>
               </div>
 
-              {/* WhatsApp Header */}
+              {/* WhatsApp Header with Ecomate Logo */}
               <div className="bg-[#075E54] rounded-t-2xl px-3.5 py-2.5 flex items-center justify-between text-white">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-[#075E54] font-black text-sm shadow-sm">
-                    س
+                  <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center p-0.5 shadow-sm overflow-hidden relative">
+                    <Image src="/logo.png" alt="Ecomate" fill className="object-contain p-0.5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-1">
-                      <span className="text-white text-xs font-bold">سند AI للمتاجر</span>
+                      <span className="text-white text-xs font-bold">Ecomate AI</span>
                       <CheckCircle2 size={12} className="text-emerald-300" />
                     </div>
                     <span className="text-[10px] text-emerald-200 flex items-center gap-1 font-medium">
@@ -361,7 +362,7 @@ export default function Hero() {
                         )}
 
                         <div className="flex items-center justify-between text-[9px] text-slate-500 mt-1.5 font-medium">
-                          <span>سند الذكي • موثق بسلة</span>
+                          <span>Ecomate AI • موثق بسلة</span>
                           <span className="flex items-center gap-0.5 text-blue-500 font-bold">
                             11:42 ص <CheckCheck size={12} />
                           </span>

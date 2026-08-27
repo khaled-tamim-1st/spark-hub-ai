@@ -13,16 +13,16 @@ export default function RoiCalculator() {
   const hoursSaved = Math.round((conversations * 4) / 60);
 
   return (
-    <section id="roi-calculator" className="py-24 bg-[#FAFAFE] border-y border-[#EDE9FE] relative overflow-hidden">
+    <section id="roi-calculator" className="py-24 bg-slate-50/70 border-y border-slate-200 relative overflow-hidden">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 bg-[#EDE9FE] border border-[#DDD6FE] text-[#6B00FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#0052FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
             <Calculator size={14} />
             <span>حاسبة العائد على الاستثمار (ROI)</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-4">
-            احسب كم ستوفر شهرياً مع سند
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-950 mb-4">
+            احسب كم ستوفر شهرياً مع Ecomate
           </h2>
           <p className="text-slate-600 text-sm sm:text-base font-medium">
             حرّك المؤشر وحدد عدد المحادثات أو الطلبات التي يستقبلها متجرك شهرياً لرؤية التوفير الفوري.
@@ -30,7 +30,7 @@ export default function RoiCalculator() {
         </div>
 
         {/* Interactive Box */}
-        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-[#EDE9FE] shadow-xl shadow-purple-900/5">
+        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xl shadow-blue-900/5">
           
           {/* Slider Control */}
           <div className="mb-10">
@@ -38,7 +38,7 @@ export default function RoiCalculator() {
               <label htmlFor="conv-slider" className="text-sm sm:text-base font-bold text-slate-900">
                 عدد المحادثات الشهرية المقدرة لمتجرك:
               </label>
-              <div className="bg-[#EDE9FE] border border-[#C4B5FD] text-[#6B00FF] font-black text-lg sm:text-xl px-4 py-1.5 rounded-2xl shadow-sm">
+              <div className="bg-blue-50 border border-blue-200 text-[#0052FF] font-black text-lg sm:text-xl px-4 py-1.5 rounded-2xl shadow-sm">
                 {conversations.toLocaleString("ar-SA")} محادثة
               </div>
             </div>
@@ -51,7 +51,7 @@ export default function RoiCalculator() {
               step="100"
               value={conversations}
               onChange={(e) => setConversations(Number(e.target.value))}
-              className="w-full h-3 bg-[#EDE9FE] rounded-lg appearance-none cursor-pointer accent-[#6B00FF]"
+              className="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0052FF]"
             />
             
             <div className="flex justify-between text-xs text-slate-500 font-semibold mt-2">
@@ -65,7 +65,7 @@ export default function RoiCalculator() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             
             {/* Money Saved */}
-            <div className="bg-[#F8F6FF] border border-[#EDE9FE] rounded-2xl p-5 text-center">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center">
               <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto mb-3">
                 <DollarSign size={20} />
               </div>
@@ -77,19 +77,19 @@ export default function RoiCalculator() {
             </div>
 
             {/* Hours Saved */}
-            <div className="bg-[#F8F6FF] border border-[#EDE9FE] rounded-2xl p-5 text-center">
-              <div className="w-10 h-10 rounded-xl bg-[#EDE9FE] text-[#6B00FF] flex items-center justify-center mx-auto mb-3">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0052FF] flex items-center justify-center mx-auto mb-3">
                 <Clock size={20} />
               </div>
               <span className="text-slate-500 text-xs block mb-1 font-semibold">ساعات عمل موفرة</span>
               <span className="text-2xl sm:text-3xl font-black text-slate-900">
                 {hoursSaved.toLocaleString("ar-SA")} ساعة
               </span>
-              <span className="text-[11px] text-[#6B00FF] block mt-1 font-bold">تتفرغ فيها للتسويق والنمو</span>
+              <span className="text-[11px] text-[#0052FF] block mt-1 font-bold">تتفرغ فيها للتسويق والنمو</span>
             </div>
 
             {/* Speed & Resolution */}
-            <div className="bg-[#F8F6FF] border border-[#EDE9FE] rounded-2xl p-5 text-center">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center">
               <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-3">
                 <TrendingUp size={20} />
               </div>
@@ -105,7 +105,7 @@ export default function RoiCalculator() {
           {/* CTA Box */}
           <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-center sm:text-right">
-              <p className="text-slate-900 font-bold text-sm">
+              <p className="text-slate-950 font-bold text-sm">
                 ابدأ بتوفير وقتك وفلوسك من اليوم — تجربة مجانية 14 يوم
               </p>
               <p className="text-slate-500 text-xs mt-0.5 font-medium">
@@ -115,9 +115,9 @@ export default function RoiCalculator() {
 
             <a
               href={getAppUrl("/register")}
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-[#6B00FF] to-[#7C3AED] hover:from-[#5800D9] hover:to-[#6D28D9] text-white px-7 py-3 rounded-xl text-sm font-bold shadow-md shadow-[#6B00FF]/20 transition-all hover:scale-105"
+              className="inline-flex items-center gap-2 bg-[#0052FF] hover:bg-[#0040CC] text-white px-7 py-3 rounded-xl text-sm font-bold shadow-md shadow-[#0052FF]/20 transition-all hover:scale-105"
             >
-              <span>جرّب سند مجاناً الآن</span>
+              <span>جرّب Ecomate مجاناً الآن</span>
               <ArrowLeft size={16} />
             </a>
           </div>

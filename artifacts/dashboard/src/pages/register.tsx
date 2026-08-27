@@ -17,9 +17,9 @@ export default function Register() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4 font-sans">
       <div className="w-full max-w-md text-center">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl overflow-hidden mb-4 shadow-lg border border-primary/20 sanad-glow">
-          <img src="/logo.png" alt="سند" className="w-full h-full object-cover" />
+          <img src="/logo.png" alt="Ecomate" className="w-full h-full object-contain p-1" />
         </div>
-        <h1 className="text-3xl font-extrabold mb-2 sanad-gradient-text">سند</h1>
+        <h1 className="text-3xl font-black mb-2">Ecomate</h1>
         <p className="text-muted-foreground mb-8 text-sm font-medium">المساعد الذكي لمتجرك على سلة</p>
 
         <div className="bg-card border border-card-border rounded-2xl p-8 shadow-sm space-y-4 text-right">

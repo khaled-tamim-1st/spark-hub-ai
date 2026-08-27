@@ -30,7 +30,7 @@ export default function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "py-3 bg-white/90 backdrop-blur-xl border-b border-[#EDE9FE] shadow-sm shadow-purple-900/5"
+          ? "py-3 bg-white/95 backdrop-blur-xl border-b border-slate-200/80 shadow-sm shadow-blue-900/5"
           : "py-5 bg-transparent"
       }`}
     >
@@ -38,19 +38,20 @@ export default function Navbar() {
         <div className="flex items-center justify-between">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 relative flex-shrink-0 rounded-xl bg-gradient-to-br from-[#EDE9FE] to-[#F5F3FF] p-1.5 border border-[#DDD6FE] group-hover:border-[#C4B5FD] transition-all duration-300 shadow-sm shadow-[#6B00FF]/5">
+            <div className="w-10 h-10 relative flex-shrink-0 rounded-xl bg-white p-1 border border-slate-200 group-hover:border-[#0052FF]/50 transition-all duration-300 shadow-sm">
               <Image
                 src="/logo.png"
-                alt="شعار سند"
+                alt="Ecomate Logo"
                 fill
-                className="object-contain p-1"
+                className="object-contain p-0.5"
                 priority
               />
             </div>
             <div className="flex flex-col">
-              <span className="text-slate-900 font-extrabold text-xl tracking-tight flex items-center gap-1.5">
-                سند
-                <span className="text-[10px] uppercase font-bold tracking-wider text-[#6B00FF] bg-[#EDE9FE] px-1.5 py-0.5 rounded-md border border-[#DDD6FE]">
+              <span className="text-slate-950 font-black text-xl tracking-tight flex items-center gap-1.5 font-sans">
+                <span>ECOM</span>
+                <span className="text-[#0052FF]">ATE</span>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-[#0052FF] bg-blue-50 px-1.5 py-0.5 rounded-md border border-blue-200">
                   AI
                 </span>
               </span>
@@ -61,12 +62,12 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-1 bg-white/90 border border-[#EDE9FE] px-3.5 py-1.5 rounded-full shadow-sm">
+          <div className="hidden lg:flex items-center gap-1 bg-white/90 border border-slate-200 px-3.5 py-1.5 rounded-full shadow-sm">
             {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
-                className="text-slate-600 hover:text-[#6B00FF] px-3.5 py-1.5 rounded-full text-xs font-bold transition-all hover:bg-[#F5F3FF]"
+                className="text-slate-600 hover:text-[#0052FF] px-3.5 py-1.5 rounded-full text-xs font-bold transition-all hover:bg-blue-50"
               >
                 {link.label}
               </a>
@@ -77,13 +78,13 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             <a
               href={getAppUrl("/login")}
-              className="text-slate-700 hover:text-[#6B00FF] text-xs font-bold px-4 py-2.5 rounded-xl transition-colors hover:bg-[#F5F3FF]"
+              className="text-slate-700 hover:text-[#0052FF] text-xs font-bold px-4 py-2.5 rounded-xl transition-colors hover:bg-slate-100"
             >
               تسجيل الدخول
             </a>
             <a
               href={getAppUrl("/register")}
-              className="relative group overflow-hidden bg-gradient-to-r from-[#6B00FF] to-[#7C3AED] hover:from-[#5800D9] hover:to-[#6D28D9] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 hover:shadow-md hover:shadow-[#6B00FF]/25 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
+              className="relative group overflow-hidden bg-[#0052FF] hover:bg-[#0040CC] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 shadow-md shadow-[#0052FF]/20 hover:shadow-lg hover:shadow-[#0052FF]/30 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
             >
               <span>جرّب مجاناً 14 يوم</span>
               <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
@@ -93,7 +94,7 @@ export default function Navbar() {
           {/* Mobile hamburger button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden text-slate-700 p-2.5 rounded-xl bg-white border border-[#EDE9FE] hover:bg-[#F5F3FF] transition-colors"
+            className="lg:hidden text-slate-700 p-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 transition-colors"
             aria-label={isOpen ? "إغلاق القائمة" : "فتح القائمة"}
           >
             {isOpen ? <X size={20} /> : <Menu size={20} />}
@@ -102,14 +103,14 @@ export default function Navbar() {
 
         {/* Mobile Menu Dropdown */}
         {isOpen && (
-          <div className="lg:hidden mt-4 bg-white/95 border border-[#EDE9FE] rounded-2xl p-5 shadow-xl backdrop-blur-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="lg:hidden mt-4 bg-white/95 border border-slate-200 rounded-2xl p-5 shadow-xl backdrop-blur-2xl animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="flex flex-col space-y-1 pb-4">
               {navLinks.map((link) => (
                 <a
                   key={link.label}
                   href={link.href}
                   onClick={() => setIsOpen(false)}
-                  className="text-slate-700 hover:text-[#6B00FF] px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors hover:bg-[#F5F3FF] flex items-center justify-between"
+                  className="text-slate-700 hover:text-[#0052FF] px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors hover:bg-blue-50 flex items-center justify-between"
                 >
                   <span>{link.label}</span>
                   <span className="text-slate-400 text-xs">←</span>
@@ -119,13 +120,13 @@ export default function Navbar() {
             <div className="pt-4 border-t border-slate-100 flex flex-col gap-2.5">
               <a
                 href={getAppUrl("/login")}
-                className="w-full text-center text-slate-700 hover:text-[#6B00FF] py-2.5 text-sm font-bold rounded-xl bg-[#F5F3FF] hover:bg-[#EDE9FE] transition-colors"
+                className="w-full text-center text-slate-700 hover:text-[#0052FF] py-2.5 text-sm font-bold rounded-xl bg-slate-100 hover:bg-slate-200 transition-colors"
               >
                 تسجيل الدخول إلى لوحة التحكم
               </a>
               <a
                 href={getAppUrl("/register")}
-                className="w-full text-center bg-gradient-to-r from-[#6B00FF] to-[#7C3AED] text-white py-3 rounded-xl text-sm font-bold shadow-md shadow-[#6B00FF]/25 transition-transform active:scale-[0.98] flex items-center justify-center gap-2"
+                className="w-full text-center bg-[#0052FF] text-white py-3 rounded-xl text-sm font-bold shadow-md shadow-[#0052FF]/25 transition-transform active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 <Sparkles size={16} />
                 <span>ابدأ تجربتك المجانية (14 يوم)</span>
