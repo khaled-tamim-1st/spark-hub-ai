@@ -15,8 +15,10 @@ import {
   Clock,
   ShoppingCart,
   Users,
+  Send,
+  Bot,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { getAppUrl } from "@/lib/config";
 
@@ -75,21 +77,153 @@ const scenarios = [
   },
 ];
 
+interface ChatMessage {
+  id: string;
+  sender: "customer" | "ai";
+  text: string;
+  time: string;
+  extra?: any;
+}
+
 export default function AssistantHero() {
   const [activeScenario, setActiveScenario] = useState(scenarios[0]);
   const [isTyping, setIsTyping] = useState(false);
-  const [displayedReply, setDisplayedReply] = useState(scenarios[0].aiReply);
+  const [customInput, setCustomInput] = useState("");
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      id: "1",
+      sender: "customer",
+      text: scenarios[0].customerMsg,
+      time: "11:42 ص",
+    },
+    {
+      id: "2",
+      sender: "ai",
+      text: scenarios[0].aiReply,
+      time: "11:42 ص",
+      extra: scenarios[0].extraData,
+    },
+  ]);
+
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [messages, isTyping]);
 
   const handleScenarioChange = (scenario: typeof scenarios[0]) => {
     if (scenario.id === activeScenario.id) return;
     setActiveScenario(scenario);
     setIsTyping(true);
-    setDisplayedReply("");
+
+    const now = new Date().toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Math.random().toString(),
+        sender: "customer",
+        text: scenario.customerMsg,
+        time: now,
+      },
+    ]);
 
     setTimeout(() => {
       setIsTyping(false);
-      setDisplayedReply(scenario.aiReply);
-    }, 450);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Math.random().toString(),
+          sender: "ai",
+          text: scenario.aiReply,
+          time: now,
+          extra: scenario.extraData,
+        },
+      ]);
+    }, 600);
+  };
+
+  // Live Chat handler: connects to backend API or intelligent fallback
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = customInput.trim();
+    if (!text || isTyping) return;
+
+    const now = new Date().toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Math.random().toString(),
+        sender: "customer",
+        text: text,
+        time: now,
+      },
+    ]);
+
+    setCustomInput("");
+    setIsTyping(true);
+
+    try {
+      // 1. Try real live API endpoint
+      const res = await fetch("/api/widget/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversationId: 1,
+          content: text,
+          visitorName: "زائر تجريبي",
+        }),
+      }).catch(() => null);
+
+      if (res && res.ok) {
+        const data = await res.json();
+        if (data.aiMessage?.content) {
+          setIsTyping(false);
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: Math.random().toString(),
+              sender: "ai",
+              text: data.aiMessage.content,
+              time: now,
+            },
+          ]);
+          return;
+        }
+      }
+    } catch {
+      // Silent fallback
+    }
+
+    // 2. Intelligent local AI simulation when offline
+    setTimeout(() => {
+      setIsTyping(false);
+      let reply = "أهلاً بك! يسرني مساعدتك. استفسارك بخصوص المنتجات والشحن مسجل وسأوافيك بالتفاصيل فوراً.";
+      
+      const lower = text.toLowerCase();
+      if (lower.includes("شحن") || lower.includes("توصيل") || lower.includes("متى")) {
+        reply = "نوفر شحن سريع لجميع مناطق المملكة عبر سمسا وأرامكس خلال 24-48 ساعة، مع إمكانية التتبع المباشر للشحنة.";
+      } else if (lower.includes("تابي") || lower.includes("تمارا") || lower.includes("تقسيط") || lower.includes("دفع")) {
+        reply = "نعم بكل تأكيد! نوفر الدفع عبر تابي وتمارا مقسمة على 4 دفعات بدون أي فوائد، بالإضافة إلى مدى و Apple Pay.";
+      } else if (lower.includes("خصم") || lower.includes("كود") || lower.includes("سعر")) {
+        reply = "يسعدنا خدمتك! يمكنك استخدام كود الخصم (WELCOME10) للحصول على خصم 10% عند إتمام طلبك اليوم.";
+      } else if (lower.includes("استرجاع") || lower.includes("استبدال") || lower.includes("ارجاع")) {
+        reply = "سياستنا تتيح الاستبدال والاسترجاع مجاناً خلال 7 أيام من استلام الطلب مع خدمة الاستلام من الباب.";
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Math.random().toString(),
+          sender: "ai",
+          text: reply,
+          time: now,
+        },
+      ]);
+    }, 700);
   };
 
   return (
@@ -234,8 +368,8 @@ export default function AssistantHero() {
             {/* Interactive Scenario Buttons */}
             <div className="w-full max-w-sm mb-3">
               <div className="text-xs font-bold text-slate-600 mb-2 flex items-center justify-between">
-                <span>جرّب محاكي ECOMATE المباشر:</span>
-                <span className="text-[#3B4FE8] text-[11px] font-extrabold">اضغط للتجربة 👇</span>
+                <span>جرّب شات ECOMATE الحي:</span>
+                <span className="text-[#3B4FE8] text-[11px] font-extrabold">اختر سيناريو أو اكتب استفسارك 👇</span>
               </div>
               <div className="grid grid-cols-2 gap-1.5">
                 {scenarios.map((sc) => {
@@ -279,7 +413,7 @@ export default function AssistantHero() {
                       <CheckCircle2 size={12} className="text-emerald-300" />
                     </div>
                     <span className="text-[10px] text-emerald-200 flex items-center gap-1 font-medium">
-                      متصل الآن • رد فوري
+                      متصل الآن • رد فوري بالـ AI
                     </span>
                   </div>
                 </div>
@@ -289,94 +423,101 @@ export default function AssistantHero() {
               </div>
 
               {/* Chat Window */}
-              <div className="bg-[#ECE5DD] rounded-b-2xl p-3.5 min-h-[340px] max-h-[380px] overflow-y-auto space-y-3.5 text-xs flex flex-col justify-end">
-                
-                {/* Customer Message */}
-                <div className="flex justify-start">
-                  <div className="bg-white text-slate-800 rounded-2xl rounded-br-none px-3.5 py-2.5 max-w-[85%] shadow-sm border border-black/5">
-                    <p className="font-medium">{activeScenario.customerMsg}</p>
-                    <span className="text-[9px] text-slate-400 block text-left mt-1">11:42 ص</span>
-                  </div>
-                </div>
+              <div 
+                ref={chatContainerRef}
+                className="bg-[#ECE5DD] p-3.5 min-h-[300px] max-h-[340px] overflow-y-auto space-y-3 text-xs flex flex-col"
+              >
+                {messages.map((m) => (
+                  <div key={m.id} className={`flex ${m.sender === "customer" ? "justify-start" : "justify-end"}`}>
+                    <div className={`${
+                      m.sender === "customer" 
+                        ? "bg-white text-slate-800 rounded-2xl rounded-br-none border border-black/5" 
+                        : "bg-[#E7FFDB] text-slate-900 rounded-2xl rounded-bl-none border border-emerald-200"
+                    } px-3.5 py-2.5 max-w-[88%] shadow-sm`}>
+                      <p className="leading-relaxed font-medium">{m.text}</p>
+                      
+                      {/* Scenario Extra Cards */}
+                      {m.extra?.type === "cart-recovery" && (
+                        <div className="mt-2 bg-white border border-emerald-300 rounded-xl p-2 text-[10.5px] space-y-1 shadow-xs">
+                          <div className="flex justify-between text-slate-600">
+                            <span>قيمة السلة:</span>
+                            <strong className="text-slate-900">{m.extra.cartValue}</strong>
+                          </div>
+                          <div className="flex justify-between text-slate-600">
+                            <span>العرض:</span>
+                            <span className="text-[#3B4FE8] font-bold">{m.extra.discount}</span>
+                          </div>
+                          <div className="text-emerald-700 font-bold text-[9.5px] pt-1 border-t border-slate-100">
+                            {m.extra.status}
+                          </div>
+                        </div>
+                      )}
 
-                {/* AI Reply */}
-                <div className="flex justify-end">
-                  <div className="bg-[#E7FFDB] text-slate-900 rounded-2xl rounded-bl-none px-3.5 py-2.5 max-w-[90%] shadow-sm border border-emerald-200">
-                    {isTyping ? (
-                      <div className="flex items-center gap-1 py-1 px-2">
+                      {m.extra?.type === "order-card" && (
+                        <div className="mt-2 bg-white border border-emerald-300 rounded-xl p-2 text-[10.5px] space-y-1 shadow-xs">
+                          <div className="flex justify-between text-slate-600">
+                            <span>شركة الشحن:</span>
+                            <strong className="text-slate-900">{m.extra.carrier}</strong>
+                          </div>
+                          <div className="flex justify-between text-slate-600">
+                            <span>حالة الشحنة:</span>
+                            <span className="text-emerald-700 font-bold">{m.extra.status}</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {m.extra?.type === "payment-badges" && Array.isArray(m.extra.methods) && (
+                        <div className="mt-1.5 flex flex-wrap gap-1">
+                          {m.extra.methods.map((method: string) => (
+                            <span key={method} className="bg-emerald-100 text-emerald-900 text-[9.5px] px-1.5 py-0.5 rounded font-bold">
+                              {method}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between text-[8.5px] text-slate-400 mt-1 font-medium">
+                        <span>{m.sender === "ai" ? "ECOMATE AI" : "أنت"}</span>
+                        <span className="flex items-center gap-0.5 text-blue-500 font-bold">
+                          {m.time} <CheckCheck size={11} />
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {isTyping && (
+                  <div className="flex justify-end">
+                    <div className="bg-[#E7FFDB] text-slate-900 rounded-2xl rounded-bl-none px-3.5 py-2 shadow-sm border border-emerald-200">
+                      <div className="flex items-center gap-1">
                         <span className="w-1.5 h-1.5 bg-[#075E54] rounded-full animate-bounce"></span>
                         <span className="w-1.5 h-1.5 bg-[#075E54] rounded-full animate-bounce [animation-delay:0.2s]"></span>
                         <span className="w-1.5 h-1.5 bg-[#075E54] rounded-full animate-bounce [animation-delay:0.4s]"></span>
                       </div>
-                    ) : (
-                      <>
-                        <p className="leading-relaxed font-medium">{displayedReply}</p>
-                        
-                        {/* Scenario Extra Cards */}
-                        {activeScenario.extraData?.type === "cart-recovery" && (
-                          <div className="mt-2.5 bg-white border border-emerald-300 rounded-xl p-2.5 text-[11px] space-y-1 shadow-sm">
-                            <div className="flex justify-between text-slate-600">
-                              <span>قيمة السلة:</span>
-                              <strong className="text-slate-900">{activeScenario.extraData.cartValue}</strong>
-                            </div>
-                            <div className="flex justify-between text-slate-600">
-                              <span>العرض:</span>
-                              <span className="text-[#3B4FE8] font-bold">{activeScenario.extraData.discount}</span>
-                            </div>
-                            <div className="text-emerald-700 font-bold text-[10px] pt-1 border-t border-slate-100">
-                              {activeScenario.extraData.status}
-                            </div>
-                          </div>
-                        )}
-
-                        {activeScenario.extraData?.type === "order-card" && "carrier" in activeScenario.extraData && (
-                          <div className="mt-2.5 bg-white border border-emerald-300 rounded-xl p-2.5 text-[11px] space-y-1 shadow-sm">
-                            <div className="flex justify-between text-slate-600">
-                              <span>شركة الشحن:</span>
-                              <strong className="text-slate-900">{activeScenario.extraData.carrier}</strong>
-                            </div>
-                            <div className="flex justify-between text-slate-600">
-                              <span>حالة الشحنة:</span>
-                              <span className="text-emerald-700 font-bold">{activeScenario.extraData.status}</span>
-                            </div>
-                            <div className="flex justify-between text-slate-600">
-                              <span>الموعد المتوقع:</span>
-                              <strong className="text-slate-900">{activeScenario.extraData.eta}</strong>
-                            </div>
-                          </div>
-                        )}
-
-                        {activeScenario.extraData?.type === "payment-badges" && "methods" in activeScenario.extraData && Array.isArray(activeScenario.extraData.methods) && (
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {activeScenario.extraData.methods.map((m: string) => (
-                              <span key={m} className="bg-emerald-100 text-emerald-900 text-[10px] px-2 py-0.5 rounded font-bold">
-                                {m}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-
-                        <div className="flex items-center justify-between text-[9px] text-slate-500 mt-1.5 font-medium">
-                          <span>ECOMATE • موثق</span>
-                          <span className="flex items-center gap-0.5 text-blue-500 font-bold">
-                            11:42 ص <CheckCheck size={12} />
-                          </span>
-                        </div>
-                      </>
-                    )}
+                    </div>
                   </div>
-                </div>
-
-                {/* Quick Action Suggestion Bar */}
-                <div className="pt-2 border-t border-black/5 flex gap-1.5">
-                  <span className="text-[10px] bg-white text-slate-700 font-bold px-2 py-1 rounded-full flex-1 text-center truncate shadow-sm">
-                    👍 استكمال الطلب فوراً
-                  </span>
-                  <span className="text-[10px] bg-white text-slate-700 font-bold px-2 py-1 rounded-full flex-1 text-center truncate shadow-sm">
-                    📞 تحويل للموظف
-                  </span>
-                </div>
+                )}
               </div>
+
+              {/* Interactive WhatsApp Typing Input Bar */}
+              <form onSubmit={handleSendMessage} className="bg-[#F0F2F5] rounded-b-2xl p-2 flex items-center gap-1.5 border-t border-slate-200">
+                <input
+                  type="text"
+                  value={customInput}
+                  onChange={(e) => setCustomInput(e.target.value)}
+                  placeholder="جرّب كتابة أي سؤال..."
+                  className="flex-1 bg-white rounded-xl px-3 py-2 text-xs text-slate-800 placeholder-slate-400 outline-none border border-slate-200 focus:border-[#075E54] font-medium"
+                />
+                <button
+                  type="submit"
+                  disabled={!customInput.trim() || isTyping}
+                  className="w-8 h-8 rounded-xl bg-[#075E54] hover:bg-[#064E46] text-white flex items-center justify-center transition-all disabled:opacity-40 shrink-0"
+                  aria-label="إرسال"
+                >
+                  <Send size={13} className="rotate-180" />
+                </button>
+              </form>
+
             </div>
 
           </div>

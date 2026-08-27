@@ -69,6 +69,8 @@ export const metadata: Metadata = {
   },
 };
 
+import Script from "next/script";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -105,6 +107,16 @@ export default function RootLayout({
       </head>
       <body className="font-[family-name:var(--font-cairo)] antialiased bg-white text-slate-900 selection:bg-[#0052FF]/15 selection:text-[#0052FF]">
         {children}
+        {/* Live ECOMATE Web Chat Widget */}
+        <Script
+          src="/widget.js"
+          strategy="lazyOnload"
+          data-channel="1"
+          data-color="#3B4FE8"
+          data-title="مساعد ECOMATE الذكي"
+          data-welcome="أهلاً بك في ECOMATE 👋 كيف نقدر نساعدك اليوم في تشغيل متجرك أو شركتك؟"
+          data-position="left"
+        />
       </body>
     </html>
   );
