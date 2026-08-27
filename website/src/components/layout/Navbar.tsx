@@ -3,17 +3,17 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, ArrowLeft, Sparkles } from "lucide-react";
+import { Menu, X, ArrowLeft, Sparkles, MessageSquare } from "lucide-react";
 import { getAppUrl } from "@/lib/config";
 
 const navLinks = [
   { label: "الرئيسية", href: "/" },
-  { label: "المميزات", href: "#features" },
-  { label: "حاسبة التوفير", href: "#roi-calculator" },
-  { label: "كيف يعمل", href: "#how-it-works" },
-  { label: "التكاملات", href: "#integrations" },
-  { label: "الأسعار", href: "#pricing" },
-  { label: "الأسئلة الشائعة", href: "#faq" },
+  { label: "حلول الأعمال", href: "#solutions" },
+  { label: "منتجاتنا الرقمية", href: "#products" },
+  { label: "لمن نقدم حلولنا؟", href: "#audience" },
+  { label: "لماذا ECOMATE؟", href: "#why-us" },
+  { label: "كيف نعمل؟", href: "#how-we-work" },
+  { label: "المعرفة", href: "#knowledge" },
 ];
 
 export default function Navbar() {
@@ -36,6 +36,7 @@ export default function Navbar() {
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
+          
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 relative flex-shrink-0 rounded-xl bg-white p-1 border border-slate-200 group-hover:border-[#3B4FE8]/50 transition-all duration-300 shadow-sm">
@@ -51,19 +52,19 @@ export default function Navbar() {
               <span className="text-slate-950 font-black text-xl tracking-tight font-sans flex items-center justify-end" dir="ltr">
                 <span>ECOM</span><span className="text-[#3B4FE8]">ATE</span>
               </span>
-              <span className="text-[10px] text-slate-500 font-medium -mt-0.5">
-                المساعد الذكي لمتاجر سلة وزد
+              <span className="text-[10px] text-slate-500 font-bold -mt-0.5">
+                Business Solutions & Digital Products
               </span>
             </div>
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-1 bg-white/90 border border-slate-200 px-3.5 py-1.5 rounded-full shadow-sm">
+          <div className="hidden xl:flex items-center gap-1 bg-white/90 border border-slate-200 px-3.5 py-1.5 rounded-full shadow-sm">
             {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
-                className="text-slate-600 hover:text-[#3B4FE8] px-3.5 py-1.5 rounded-full text-xs font-bold transition-all hover:bg-blue-50"
+                className="text-slate-600 hover:text-[#3B4FE8] px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:bg-blue-50"
               >
                 {link.label}
               </a>
@@ -73,16 +74,18 @@ export default function Navbar() {
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-3">
             <a
-              href={getAppUrl("/login")}
-              className="text-slate-700 hover:text-[#3B4FE8] text-xs font-bold px-4 py-2.5 rounded-xl transition-colors hover:bg-slate-100"
+              href="mailto:hello@ecomate.ai?subject=استشارة وحلول أعمال"
+              className="text-slate-700 hover:text-[#3B4FE8] text-xs font-bold px-4 py-2.5 rounded-xl transition-colors hover:bg-slate-100 flex items-center gap-1.5"
             >
-              تسجيل الدخول
+              <MessageSquare size={14} className="text-[#3B4FE8]" />
+              <span>تحدث معنا</span>
             </a>
+
             <a
-              href={getAppUrl("/register")}
-              className="relative group overflow-hidden bg-[#3B4FE8] hover:bg-[#0040CC] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 shadow-md shadow-[#3B4FE8]/20 hover:shadow-lg hover:shadow-[#3B4FE8]/30 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
+              href="#products"
+              className="relative group overflow-hidden bg-[#3B4FE8] hover:bg-[#2D3ED0] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 shadow-md shadow-[#3B4FE8]/20 hover:shadow-lg hover:shadow-[#3B4FE8]/30 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
             >
-              <span>جرّب مجاناً 30 يوم</span>
+              <span>استكشف حلولنا</span>
               <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
             </a>
           </div>
@@ -90,7 +93,7 @@ export default function Navbar() {
           {/* Mobile hamburger button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden text-slate-700 p-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 transition-colors"
+            className="xl:hidden text-slate-700 p-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 transition-colors"
             aria-label={isOpen ? "إغلاق القائمة" : "فتح القائمة"}
           >
             {isOpen ? <X size={20} /> : <Menu size={20} />}
@@ -99,7 +102,7 @@ export default function Navbar() {
 
         {/* Mobile Menu Dropdown */}
         {isOpen && (
-          <div className="lg:hidden mt-4 bg-white/95 border border-slate-200 rounded-2xl p-5 shadow-xl backdrop-blur-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="xl:hidden mt-4 bg-white/95 border border-slate-200 rounded-2xl p-5 shadow-xl backdrop-blur-2xl animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="flex flex-col space-y-1 pb-4">
               {navLinks.map((link) => (
                 <a
@@ -115,17 +118,18 @@ export default function Navbar() {
             </div>
             <div className="pt-4 border-t border-slate-100 flex flex-col gap-2.5">
               <a
-                href={getAppUrl("/login")}
+                href="mailto:hello@ecomate.ai"
                 className="w-full text-center text-slate-700 hover:text-[#3B4FE8] py-2.5 text-sm font-bold rounded-xl bg-slate-100 hover:bg-slate-200 transition-colors"
               >
-                تسجيل الدخول إلى لوحة التحكم
+                تحدث مع فريق ECOMATE
               </a>
               <a
-                href={getAppUrl("/register")}
+                href="#products"
+                onClick={() => setIsOpen(false)}
                 className="w-full text-center bg-[#3B4FE8] text-white py-3 rounded-xl text-sm font-bold shadow-md shadow-[#3B4FE8]/25 transition-transform active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 <Sparkles size={16} />
-                <span>ابدأ تجربتك المجانية (30 يوم)</span>
+                <span>استكشف حلولنا الرقمية</span>
               </a>
             </div>
           </div>

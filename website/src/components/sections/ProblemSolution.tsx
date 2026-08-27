@@ -1,42 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MessageSquareText, ShoppingCart, Database, Zap, HelpCircle, ArrowLeft } from "lucide-react";
-import { getAppUrl } from "@/lib/config";
+import { HelpCircle, CheckCircle2, ArrowLeft, TrendingUp, AlertCircle, ShieldAlert } from "lucide-react";
 
-const pillars = [
-  {
-    icon: MessageSquareText,
-    title: "رد تلقائي",
-    desc: "خل عملاءك يحصلون على إجابات سريعة حتى خارج أوقات العمل.",
-    badge: "24/7 بدون انقطاع",
-    color: "from-[#3B4FE8] to-[#5B6EFF]",
-    bgLight: "bg-blue-50/70",
-  },
-  {
-    icon: ShoppingCart,
-    title: "استرجاع السلات",
-    desc: "تابع العملاء اللي تركوا سلاتهم وحفّزهم يكملون الشراء.",
-    badge: "زيادة مبيعات فورية",
-    color: "from-emerald-500 to-emerald-600",
-    bgLight: "bg-emerald-50/70",
-  },
-  {
-    icon: Database,
-    title: "بيانات العملاء",
-    desc: "اجمع ونظّم بيانات عملائك وسجل مشترياتهم في مكان واحد.",
-    badge: "جاهز لإعادة التسويق",
-    color: "from-indigo-500 to-indigo-600",
-    bgLight: "bg-indigo-50/70",
-  },
-  {
-    icon: Zap,
-    title: "تشغيل أسهل",
-    desc: "خفف الضغط على فريق خدمة العملاء وخلّهم يركزون على الحالات اللي تحتاج تدخل بشري.",
-    badge: "توفير وقت وتكاليف",
-    color: "from-amber-500 to-amber-600",
-    bgLight: "bg-amber-50/70",
-  },
+const businessQuestions = [
+  { question: "كيف نخفف العمل اليدوي؟", category: "الكفاءة التشغيلية" },
+  { question: "كيف نرد على العملاء بشكل أسرع؟", category: "تجربة العميل" },
+  { question: "كيف نستفيد من بيانات العملاء؟", category: "النمو وإعادة التسويق" },
+  { question: "كيف نتابع فرص البيع التي تضيع؟", category: "تعظيم المبيعات" },
+  { question: "وكيف نكبر بدون أن تتضاعف التكاليف والتعقيدات؟", category: "قابلية التوسع" },
 ];
 
 export default function ProblemSolution() {
@@ -47,7 +19,7 @@ export default function ProblemSolution() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         
-        {/* Section Header & Pain Points */}
+        {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -56,7 +28,7 @@ export default function ProblemSolution() {
             className="inline-flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm"
           >
             <HelpCircle size={14} className="text-[#3B4FE8]" />
-            <span>واقع التجارة الإلكترونية اليوم</span>
+            <span>تحديات التوسع والنمو</span>
           </motion.div>
 
           <motion.h2
@@ -64,101 +36,96 @@ export default function ProblemSolution() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 leading-tight mb-8"
+            className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 leading-tight mb-5"
           >
-            مو كل عميل يسأل… <span className="ecomate-gradient-text">عميل يشتري</span>
+            حلول رقمية مصممة{" "}
+            <span className="ecomate-gradient-text">
+              لمشاكل الأعمال الحقيقية
+            </span>
           </motion.h2>
 
-          {/* Pain Point Questions in Styled Cards */}
-          <motion.div
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-8 text-right"
+            className="text-slate-600 text-base sm:text-lg leading-relaxed font-medium"
           >
-            <div className="bg-white border border-slate-200/80 rounded-2xl p-4.5 shadow-sm">
-              <span className="text-xs text-rose-500 font-bold block mb-1">الفرصة الضائعة #1</span>
-              <p className="text-slate-700 text-sm font-semibold leading-snug">
-                كم طلب ممكن يضيع لأن العميل ما لقى رد في الوقت المناسب؟
-              </p>
-            </div>
-
-            <div className="bg-white border border-slate-200/80 rounded-2xl p-4.5 shadow-sm">
-              <span className="text-xs text-rose-500 font-bold block mb-1">الفرصة الضائعة #2</span>
-              <p className="text-slate-700 text-sm font-semibold leading-snug">
-                وكم سلة تُترك بدون متابعة تخلي العميل ينسى ويكسل؟
-              </p>
-            </div>
-
-            <div className="bg-white border border-slate-200/80 rounded-2xl p-4.5 shadow-sm">
-              <span className="text-xs text-rose-500 font-bold block mb-1">الفرصة الضائعة #3</span>
-              <p className="text-slate-700 text-sm font-semibold leading-snug">
-                وكم عميل تتوزع بياناته بين المحادثات بدل ما تكون في قاعدة واحدة؟
-              </p>
-            </div>
-          </motion.div>
-
-          {/* Core Solution Statement */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-            className="inline-block bg-[#3B4FE8] text-white px-6 py-2.5 rounded-2xl text-base sm:text-lg font-black shadow-md shadow-[#3B4FE8]/25"
-          >
-            ECOMATE يجمع لك كل هذا في نظام واحد.
-          </motion.div>
+            كل شركة تكبر معها العمليات، والبيانات، والعملاء، والمهام اليومية. ومع الوقت، تبدأ الأسئلة المحورية للتشغيل والنمو:
+          </motion.p>
         </div>
 
-        {/* 4 Pillars Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {pillars.map((item, idx) => (
+        {/* The 5 Critical Growth Questions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4.5 mb-14">
+          {businessQuestions.map((item, idx) => (
             <motion.div
-              key={item.title}
-              initial={{ opacity: 0, y: 25 }}
+              key={item.question}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              className="bg-white rounded-3xl p-6.5 border border-slate-200 hover:border-[#3B4FE8]/40 flex flex-col justify-between transition-all duration-300 shadow-md shadow-blue-900/5 hover:shadow-xl hover:-translate-y-1 group"
+              transition={{ delay: idx * 0.08 }}
+              className="bg-white rounded-2xl p-5 border border-slate-200 hover:border-[#3B4FE8]/40 flex flex-col justify-between transition-all duration-300 shadow-sm hover:shadow-md group"
             >
-              <div>
-                <div className="flex items-center justify-between mb-5">
-                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-md shadow-[#3B4FE8]/15`}>
-                    <item.icon size={22} />
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
-                    {item.badge}
-                  </span>
-                </div>
-
-                <h3 className="text-xl font-black text-slate-950 mb-2.5 group-hover:text-[#3B4FE8] transition-colors">
-                  {item.title}
-                </h3>
-
-                <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-medium">
-                  {item.desc}
-                </p>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-bold text-slate-400 font-mono">تحدي #{idx + 1}</span>
+                <span className="text-[10px] text-blue-700 bg-blue-50 border border-blue-100 font-bold px-2 py-0.5 rounded-md">
+                  {item.category}
+                </span>
               </div>
-
-              <div className="pt-5 mt-5 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#3B4FE8]">
-                <span>تفعيل فوري</span>
-                <span>✓</span>
-              </div>
+              <p className="text-slate-900 font-black text-base sm:text-lg leading-snug group-hover:text-[#3B4FE8] transition-colors">
+                {item.question}
+              </p>
             </motion.div>
           ))}
+
+          {/* 6th Card: The Resolution Callout */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+            className="bg-gradient-to-br from-[#1A1B3C] to-[#3B4FE8] rounded-2xl p-5 text-white flex flex-col justify-between shadow-lg shadow-blue-900/15"
+          >
+            <div>
+              <span className="text-xs text-yellow-300 font-bold block mb-1">النتيجة الحتمية</span>
+              <p className="text-white text-base font-bold leading-relaxed">
+                النمو بدون أتمتة يتحول إلى عبء وتكاليف متراكمة.
+              </p>
+            </div>
+            <span className="text-xs text-blue-200 font-semibold pt-2 border-t border-white/15">
+              الحل هو التحول الذكي المنظم.
+            </span>
+          </motion.div>
         </div>
 
-        {/* Bottom CTA bar */}
-        <div className="mt-14 text-center">
-          <a
-            href={getAppUrl("/register")}
-            className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-900 border border-slate-300 hover:border-[#3B4FE8] px-7 py-3.5 rounded-xl text-sm font-bold shadow-sm transition-all hover:scale-105"
-          >
-            <span>جرّب ECOMATE مجاناً لمدة 30 يوم</span>
-            <ArrowLeft size={16} className="text-[#3B4FE8]" />
-          </a>
-        </div>
+        {/* The ECOMATE Answer Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 }}
+          className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-xl shadow-blue-900/5 text-center max-w-4xl mx-auto"
+        >
+          <span className="text-xs font-black text-[#3B4FE8] bg-blue-50 border border-[#3B4FE8]/20 px-4 py-1.5 rounded-full inline-block mb-4">
+            هنا يأتي دور ECOMATE
+          </span>
+          
+          <h3 className="text-2xl sm:text-3xl font-black text-slate-950 leading-relaxed mb-4">
+            نحوّل هذه التحديات إلى حلول رقمية تساعدك تعمل بكفاءة أكبر، وتقدم تجربة أفضل لعملائك، وتبني عمليات قابلة للنمو.
+          </h3>
+
+          <div className="pt-6 mt-6 border-t border-slate-100 flex flex-wrap items-center justify-center gap-6 text-xs sm:text-sm font-bold text-slate-700">
+            <span className="flex items-center gap-1.5 text-slate-900">
+              <CheckCircle2 size={16} className="text-[#3B4FE8]" /> كفاءة تشغيل أعلى
+            </span>
+            <span className="flex items-center gap-1.5 text-slate-900">
+              <CheckCircle2 size={16} className="text-[#3B4FE8]" /> تجربة عملاء استثنائية
+            </span>
+            <span className="flex items-center gap-1.5 text-slate-900">
+              <CheckCircle2 size={16} className="text-[#3B4FE8]" /> نمو مستدام ومدروس
+            </span>
+          </div>
+        </motion.div>
 
       </div>
     </section>
