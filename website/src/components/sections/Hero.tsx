@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import {
@@ -135,14 +135,14 @@ export default function Hero() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="inline-flex items-center gap-2.5 bg-white border border-blue-200 text-[#0052FF] px-4 py-2 rounded-full text-xs font-bold mb-6 shadow-sm"
+              className="inline-flex items-center gap-2.5 bg-white border border-blue-200 text-[#3B4FE8] px-4 py-2 rounded-full text-xs font-bold mb-6 shadow-sm"
             >
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0052FF]"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#3B4FE8]"></span>
               </span>
               <span>Ecomate AI • المساعد الذكي لمتاجر سلة والتجارة الإلكترونية</span>
-              <Sparkles size={14} className="text-[#0052FF]" />
+              <Sparkles size={14} className="text-[#3B4FE8]" />
             </motion.div>
 
             {/* Main Headline */}
@@ -179,7 +179,7 @@ export default function Hero() {
             >
               <a
                 href={getAppUrl("/register")}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-[#0052FF] hover:bg-[#0040CC] text-white px-8 py-4 rounded-xl text-base font-bold transition-all duration-300 shadow-md shadow-[#0052FF]/20 hover:shadow-lg hover:shadow-[#0052FF]/30 hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-[#3B4FE8] hover:bg-[#2D3ED0] text-white px-8 py-4 rounded-xl text-base font-bold transition-all duration-300 shadow-md shadow-[#3B4FE8]/20 hover:shadow-lg hover:shadow-[#3B4FE8]/30 hover:scale-[1.02] active:scale-[0.98]"
               >
                 <span>ابدأ تجربتك المجانية (14 يوم)</span>
                 <ArrowLeft size={18} />
@@ -228,7 +228,7 @@ export default function Hero() {
                 <p className="text-slate-500 text-xs mt-1 font-semibold">متجر سلة نشط</p>
               </div>
               <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center shadow-sm">
-                <p className="text-2xl sm:text-3xl font-black text-[#0052FF]">
+                <p className="text-2xl sm:text-3xl font-black text-[#3B4FE8]">
                   +99.2%
                 </p>
                 <p className="text-slate-500 text-xs mt-1 font-semibold">دقة الردود الفورية</p>
@@ -249,7 +249,7 @@ export default function Hero() {
             <div className="w-full max-w-sm mb-3">
               <div className="text-xs font-bold text-slate-600 mb-2 flex items-center justify-between">
                 <span>جرّب المحاكي المباشر بنفسك:</span>
-                <span className="text-[#0052FF] text-[11px] font-extrabold">اضغط لتغيير السؤال 👇</span>
+                <span className="text-[#3B4FE8] text-[11px] font-extrabold">اضغط لتغيير السؤال 👇</span>
               </div>
               <div className="grid grid-cols-2 gap-1.5">
                 {scenarios.map((sc) => {
@@ -260,11 +260,11 @@ export default function Hero() {
                       onClick={() => handleScenarioChange(sc)}
                       className={`text-xs py-2 px-2.5 rounded-xl font-bold transition-all text-right flex items-center gap-1.5 border ${
                         isCurrent
-                          ? "bg-blue-50 border-blue-300 text-[#0052FF] shadow-sm"
+                          ? "bg-blue-50 border-blue-300 text-[#3B4FE8] shadow-sm"
                           : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300"
                       }`}
                     >
-                      <sc.icon size={13} className={isCurrent ? "text-[#0052FF]" : "text-slate-400"} />
+                      <sc.icon size={13} className={isCurrent ? "text-[#3B4FE8]" : "text-slate-400"} />
                       <span className="truncate">{sc.title}</span>
                     </button>
                   );

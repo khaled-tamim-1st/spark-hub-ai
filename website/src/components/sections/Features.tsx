@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import {
@@ -23,7 +23,7 @@ export default function Features() {
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#0052FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm"
+            className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#3B4FE8] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm"
           >
             <Sparkles size={14} />
             <span>مميزات Ecomate لمتاجر سلة</span>
@@ -62,10 +62,10 @@ export default function Features() {
             className="lg:col-span-2 bg-gradient-to-br from-white via-slate-50/50 to-blue-50/30 rounded-3xl p-8 border border-slate-200 hover:border-blue-300 relative overflow-hidden flex flex-col justify-between group transition-all duration-300 shadow-lg shadow-blue-900/5"
           >
             <div className="relative z-10 mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#0052FF] to-[#2563EB] flex items-center justify-center text-white mb-5 shadow-md shadow-[#0052FF]/25">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#3B4FE8] to-[#2563EB] flex items-center justify-center text-white mb-5 shadow-md shadow-[#3B4FE8]/25">
                 <Package size={24} />
               </div>
-              <span className="text-xs font-bold text-[#0052FF] bg-blue-50 border border-blue-200 px-3 py-1 rounded-full inline-block mb-3">
+              <span className="text-xs font-bold text-[#3B4FE8] bg-blue-50 border border-blue-200 px-3 py-1 rounded-full inline-block mb-3">
                 تكامل سلة + شركات الشحن
               </span>
               <h3 className="text-2xl font-black text-slate-950 mb-3">
@@ -98,7 +98,7 @@ export default function Features() {
                 </div>
                 <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
                   <span className="text-slate-500 block font-medium">وقت المعالجة</span>
-                  <strong className="text-[#0052FF] font-black">0.8 ثانية</strong>
+                  <strong className="text-[#3B4FE8] font-black">0.8 ثانية</strong>
                 </div>
               </div>
             </div>
@@ -139,7 +139,7 @@ export default function Features() {
               </div>
               <div className="flex items-center justify-between text-slate-700">
                 <span className="flex items-center gap-1.5 font-bold">🛒 منتجات متجر سلة</span>
-                <span className="text-[#0052FF] font-bold text-[10px]">تزامن لحظي</span>
+                <span className="text-[#3B4FE8] font-bold text-[10px]">تزامن لحظي</span>
               </div>
             </div>
           </motion.div>
@@ -217,7 +217,7 @@ export default function Features() {
               <div className="bg-slate-50 border border-slate-200 p-3 rounded-xl">
                 <span className="text-slate-500 text-xs block font-semibold">ساعات عمل موفرة</span>
                 <span className="text-2xl font-black text-slate-900">+180 ساعة</span>
-                <span className="text-[10px] text-[#0052FF] block mt-0.5 font-bold">شهرياً للمتجر الواحد</span>
+                <span className="text-[10px] text-[#3B4FE8] block mt-0.5 font-bold">شهرياً للمتجر الواحد</span>
               </div>
               <div className="bg-slate-50 border border-slate-200 p-3 rounded-xl">
                 <span className="text-slate-500 text-xs block font-semibold">معدل تقييم العملاء</span>

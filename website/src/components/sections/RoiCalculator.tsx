@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Calculator, Clock, DollarSign, TrendingUp, ArrowLeft } from "lucide-react";
@@ -17,7 +17,7 @@ export default function RoiCalculator() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#0052FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#3B4FE8] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
             <Calculator size={14} />
             <span>حاسبة العائد على الاستثمار (ROI)</span>
           </div>
@@ -38,7 +38,7 @@ export default function RoiCalculator() {
               <label htmlFor="conv-slider" className="text-sm sm:text-base font-bold text-slate-900">
                 عدد المحادثات الشهرية المقدرة لمتجرك:
               </label>
-              <div className="bg-blue-50 border border-blue-200 text-[#0052FF] font-black text-lg sm:text-xl px-4 py-1.5 rounded-2xl shadow-sm">
+              <div className="bg-blue-50 border border-blue-200 text-[#3B4FE8] font-black text-lg sm:text-xl px-4 py-1.5 rounded-2xl shadow-sm">
                 {conversations.toLocaleString("ar-SA")} محادثة
               </div>
             </div>
@@ -51,7 +51,7 @@ export default function RoiCalculator() {
               step="100"
               value={conversations}
               onChange={(e) => setConversations(Number(e.target.value))}
-              className="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0052FF]"
+              className="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#3B4FE8]"
             />
             
             <div className="flex justify-between text-xs text-slate-500 font-semibold mt-2">
@@ -78,14 +78,14 @@ export default function RoiCalculator() {
 
             {/* Hours Saved */}
             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0052FF] flex items-center justify-center mx-auto mb-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#3B4FE8] flex items-center justify-center mx-auto mb-3">
                 <Clock size={20} />
               </div>
               <span className="text-slate-500 text-xs block mb-1 font-semibold">ساعات عمل موفرة</span>
               <span className="text-2xl sm:text-3xl font-black text-slate-900">
                 {hoursSaved.toLocaleString("ar-SA")} ساعة
               </span>
-              <span className="text-[11px] text-[#0052FF] block mt-1 font-bold">تتفرغ فيها للتسويق والنمو</span>
+              <span className="text-[11px] text-[#3B4FE8] block mt-1 font-bold">تتفرغ فيها للتسويق والنمو</span>
             </div>
 
             {/* Speed & Resolution */}
@@ -115,7 +115,7 @@ export default function RoiCalculator() {
 
             <a
               href={getAppUrl("/register")}
-              className="inline-flex items-center gap-2 bg-[#0052FF] hover:bg-[#0040CC] text-white px-7 py-3 rounded-xl text-sm font-bold shadow-md shadow-[#0052FF]/20 transition-all hover:scale-105"
+              className="inline-flex items-center gap-2 bg-[#3B4FE8] hover:bg-[#2D3ED0] text-white px-7 py-3 rounded-xl text-sm font-bold shadow-md shadow-[#3B4FE8]/20 transition-all hover:scale-105"
             >
               <span>جرّب Ecomate مجاناً الآن</span>
               <ArrowLeft size={16} />

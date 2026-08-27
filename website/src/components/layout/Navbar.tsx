@@ -38,7 +38,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 relative flex-shrink-0 rounded-xl bg-white p-1 border border-slate-200 group-hover:border-[#0052FF]/50 transition-all duration-300 shadow-sm">
+            <div className="w-10 h-10 relative flex-shrink-0 rounded-xl bg-white p-1 border border-slate-200 group-hover:border-[#3B4FE8]/50 transition-all duration-300 shadow-sm">
               <Image
                 src="/logo.png"
                 alt="Ecomate Logo"
@@ -50,8 +50,8 @@ export default function Navbar() {
             <div className="flex flex-col">
               <span className="text-slate-950 font-black text-xl tracking-tight flex items-center gap-1.5 font-sans">
                 <span>ECOM</span>
-                <span className="text-[#0052FF]">ATE</span>
-                <span className="text-[10px] uppercase font-bold tracking-wider text-[#0052FF] bg-blue-50 px-1.5 py-0.5 rounded-md border border-blue-200">
+                <span className="text-[#3B4FE8]">ATE</span>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-[#3B4FE8] bg-blue-50 px-1.5 py-0.5 rounded-md border border-blue-200">
                   AI
                 </span>
               </span>
@@ -67,7 +67,7 @@ export default function Navbar() {
               <a
                 key={link.label}
                 href={link.href}
-                className="text-slate-600 hover:text-[#0052FF] px-3.5 py-1.5 rounded-full text-xs font-bold transition-all hover:bg-blue-50"
+                className="text-slate-600 hover:text-[#3B4FE8] px-3.5 py-1.5 rounded-full text-xs font-bold transition-all hover:bg-blue-50"
               >
                 {link.label}
               </a>
@@ -78,13 +78,13 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             <a
               href={getAppUrl("/login")}
-              className="text-slate-700 hover:text-[#0052FF] text-xs font-bold px-4 py-2.5 rounded-xl transition-colors hover:bg-slate-100"
+              className="text-slate-700 hover:text-[#3B4FE8] text-xs font-bold px-4 py-2.5 rounded-xl transition-colors hover:bg-slate-100"
             >
               تسجيل الدخول
             </a>
             <a
               href={getAppUrl("/register")}
-              className="relative group overflow-hidden bg-[#0052FF] hover:bg-[#0040CC] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 shadow-md shadow-[#0052FF]/20 hover:shadow-lg hover:shadow-[#0052FF]/30 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
+              className="relative group overflow-hidden bg-[#3B4FE8] hover:bg-[#0040CC] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 shadow-md shadow-[#3B4FE8]/20 hover:shadow-lg hover:shadow-[#3B4FE8]/30 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
             >
               <span>جرّب مجاناً 14 يوم</span>
               <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
@@ -110,7 +110,7 @@ export default function Navbar() {
                   key={link.label}
                   href={link.href}
                   onClick={() => setIsOpen(false)}
-                  className="text-slate-700 hover:text-[#0052FF] px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors hover:bg-blue-50 flex items-center justify-between"
+                  className="text-slate-700 hover:text-[#3B4FE8] px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors hover:bg-blue-50 flex items-center justify-between"
                 >
                   <span>{link.label}</span>
                   <span className="text-slate-400 text-xs">←</span>
@@ -120,13 +120,13 @@ export default function Navbar() {
             <div className="pt-4 border-t border-slate-100 flex flex-col gap-2.5">
               <a
                 href={getAppUrl("/login")}
-                className="w-full text-center text-slate-700 hover:text-[#0052FF] py-2.5 text-sm font-bold rounded-xl bg-slate-100 hover:bg-slate-200 transition-colors"
+                className="w-full text-center text-slate-700 hover:text-[#3B4FE8] py-2.5 text-sm font-bold rounded-xl bg-slate-100 hover:bg-slate-200 transition-colors"
               >
                 تسجيل الدخول إلى لوحة التحكم
               </a>
               <a
                 href={getAppUrl("/register")}
-                className="w-full text-center bg-[#0052FF] text-white py-3 rounded-xl text-sm font-bold shadow-md shadow-[#0052FF]/25 transition-transform active:scale-[0.98] flex items-center justify-center gap-2"
+                className="w-full text-center bg-[#3B4FE8] text-white py-3 rounded-xl text-sm font-bold shadow-md shadow-[#3B4FE8]/25 transition-transform active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 <Sparkles size={16} />
                 <span>ابدأ تجربتك المجانية (14 يوم)</span>

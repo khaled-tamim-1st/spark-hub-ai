@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import { Link2, Brain, Rocket, CheckCircle2, ArrowLeft, QrCode, FileText, Bot } from "lucide-react";
@@ -53,7 +53,7 @@ export default function HowItWorks() {
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-20">
-          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#0052FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#3B4FE8] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
             <span>سهولة الإعداد والانطلاق</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 leading-tight mb-5">
@@ -82,11 +82,11 @@ export default function HowItWorks() {
                 </div>
 
                 {/* Step icon */}
-                <div className="w-14 h-14 rounded-2xl bg-[#0052FF] flex items-center justify-center text-white mb-6 shadow-md shadow-[#0052FF]/25">
+                <div className="w-14 h-14 rounded-2xl bg-[#3B4FE8] flex items-center justify-center text-white mb-6 shadow-md shadow-[#3B4FE8]/25">
                   <item.icon size={26} />
                 </div>
 
-                <div className="text-xs font-extrabold text-[#0052FF] mb-2 font-mono">
+                <div className="text-xs font-extrabold text-[#3B4FE8] mb-2 font-mono">
                   الخطوة {item.step}
                 </div>
 
@@ -103,7 +103,7 @@ export default function HowItWorks() {
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2">
                 <div className="text-[11px] font-bold text-slate-500 flex items-center justify-between pb-2 border-b border-slate-200">
                   <span>{item.visual.tag}</span>
-                  <item.badgeIcon size={13} className="text-[#0052FF]" />
+                  <item.badgeIcon size={13} className="text-[#3B4FE8]" />
                 </div>
                 <div className="space-y-1.5 pt-1">
                   {item.visual.items.map((sub) => (
@@ -122,7 +122,7 @@ export default function HowItWorks() {
         <div className="mt-16 text-center">
           <a
             href={getAppUrl("/register")}
-            className="inline-flex items-center gap-2.5 bg-[#0052FF] hover:bg-[#0040CC] text-white px-8 py-4 rounded-xl text-base font-bold shadow-md shadow-[#0052FF]/25 transition-all hover:scale-105"
+            className="inline-flex items-center gap-2.5 bg-[#3B4FE8] hover:bg-[#2D3ED0] text-white px-8 py-4 rounded-xl text-base font-bold shadow-md shadow-[#3B4FE8]/25 transition-all hover:scale-105"
           >
             <span>ابدأ ربط متجرك الآن مجاناً</span>
             <ArrowLeft size={18} />

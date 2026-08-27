@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import { Check, Zap, Sparkles, Shield, ArrowLeft } from "lucide-react";
@@ -76,7 +76,7 @@ export default function Pricing() {
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#0052FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#3B4FE8] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
             <Sparkles size={14} />
             <span>باقات شفافة وبدون أي رسوم خفية</span>
           </div>
@@ -95,7 +95,7 @@ export default function Pricing() {
               onClick={() => setYearly(false)}
               className={`px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all ${
                 !yearly
-                  ? "bg-[#0052FF] text-white shadow-md shadow-[#0052FF]/20"
+                  ? "bg-[#3B4FE8] text-white shadow-md shadow-[#3B4FE8]/20"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -106,7 +106,7 @@ export default function Pricing() {
               onClick={() => setYearly(true)}
               className={`px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
                 yearly
-                  ? "bg-[#0052FF] text-white shadow-md shadow-[#0052FF]/20"
+                  ? "bg-[#3B4FE8] text-white shadow-md shadow-[#3B4FE8]/20"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -129,13 +129,13 @@ export default function Pricing() {
               transition={{ delay: i * 0.1 }}
               className={`relative rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 ${
                 plan.highlighted
-                  ? "bg-gradient-to-b from-blue-50/40 via-white to-slate-50 border-2 border-[#0052FF] shadow-xl shadow-blue-900/10 lg:-translate-y-3"
+                  ? "bg-gradient-to-b from-blue-50/40 via-white to-slate-50 border-2 border-[#3B4FE8] shadow-xl shadow-blue-900/10 lg:-translate-y-3"
                   : "bg-white border border-slate-200 hover:border-blue-200 shadow-lg shadow-blue-900/5"
               }`}
             >
               {/* Highlight Badge */}
               {plan.highlighted && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#0052FF] text-white text-xs font-black px-4 py-1.5 rounded-full shadow-md shadow-[#0052FF]/25 border border-white/40 flex items-center gap-1.5">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#3B4FE8] text-white text-xs font-black px-4 py-1.5 rounded-full shadow-md shadow-[#3B4FE8]/25 border border-white/40 flex items-center gap-1.5">
                   <Zap size={13} />
                   <span>{plan.badge}</span>
                 </div>
@@ -146,7 +146,7 @@ export default function Pricing() {
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-3xl">{plan.emoji}</span>
                   {!plan.highlighted && (
-                    <span className="text-[11px] font-bold text-[#0052FF] bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">
+                    <span className="text-[11px] font-bold text-[#3B4FE8] bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">
                       {plan.badge}
                     </span>
                   )}
@@ -198,7 +198,7 @@ export default function Pricing() {
                       <Check
                         size={15}
                         className={`flex-shrink-0 mt-0.5 ${
-                          plan.highlighted ? "text-[#0052FF]" : "text-emerald-600"
+                          plan.highlighted ? "text-[#3B4FE8]" : "text-emerald-600"
                         }`}
                       />
                       <span>{feat}</span>
@@ -216,8 +216,8 @@ export default function Pricing() {
                 }
                 className={`w-full py-4 rounded-xl font-bold text-sm text-center transition-all flex items-center justify-center gap-2 ${
                   plan.highlighted
-                    ? "bg-[#0052FF] hover:bg-[#0040CC] text-white shadow-lg shadow-[#0052FF]/20 hover:scale-[1.02]"
-                    : "bg-slate-100 hover:bg-blue-50 text-[#0052FF] border border-slate-200 hover:border-blue-200"
+                    ? "bg-[#3B4FE8] hover:bg-[#2D3ED0] text-white shadow-lg shadow-[#3B4FE8]/20 hover:scale-[1.02]"
+                    : "bg-slate-100 hover:bg-blue-50 text-[#3B4FE8] border border-slate-200 hover:border-blue-200"
                 }`}
               >
                 <span>{plan.cta}</span>

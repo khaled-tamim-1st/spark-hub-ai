@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+﻿import { useEffect } from 'react';
 import { useLocation, Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ShieldAlert } from 'lucide-react';
@@ -16,7 +16,7 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4 font-sans">
       <div className="w-full max-w-md text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl overflow-hidden mb-4 shadow-lg border border-primary/20 sanad-glow">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl overflow-hidden mb-4 shadow-lg border border-primary/20 ">
           <img src="/logo.png" alt="Ecomate" className="w-full h-full object-contain p-1" />
         </div>
         <h1 className="text-3xl font-black mb-2">Ecomate</h1>

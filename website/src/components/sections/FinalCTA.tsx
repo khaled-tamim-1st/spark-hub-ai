@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ArrowLeft, Sparkles, ShieldCheck, Zap } from "lucide-react";
 import { getAppUrl } from "@/lib/config";
@@ -9,7 +9,7 @@ export default function FinalCTA() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         
         {/* Glow Box Container */}
-        <div className="relative rounded-[2.5rem] bg-gradient-to-br from-[#0052FF] via-[#1D4ED8] to-[#1E40AF] p-8 sm:p-16 text-center shadow-2xl shadow-blue-900/20 overflow-hidden">
+        <div className="relative rounded-[2.5rem] bg-gradient-to-br from-[#3B4FE8] via-[#1D4ED8] to-[#1E40AF] p-8 sm:p-16 text-center shadow-2xl shadow-blue-900/20 overflow-hidden">
           
           {/* Ambient Lighting Background */}
           <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-white/20 rounded-full blur-[100px] pointer-events-none" />
@@ -39,7 +39,7 @@ export default function FinalCTA() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <a
                 href={getAppUrl("/register")}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white text-[#0052FF] hover:bg-blue-50 px-9 py-4 rounded-xl font-black text-base transition-all hover:shadow-2xl hover:scale-105 active:scale-95 shadow-xl"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white text-[#3B4FE8] hover:bg-blue-50 px-9 py-4 rounded-xl font-black text-base transition-all hover:shadow-2xl hover:scale-105 active:scale-95 shadow-xl"
               >
                 <span>ابدأ الآن مجاناً (14 يوم)</span>
                 <ArrowLeft size={18} />

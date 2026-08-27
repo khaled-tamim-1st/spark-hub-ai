@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { CheckCircle, ShoppingBag, TrendingUp, ShieldCheck } from "lucide-react";
 

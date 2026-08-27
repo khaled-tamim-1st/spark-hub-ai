@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
@@ -58,7 +58,7 @@ export default function FAQ() {
         
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#0052FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#3B4FE8] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
             <HelpCircle size={14} />
             <span>إجابات واضحة ومباشرة</span>
           </div>
@@ -81,7 +81,7 @@ export default function FAQ() {
               }}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activeCategory === cat.id
-                  ? "bg-[#0052FF] text-white shadow-md shadow-[#0052FF]/20"
+                  ? "bg-[#3B4FE8] text-white shadow-md shadow-[#3B4FE8]/20"
                   : "bg-white text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300"
               }`}
             >
@@ -104,10 +104,10 @@ export default function FAQ() {
                   className="w-full p-5 text-right flex items-center justify-between gap-4 select-none hover:bg-slate-50/70"
                   aria-expanded={isOpen}
                 >
-                  <span className={`text-sm sm:text-base font-bold transition-colors ${isOpen ? "text-[#0052FF]" : "text-slate-900"}`}>
+                  <span className={`text-sm sm:text-base font-bold transition-colors ${isOpen ? "text-[#3B4FE8]" : "text-slate-900"}`}>
                     {faq.q}
                   </span>
-                  <div className={`w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180 bg-blue-50 text-[#0052FF]" : "text-slate-400"}`}>
+                  <div className={`w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180 bg-blue-50 text-[#3B4FE8]" : "text-slate-400"}`}>
                     <ChevronDown size={18} />
                   </div>
                 </button>
@@ -143,7 +143,7 @@ export default function FAQ() {
           </div>
           <a
             href="mailto:hello@ecomate.ai"
-            className="inline-flex items-center gap-2 bg-slate-100 hover:bg-blue-50 text-[#0052FF] px-5 py-2.5 rounded-xl text-xs font-bold transition-colors border border-slate-200"
+            className="inline-flex items-center gap-2 bg-slate-100 hover:bg-blue-50 text-[#3B4FE8] px-5 py-2.5 rounded-xl text-xs font-bold transition-colors border border-slate-200"
           >
             <MessageCircle size={15} />
             <span>تواصل مع الدعم الفني</span>
