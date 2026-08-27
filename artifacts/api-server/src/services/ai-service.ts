@@ -102,20 +102,18 @@ ${kbContext ? `=== قاعدة معرفة المتجر والمنتجات الر�
     const provider = (overrideSettings?.provider || settings?.provider || 'groq').toLowerCase().trim();
     let model = (overrideSettings?.model || settings?.model || (provider === 'groq' ? 'openai/gpt-oss-120b' : 'llama3')).trim();
     
-    // Auto-normalize legacy or inactive model names for Groq to active GPT OSS models
+    // Auto-normalize legacy or inactive model names for Groq to active Groq models
     if (provider === 'groq') {
       if (
         !model || 
         model === 'llama3' || 
-        model === 'llama-3.3-70b-versatile' || 
-        model === 'llama-3.1-8b-instant' || 
         model === 'llama3-70b-8192' || 
         model === 'mixtral-8x7b-32768' ||
-        model.toLowerCase().includes('120b')
+        model.includes('120b') ||
+        model.includes('20b') ||
+        model === 'openai/gpt-oss-120b'
       ) {
-        model = 'openai/gpt-oss-120b';
-      } else if (model.toLowerCase().includes('20b')) {
-        model = 'openai/gpt-oss-20b';
+        model = 'llama-3.3-70b-versatile';
       }
     }
 
