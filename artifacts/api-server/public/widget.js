@@ -437,12 +437,18 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          conversationId: Number(conversationId),
+          conversationId: Number(conversationId) || undefined,
+          channelId: Number(channelId) || 1,
+          visitorId: visitorId,
           content: text,
         }),
       });
 
       const data = await res.json();
+      if (data.success && data.conversationId) {
+        conversationId = data.conversationId;
+        localStorage.setItem(STORAGE_CONV, conversationId);
+      }
       typingIndicator.style.display = 'none';
 
       if (data.success && data.aiMessage) {

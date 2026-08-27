@@ -71,9 +71,12 @@ router.post('/session', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const [channel] = await db.select().from(channels).where(eq(channels.id, numericChannelId)).limit(1);
-    if (!channel || !channel.isActive) {
-      res.status(404).json({ error: 'Channel not found or inactive' });
+    let [channel] = await db.select().from(channels).where(eq(channels.id, numericChannelId)).limit(1);
+    if (!channel) {
+      [channel] = await db.select().from(channels).limit(1);
+    }
+    if (!channel) {
+      res.status(404).json({ error: 'Channel not found' });
       return;
     }
 
@@ -107,7 +110,6 @@ router.post('/session', async (req: Request, res: Response): Promise<void> => {
       .from(conversations)
       .where(and(
         eq(conversations.organizationId, orgId),
-        eq(conversations.channelId, numericChannelId),
         eq(conversations.contactId, contactId),
         eq(conversations.status, 'open')
       ))
@@ -118,7 +120,7 @@ router.post('/session', async (req: Request, res: Response): Promise<void> => {
     } else {
       const [newConv] = await db.insert(conversations).values({
         organizationId: orgId,
-        channelId: numericChannelId,
+        channelId: channel.id,
         contactId,
         channelType: 'web',
         subject: `محادثة موقع • ${name || 'زائر'}`,
@@ -193,18 +195,80 @@ router.get('/messages/:conversationId', async (req: Request, res: Response): Pro
  */
 router.post('/messages', async (req: Request, res: Response): Promise<void> => {
   try {
-    const { conversationId, content, visitorName = 'زائر' } = req.body ?? {};
+    let { conversationId, channelId = 1, visitorId, content, visitorName = 'زائر الموقع' } = req.body ?? {};
 
-    const numericConvId = Number(conversationId);
-    if (!numericConvId || !content || !String(content).trim()) {
-      res.status(400).json({ error: 'conversationId and content are required' });
+    if (!content || !String(content).trim()) {
+      res.status(400).json({ error: 'content is required' });
       return;
     }
 
-    const [conv] = await db.select().from(conversations).where(eq(conversations.id, numericConvId)).limit(1);
+    let numericConvId = Number(conversationId);
+    let conv: any = null;
+
+    if (numericConvId && !isNaN(numericConvId)) {
+      [conv] = await db.select().from(conversations).where(eq(conversations.id, numericConvId)).limit(1);
+    }
+
+    // Auto-resolve or create conversation if ID wasn't provided or found
     if (!conv) {
-      res.status(404).json({ error: 'Conversation not found' });
-      return;
+      const numericChannelId = Number(channelId) || 1;
+      let [channel] = await db.select().from(channels).where(eq(channels.id, numericChannelId)).limit(1);
+      if (!channel) {
+        [channel] = await db.select().from(channels).limit(1);
+      }
+      if (!channel) {
+        res.status(404).json({ error: 'No active channel found' });
+        return;
+      }
+
+      const orgId = channel.organizationId;
+      const finalVisitorId = visitorId || `visitor_${Math.random().toString(36).substring(2, 11)}`;
+
+      let contactId: number;
+      const [existingContact] = await db.select({ id: contacts.id })
+        .from(contacts)
+        .where(and(eq(contacts.organizationId, orgId), eq(contacts.phone, finalVisitorId)))
+        .limit(1);
+
+      if (existingContact) {
+        contactId = existingContact.id;
+      } else {
+        const [newContact] = await db.insert(contacts).values({
+          organizationId: orgId,
+          firstName: visitorName || 'زائر',
+          lastName: 'الموقع',
+          phone: finalVisitorId,
+          email: `${finalVisitorId}@widget.visitor`,
+          lastActivityAt: new Date(),
+        }).returning({ id: contacts.id });
+        contactId = newContact.id;
+      }
+
+      const [existingConv] = await db.select()
+        .from(conversations)
+        .where(and(
+          eq(conversations.organizationId, orgId),
+          eq(conversations.contactId, contactId),
+          eq(conversations.status, 'open')
+        ))
+        .limit(1);
+
+      if (existingConv) {
+        conv = existingConv;
+        numericConvId = existingConv.id;
+      } else {
+        const [newConv] = await db.insert(conversations).values({
+          organizationId: orgId,
+          channelId: channel.id,
+          contactId,
+          channelType: 'web',
+          subject: `محادثة موقع • ${visitorName || 'زائر'}`,
+          status: 'open',
+          lastMessageAt: new Date(),
+        }).returning();
+        conv = newConv;
+        numericConvId = newConv.id;
+      }
     }
 
     const orgId = conv.organizationId;
@@ -275,6 +339,7 @@ router.post('/messages', async (req: Request, res: Response): Promise<void> => {
 
     res.json({
       success: true,
+      conversationId: numericConvId,
       userMessage: {
         id: userMsg.id,
         senderType: userMsg.senderType,
