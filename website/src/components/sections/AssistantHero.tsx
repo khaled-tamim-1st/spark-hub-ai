@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { getAppUrl } from "@/lib/config";
+import { getAppUrl, getApiUrl } from "@/lib/config";
 
 // Interactive WhatsApp scenarios for stores
 const scenarios = [
@@ -120,7 +120,7 @@ export default function AssistantHero() {
   const getOrCreateSession = async (vid: string): Promise<number | null> => {
     if (conversationId) return conversationId;
     try {
-      const res = await fetch('/api/widget/session', {
+      const res = await fetch(getApiUrl('/api/widget/session'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -148,7 +148,7 @@ export default function AssistantHero() {
     if (!conversationId) return;
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`/api/widget/messages/${conversationId}?afterId=${lastMsgIdRef.current}`);
+        const res = await fetch(getApiUrl(`/api/widget/messages/${conversationId}?afterId=${lastMsgIdRef.current}`));
         const data = await res.json();
         if (data.success && data.messages && data.messages.length > 0) {
           data.messages.forEach((m: any) => {
@@ -239,7 +239,7 @@ export default function AssistantHero() {
     try {
       const activeConvId = await getOrCreateSession(visitorId);
       if (activeConvId) {
-        const res = await fetch("/api/widget/messages", {
+        const res = await fetch(getApiUrl("/api/widget/messages"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

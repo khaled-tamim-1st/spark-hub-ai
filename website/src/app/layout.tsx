@@ -109,6 +109,7 @@ export default function RootLayout({
         {children}
         {/* Live ECOMATE Web Chat Widget */}
         <Script
+          id="ecomate-widget-script"
           src="/widget.js"
           strategy="lazyOnload"
           data-channel="1"

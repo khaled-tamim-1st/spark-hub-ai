@@ -2,12 +2,39 @@
   'use strict';
 
   // Find the current script tag to extract configuration data-attributes
-  const currentScript = document.currentScript || (function () {
-    const scripts = document.getElementsByTagName('script');
-    return scripts[scripts.length - 1];
-  })();
+  const currentScript = document.getElementById('ecomate-widget-script') 
+    || document.querySelector('script[src*="widget.js"]')
+    || document.currentScript 
+    || (function () {
+      const scripts = document.getElementsByTagName('script');
+      return scripts[scripts.length - 1];
+    })();
 
-  const serverOrigin = currentScript?.getAttribute('data-server') || (currentScript?.src ? new URL(currentScript.src).origin : window.location.origin);
+  function resolveServerOrigin() {
+    const explicit = currentScript?.getAttribute('data-server');
+    if (explicit && explicit.trim()) {
+      return explicit.trim().replace(/\/+$/, '');
+    }
+    if (typeof window !== 'undefined') {
+      const p = window.location.protocol;
+      const h = window.location.hostname;
+      if (window.location.port === '4000' || window.location.port === '3000') {
+        return `${p}//${h}:5000`;
+      }
+      if (h.includes('ecomate.ai')) {
+        return `${p}//app.ecomate.ai`;
+      }
+      if (currentScript?.src && !currentScript.src.startsWith('blob:')) {
+        try {
+          return new URL(currentScript.src).origin;
+        } catch {}
+      }
+      return window.location.origin;
+    }
+    return '';
+  }
+
+  const serverOrigin = resolveServerOrigin();
   const channelId = currentScript?.getAttribute('data-channel') || currentScript?.getAttribute('data-channel-id') || '1';
   const customColor = currentScript?.getAttribute('data-color') || '#3B4FE8';
   const customTitle = currentScript?.getAttribute('data-title') || 'مساعد المتجر الذكي';
