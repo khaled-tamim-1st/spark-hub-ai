@@ -118,11 +118,11 @@ export default function Workspaces() {
       {/* Top Navbar */}
       <header className="border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-30 px-6 py-4 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl overflow-hidden shadow-sm border border-primary/30">
-            <img src="/logo.png" alt={t.brandName} className="w-full h-full object-cover" />
+          <div className="w-9 h-9 rounded-xl overflow-hidden shadow-sm border border-border bg-white p-1">
+            <img src="/logo.png" alt={t.brandName} className="w-full h-full object-contain" />
           </div>
           <div>
-            <h1 className="font-extrabold text-base text-foreground leading-none sanad-gradient-text">{t.brandName}</h1>
+            <h1 className="font-black text-base text-foreground leading-none">{t.brandName}</h1>
             <p className="text-[11px] text-muted-foreground mt-0.5">{t.brandTagline}</p>
           </div>
         </div>

@@ -136,9 +136,9 @@ export function AppShell({ children }: AppShellProps) {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Logo Area — سند Brand */}
+        {/* Logo Area — Ecomate Brand */}
         <div className="flex items-center h-16 px-3 border-b border-sidebar-border overflow-hidden shrink-0">
-          <div className="w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center shrink-0 sanad-logo-glow bg-sidebar-accent/40 p-1 border border-sidebar-border">
+          <div className="w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center shrink-0 bg-white p-1 border border-sidebar-border shadow-sm">
             <img src="/logo.png" alt={t.brandName} className="w-full h-full object-contain" />
           </div>
           <div 
@@ -148,10 +148,10 @@ export function AppShell({ children }: AppShellProps) {
               isExpanded ? "opacity-100" : "opacity-0"
             )}
           >
-            <span className="font-extrabold text-sm tracking-tight leading-tight sanad-gradient-text">
+            <span className="font-black text-sm tracking-tight leading-tight text-sidebar-foreground">
               {t.brandName}
             </span>
-            <span className="text-[10px] text-purple-400 font-bold tracking-wider">
+            <span className="text-[10px] text-blue-400 font-bold tracking-wider">
               {t.brandTagline}
             </span>
           </div>
