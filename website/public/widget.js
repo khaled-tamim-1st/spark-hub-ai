@@ -7,7 +7,7 @@
     return scripts[scripts.length - 1];
   })();
 
-  const serverOrigin = currentScript?.src ? new URL(currentScript.src).origin : window.location.origin;
+  const serverOrigin = currentScript?.getAttribute('data-server') || (currentScript?.src ? new URL(currentScript.src).origin : window.location.origin);
   const channelId = currentScript?.getAttribute('data-channel') || currentScript?.getAttribute('data-channel-id') || '1';
   const customColor = currentScript?.getAttribute('data-color') || '#3B4FE8';
   const customTitle = currentScript?.getAttribute('data-title') || 'مساعد المتجر الذكي';
