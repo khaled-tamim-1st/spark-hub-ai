@@ -105,6 +105,41 @@ export default function AssistantHero() {
     },
   ]);
 
+  const [visitorId, setVisitorId] = useState<string>('');
+  const [conversationId, setConversationId] = useState<number | null>(null);
+
+  useEffect(() => {
+    let vid = localStorage.getItem('ecomate_sim_visitor');
+    if (!vid) {
+      vid = 'sim_' + Math.random().toString(36).substring(2, 11);
+      localStorage.setItem('ecomate_sim_visitor', vid);
+    }
+    setVisitorId(vid);
+  }, []);
+
+  const getOrCreateSession = async (vid: string): Promise<number | null> => {
+    if (conversationId) return conversationId;
+    try {
+      const res = await fetch('/api/widget/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          channelId: 1,
+          visitorId: vid || 'sim_visitor',
+          name: 'زائر محاكي الموقع',
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.conversationId) {
+        setConversationId(data.conversationId);
+        return data.conversationId;
+      }
+    } catch (e) {
+      console.warn('[Simulator] session init error:', e);
+    }
+    return null;
+  };
+
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -167,35 +202,37 @@ export default function AssistantHero() {
     setIsTyping(true);
 
     try {
-      // 1. Try real live API endpoint
-      const res = await fetch("/api/widget/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          conversationId: 1,
-          content: text,
-          visitorName: "زائر تجريبي",
-        }),
-      }).catch(() => null);
+      const activeConvId = await getOrCreateSession(visitorId);
+      if (activeConvId) {
+        const res = await fetch("/api/widget/messages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            conversationId: activeConvId,
+            content: text,
+            visitorName: "زائر الموقع",
+          }),
+        });
 
-      if (res && res.ok) {
-        const data = await res.json();
-        if (data.aiMessage?.content) {
-          setIsTyping(false);
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: Math.random().toString(),
-              sender: "ai",
-              text: data.aiMessage.content,
-              time: now,
-            },
-          ]);
-          return;
+        if (res && res.ok) {
+          const data = await res.json();
+          if (data.success && data.aiMessage?.content) {
+            setIsTyping(false);
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: Math.random().toString(),
+                sender: "ai",
+                text: data.aiMessage.content,
+                time: now,
+              },
+            ]);
+            return;
+          }
         }
       }
     } catch {
-      // Silent fallback
+      // Fallback
     }
 
     // 2. Intelligent local AI simulation when offline
