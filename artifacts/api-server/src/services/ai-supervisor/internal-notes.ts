@@ -1,8 +1,95 @@
 import { db } from '@workspace/db';
-import { messages } from '@workspace/db';
+import { conversations, messages } from '@workspace/db';
+import { eq } from 'drizzle-orm';
 
 export const CUSTOMER_HANDOFF_TEXT =
   'نعتذر لك عن التجربة 🙏 سيتم تحويلك الآن لأحد أعضاء فريق خدمة العملاء لمساعدتك بشكل مباشر.';
+
+export const HUMAN_REQUEST_REPLY =
+  'أهلاً بك، تم إيقاف الرد الآلي وتحويل طلبك لفريق خدمة العملاء، وسيتواصل معك أحد الموظفين في أقرب وقت ممكن. 🙏';
+
+/**
+ * Fast-path detection for human agent / customer support requests
+ */
+export function isHumanAgentRequested(text?: string | null): boolean {
+  if (!text) return false;
+  const t = text.toLowerCase().trim();
+
+  const patterns = [
+    /خدم[ةه]\s*العملا[ءإ]/,
+    /خدم[ةه]\s*عملا[ءإ]/,
+    /عنصر\s*بشر[يى]/,
+    /موظف/,
+    /بشر[يى]/,
+    /إنسان|انسان/,
+    /شخص\s*(حقيقي)?/,
+    /آدمي|ادمي/,
+    /حولن[يى]/,
+    /أبغ[يى]\s*(أ)?كلم/,
+    /ابغ[يى]\s*(ا)?كلم/,
+    /عايز\s*(أ)?كلم/,
+    /عاوز\s*(أ)?كلم/,
+    /بدي\s*احك[يى]/,
+    /تحدث\s*مع/,
+    /محادث[ةه]\s*بشر/,
+    /اتصال\s*بشر/,
+    /\bhuman\b/i,
+    /\bagent\b/i,
+    /\brepresentative\b/i,
+    /\bsupport\s*team\b/i,
+    /\breal\s*person\b/i,
+  ];
+
+  return patterns.some((p) => p.test(t));
+}
+
+/**
+ * Immediate Human Handoff Handler (Fast-path):
+ * 1. Sets conversation.aiHandled = false
+ * 2. Inserts customer-facing reply message: HUMAN_REQUEST_REPLY
+ * 3. Inserts yellow Internal Note for dashboard agents
+ */
+export async function handleImmediateHumanHandoff(params: {
+  conversationId: number;
+  incomingText: string;
+}): Promise<{ handoffMessage: any; internalNote: any }> {
+  const { conversationId, incomingText } = params;
+
+  // 1. Stop AI Auto-Reply on this conversation
+  await db.update(conversations).set({
+    aiHandled: false,
+    updatedAt: new Date(),
+  }).where(eq(conversations.id, conversationId));
+
+  // 2. Create customer-facing handoff message
+  const [handoffMessage] = await db.insert(messages).values({
+    conversationId,
+    senderType: 'ai',
+    senderName: 'فريق خدمة العملاء',
+    content: HUMAN_REQUEST_REPLY,
+    messageType: 'text',
+    isPrivate: false,
+    status: 'delivered',
+  }).returning();
+
+  // 3. Create isolated yellow Internal Note for support staff
+  const internalNote = await createInternalNote({
+    conversationId,
+    content: `🚨 طلب تحويل لموظف بشري (Human Request Detected)
+
+طلب العميل:
+"${incomingText}"
+
+الإجراء التلقائي:
+تم إيقاف الرد الآلي فوراً، وإشعار العميل بأن أحد ممثلي خدمة العملاء سيتواصل معه في أقرب وقت.
+
+التوجيه لموظف الدعم:
+يرجى متابعة المحادثة والتواصل مع العميل لحل استفساره مباشرة.`,
+    source: 'ai_supervisor',
+  });
+
+  return { handoffMessage, internalNote };
+}
 
 export interface InternalNoteParams {
   conversationId: number;

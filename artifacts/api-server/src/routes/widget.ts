@@ -3,7 +3,14 @@ import { eq, and, ne, desc, asc } from 'drizzle-orm';
 import { db } from '@workspace/db';
 import { channels, organizations, contacts, conversations, messages } from '@workspace/db/schema';
 import { generateAiReplyDetailed } from '../services/ai-service.js';
-import { dispatchSupervisorInspection, CUSTOMER_HANDOFF_TEXT, isInternalNoteContent } from '../services/ai-supervisor/index.js';
+import {
+  dispatchSupervisorInspection,
+  CUSTOMER_HANDOFF_TEXT,
+  HUMAN_REQUEST_REPLY,
+  isHumanAgentRequested,
+  handleImmediateHumanHandoff,
+  isInternalNoteContent,
+} from '../services/ai-supervisor/index.js';
 
 const router: IRouter = Router();
 
@@ -324,6 +331,35 @@ router.post('/messages', async (req: Request, res: Response): Promise<void> => {
       unreadCount: (conv.unreadCount || 0) + 1,
       updatedAt: new Date(),
     }).where(eq(conversations.id, numericConvId));
+
+    // ─── Instant Human Agent Request Detection (Supervisor Fast-Path) ──────
+    if (isHumanAgentRequested(cleanContent)) {
+      console.log(`[Widget API] Human agent requested: "${cleanContent}". Disarming AI & responding with handoff.`);
+      const { handoffMessage } = await handleImmediateHumanHandoff({
+        conversationId: numericConvId,
+        incomingText: cleanContent,
+      });
+
+      res.json({
+        success: true,
+        conversationId: numericConvId,
+        userMessage: {
+          id: userMsg.id,
+          senderType: userMsg.senderType,
+          senderName: userMsg.senderName,
+          content: userMsg.content,
+          createdAt: userMsg.createdAt,
+        },
+        aiMessage: {
+          id: handoffMessage.id,
+          senderType: handoffMessage.senderType,
+          senderName: handoffMessage.senderName,
+          content: handoffMessage.content,
+          createdAt: handoffMessage.createdAt,
+        },
+      });
+      return;
+    }
 
     // ─── Dispatch AI Operations Supervisor (Non-blocking) ─────────────────
     dispatchSupervisorInspection({

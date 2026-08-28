@@ -15,7 +15,14 @@ import { db } from '@workspace/db';
 import { channels, contacts, conversations, messages } from '@workspace/db';
 import { eq, and } from 'drizzle-orm';
 import { generateAiReply } from './ai-service.js';
-import { dispatchSupervisorInspection, isInternalNoteContent, CUSTOMER_HANDOFF_TEXT } from './ai-supervisor/index.js';
+import {
+  dispatchSupervisorInspection,
+  isInternalNoteContent,
+  CUSTOMER_HANDOFF_TEXT,
+  HUMAN_REQUEST_REPLY,
+  isHumanAgentRequested,
+  handleImmediateHumanHandoff,
+} from './ai-supervisor/index.js';
 
 export type WhatsAppWebStatus =
   | 'idle'
@@ -293,6 +300,24 @@ async function handleIncomingMessage(channelId: number, socket: WASocket, msg: W
 
     // 4. Trigger AI Supervisor & Auto-Reply ONLY for incoming customer messages
     if (!isFromMe) {
+      // ─── Instant Human Agent Request Detection (Supervisor Fast-Path) ──────
+      if (isHumanAgentRequested(text)) {
+        console.log(`[WhatsApp] Human agent requested: "${text}". Disarming AI & responding with handoff.`);
+        await handleImmediateHumanHandoff({
+          conversationId: conv.id,
+          incomingText: text,
+        });
+
+        try {
+          await socket.sendPresenceUpdate('composing', remoteJid);
+          await new Promise(r => setTimeout(r, 600));
+          await socket.sendPresenceUpdate('paused', remoteJid);
+        } catch {}
+
+        await socket.sendMessage(remoteJid, { text: HUMAN_REQUEST_REPLY });
+        return;
+      }
+
       // ─── Dispatch AI Operations Supervisor (Non-blocking) ─────────────────
       dispatchSupervisorInspection({
         organizationId: orgId,
