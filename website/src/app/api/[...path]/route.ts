@@ -27,19 +27,12 @@ async function handleProxy(request: NextRequest, path: string[]) {
   const searchParams = request.nextUrl.search;
   const isWidgetRoute = subPath.startsWith("widget/");
 
-  // For widget routes: use supporthub-api (port 3000) which has the widget DB and AI
-  // For other API routes: use api-server (port 8080) which serves the dashboard
-  const targets = isWidgetRoute
-    ? [
-        process.env.WIDGET_SERVER_URL,
-        "http://127.0.0.1:3000",  // supporthub-api cluster — has widget routes + DB
-        "http://127.0.0.1:8080",  // api-server — fallback
-      ].filter(Boolean) as string[]
-    : [
-        process.env.API_SERVER_URL,
-        "http://127.0.0.1:8080",  // api-server — dashboard APIs
-        "http://127.0.0.1:3000",  // fallback
-      ].filter(Boolean) as string[];
+  // The system (supporthub-api backend with DB, Dashboard, and Widget) runs on port 3000
+  const targets = [
+    process.env.API_SERVER_URL,
+    process.env.WIDGET_SERVER_URL,
+    "http://127.0.0.1:3000",
+  ].filter(Boolean) as string[];
 
   let bodyText: string | undefined = undefined;
   if (request.method !== "GET" && request.method !== "HEAD") {

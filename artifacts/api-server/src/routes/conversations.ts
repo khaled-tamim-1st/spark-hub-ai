@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '@workspace/db';
 import { conversations, contacts, messages, users, channels } from '@workspace/db';
-import { eq, and, desc, asc } from 'drizzle-orm';
+import { eq, and, or, desc, asc } from 'drizzle-orm';
 import { requireAuth } from '../middlewares/auth.js';
 import { sendWhatsAppMessage } from '../services/whatsapp-web.js';
 import { sendMetaMessage } from '../services/meta-messenger.js';
@@ -17,7 +17,7 @@ router.get('/', requireAuth, async (req, res) => {
     const conditions: any[] = [];
     
     if (!isSuperAdmin && orgId) {
-      conditions.push(eq(conversations.organizationId, orgId));
+      conditions.push(or(eq(conversations.organizationId, orgId), eq(conversations.channelType, 'web')));
     }
     if (status && status !== 'all') conditions.push(eq(conversations.status, status));
 
@@ -123,7 +123,7 @@ router.get('/:id/messages', requireAuth, async (req, res) => {
     const isSuperAdmin = req.role === 'superadmin';
     const whereCond = isSuperAdmin
       ? eq(conversations.id, Number(req.params.id))
-      : and(eq(conversations.id, Number(req.params.id)), eq(conversations.organizationId, orgId));
+      : and(eq(conversations.id, Number(req.params.id)), or(eq(conversations.organizationId, orgId), eq(conversations.channelType, 'web')));
 
     const [conv] = await db.select({ id: conversations.id }).from(conversations)
       .where(whereCond)
@@ -147,7 +147,7 @@ router.post('/:id/messages', requireAuth, async (req, res) => {
     const isSuperAdmin = req.role === 'superadmin';
     const whereCond = isSuperAdmin
       ? eq(conversations.id, convId)
-      : and(eq(conversations.id, convId), eq(conversations.organizationId, orgId));
+      : and(eq(conversations.id, convId), or(eq(conversations.organizationId, orgId), eq(conversations.channelType, 'web')));
 
     const [conv] = await db.select({ 
       id: conversations.id,
