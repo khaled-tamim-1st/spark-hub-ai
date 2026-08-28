@@ -40,9 +40,9 @@ export default function Navbar() {
               <Image
                 src="/logo.png"
                 alt="ECOMATE Logo"
-                fill
+                width={40}
+                height={40}
                 className="object-contain p-0.5"
-                priority
               />
             </div>
             <div className="flex flex-col text-right">

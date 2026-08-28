@@ -43,7 +43,8 @@ export default function Footer() {
                 <Image
                   src="/logo.png"
                   alt="ECOMATE Logo"
-                  fill
+                  width={40}
+                  height={40}
                   className="object-contain p-0.5"
                 />
               </div>
