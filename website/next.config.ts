@@ -1,16 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  async rewrites() {
-    // api-server runs on port 8080 on the VPS (confirmed via ss -tlnp)
-    const apiTarget = process.env.API_SERVER_URL || "http://127.0.0.1:8080";
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${apiTarget}/api/:path*`,
-      },
-    ];
-  },
+  // No rewrites here — the app/api/[...path]/route.ts smart proxy handles all /api/* requests
+  // It tries ports 8080 → 3000 → 5000 in order, skipping HTML error responses
 };
 
 export default nextConfig;
