@@ -8,31 +8,51 @@ const router: IRouter = Router();
 
 async function getOrCreateDefaultChannel(channelId?: number) {
   let channel: any = null;
+
+  // 1. If explicit valid channelId provided, find it
   if (channelId && !isNaN(channelId)) {
     [channel] = await db.select().from(channels).where(eq(channels.id, channelId)).limit(1);
   }
+
+  // 2. Otherwise, look for an active 'web' widget channel
+  if (!channel) {
+    [channel] = await db.select().from(channels)
+      .where(and(eq(channels.channelType, 'web'), eq(channels.isActive, true)))
+      .limit(1);
+  }
+
+  // 3. Otherwise, look for any 'web' channel
+  if (!channel) {
+    [channel] = await db.select().from(channels).where(eq(channels.channelType, 'web')).limit(1);
+  }
+
+  // 4. Otherwise, look for any channel at all
   if (!channel) {
     [channel] = await db.select().from(channels).limit(1);
   }
+
+  // 5. If no channel exists at all, find the first organization or create one
   if (!channel) {
-    let [firstOrg] = await db.select().from(organizations).limit(1);
+    let [firstOrg] = await db.select().from(organizations).orderBy(asc(organizations.id)).limit(1);
     if (!firstOrg) {
       [firstOrg] = await db.insert(organizations).values({
-        name: 'ECOMATE Store',
-        slug: 'ecomate-store',
+        name: 'ECOMATE AI',
+        slug: 'ecomate-ai',
+        aiEnabled: true,
       }).returning();
     }
+
     const [newChannel] = await db.insert(channels).values({
       organizationId: firstOrg.id,
-      name: 'ودجت الشات الرئيسي',
+      name: 'ودجت الشات الرئيسي (ECOMATE)',
       channelType: 'web',
       provider: 'web_widget',
       isActive: true,
       config: JSON.stringify({
-        widgetName: 'مساعد المتجر الذكي',
-        welcomeMessage: 'أهلاً بك 👋 كيف يمكننا مساعدتك اليوم؟',
+        widgetName: 'مساعد ECOMATE الذكي',
+        welcomeMessage: 'أهلاً بك في ECOMATE 👋 كيف يمكننا مساعدتك اليوم؟',
         primaryColor: '#3B4FE8',
-        position: 'right',
+        position: 'left',
       }),
     }).returning();
     channel = newChannel;
@@ -315,6 +335,7 @@ router.post('/messages', async (req: Request, res: Response): Promise<void> => {
         customerName: visitorName,
         incomingText: cleanContent,
         conversationHistory: formattedHistory,
+        forceGenerate: true,
       });
 
       if (aiResult.success && aiResult.reply && aiResult.reply.trim()) {
