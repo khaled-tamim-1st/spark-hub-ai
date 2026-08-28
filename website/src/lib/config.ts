@@ -14,7 +14,7 @@ export function getAppUrl(path: string = ""): string {
     if (hostname.includes("ecomate.ai")) {
       return `${protocol}//app.ecomate.ai${cleanPath}`;
     }
-    return `${protocol}//${hostname}${cleanPath}`;
+    return `${protocol}//${hostname}:3000${cleanPath}`;
   }
 
   return `http://187.127.141.114:3000${cleanPath}`;
@@ -30,14 +30,19 @@ export function getApiUrl(path: string = ""): string {
   if (typeof window !== "undefined") {
     const protocol = window.location.protocol;
     const hostname = window.location.hostname;
-    if (window.location.port === "4000" || window.location.port === "3000") {
-      return `${protocol}//${hostname}:5000${cleanPath}`;
+    
+    // When on port 4000 (website), use relative URL so Next.js proxy routes to port 3000
+    if (window.location.port === "4000") {
+      return cleanPath;
+    }
+    if (window.location.port === "3000") {
+      return `${protocol}//${hostname}:3000${cleanPath}`;
     }
     if (hostname.includes("ecomate.ai")) {
       return `${protocol}//app.ecomate.ai${cleanPath}`;
     }
-    return `${protocol}//${hostname}${cleanPath}`;
+    return `${protocol}//${hostname}:3000${cleanPath}`;
   }
 
-  return `http://187.127.141.114:5000${cleanPath}`;
+  return `http://187.127.141.114:3000${cleanPath}`;
 }

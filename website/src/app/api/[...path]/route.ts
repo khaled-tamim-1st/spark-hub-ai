@@ -26,13 +26,13 @@ async function handleProxy(request: NextRequest, path: string[]) {
   const subPath = path.join("/");
   const searchParams = request.nextUrl.search;
 
+  // Primary target is port 3000 (where the backend dashboard & api listen on VPS)
   const targets = [
     process.env.API_SERVER_URL,
-    "http://127.0.0.1:5000",
     "http://127.0.0.1:3000",
-    "http://127.0.0.1:5005",
-    "http://localhost:5000",
     "http://localhost:3000",
+    "http://127.0.0.1:5000",
+    "http://localhost:5000",
   ].filter(Boolean) as string[];
 
   let bodyText: string | undefined = undefined;
@@ -43,6 +43,8 @@ async function handleProxy(request: NextRequest, path: string[]) {
       bodyText = undefined;
     }
   }
+
+  const errors: string[] = [];
 
   for (const target of targets) {
     try {
@@ -66,16 +68,29 @@ async function handleProxy(request: NextRequest, path: string[]) {
       const responseText = await res.text();
       const contentType = res.headers.get("content-type") || "application/json";
 
-      return new NextResponse(responseText, {
-        status: res.status,
-        headers: {
-          "Content-Type": contentType,
-        },
-      });
-    } catch {
-      // Continue to next candidate target
+      const isJson = contentType.includes("application/json") || 
+                     responseText.trim().startsWith("{") || 
+                     responseText.trim().startsWith("[");
+
+      if (res.ok || isJson) {
+        return new NextResponse(responseText, {
+          status: res.status,
+          headers: {
+            "Content-Type": isJson ? "application/json" : contentType,
+            "X-Proxied-From": target,
+          },
+        });
+      }
+
+      errors.push(`${target}: status ${res.status} non-json`);
+    } catch (e: any) {
+      errors.push(`${target}: ${e?.message || "connection failed"}`);
     }
   }
 
-  return NextResponse.json({ error: "Backend API Server connection failed" }, { status: 502 });
+  console.error("[API Proxy] All targets failed:", errors);
+  return NextResponse.json(
+    { error: "Backend API Server connection failed", details: errors },
+    { status: 502 }
+  );
 }
