@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '@workspace/db';
 import { conversations, contacts, messages, users, channels } from '@workspace/db';
-import { eq, and, or, desc, asc } from 'drizzle-orm';
+import { eq, and, or, ne, desc, asc, sql } from 'drizzle-orm';
 import { requireAuth } from '../middlewares/auth.js';
 import { sendWhatsAppMessage } from '../services/whatsapp-web.js';
 import { sendMetaMessage } from '../services/meta-messenger.js';
@@ -19,7 +19,16 @@ router.get('/', requireAuth, async (req, res) => {
     if (!isSuperAdmin && orgId) {
       conditions.push(or(eq(conversations.organizationId, orgId), eq(conversations.channelType, 'web')));
     }
-    if (status && status !== 'all') conditions.push(eq(conversations.status, status));
+
+    if (status === 'trash') {
+      conditions.push(eq(conversations.status, 'trash'));
+    } else {
+      // Exclude trash from normal views (all, open, resolved, etc.)
+      conditions.push(ne(conversations.status, 'trash'));
+      if (status && status !== 'all') {
+        conditions.push(eq(conversations.status, status));
+      }
+    }
 
     const rows = await db.select({
       id: conversations.id,
@@ -60,6 +69,69 @@ router.get('/', requireAuth, async (req, res) => {
   } catch (err) { console.error(err); res.status(500).json({ error: 'Internal server error' }); }
 });
 
+// GET /api/conversations/trash/count
+router.get('/trash/count', requireAuth, async (req, res) => {
+  try {
+    const orgId = req.organizationId;
+    const isSuperAdmin = req.role === 'superadmin';
+    const conditions: any[] = [eq(conversations.status, 'trash')];
+    if (!isSuperAdmin && orgId) {
+      conditions.push(or(eq(conversations.organizationId, orgId), eq(conversations.channelType, 'web')));
+    }
+    const [countResult] = await db.select({ count: sql<number>`count(*)` })
+      .from(conversations)
+      .where(and(...conditions));
+    res.json({ count: Number(countResult?.count || 0) });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// DELETE /api/conversations/trash/empty (Empty Trash - Admin only)
+router.delete('/trash/empty', requireAuth, async (req, res) => {
+  try {
+    const isSuperAdmin = req.role === 'superadmin';
+    const isOrgAdmin = req.role === 'owner' || req.role === 'admin';
+    if (!isSuperAdmin && !isOrgAdmin) {
+      res.status(403).json({ error: 'Forbidden: Admin privileges required to empty trash' });
+      return;
+    }
+    const conditions: any[] = [eq(conversations.status, 'trash')];
+    if (!isSuperAdmin && req.organizationId) {
+      conditions.push(or(eq(conversations.organizationId, req.organizationId), eq(conversations.channelType, 'web')));
+    }
+    await db.delete(conversations).where(and(...conditions));
+    res.json({ success: true, message: 'Trash emptied successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /api/conversations/:id/restore (Restore from Trash)
+router.post('/:id/restore', requireAuth, async (req, res) => {
+  try {
+    const isSuperAdmin = req.role === 'superadmin';
+    const whereCond = isSuperAdmin
+      ? eq(conversations.id, Number(req.params.id))
+      : and(eq(conversations.id, Number(req.params.id)), or(eq(conversations.organizationId, req.organizationId), eq(conversations.channelType, 'web')));
+
+    const [existing] = await db.select().from(conversations).where(whereCond).limit(1);
+    if (!existing) { res.status(404).json({ error: 'Conversation not found' }); return; }
+
+    const [updated] = await db.update(conversations).set({
+      status: 'open',
+      updatedAt: new Date(),
+    }).where(eq(conversations.id, Number(req.params.id))).returning();
+
+    res.json({ success: true, conversation: updated });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // POST /api/conversations
 router.post('/', requireAuth, async (req, res) => {
   try {
@@ -82,7 +154,7 @@ router.patch('/:id', requireAuth, async (req, res) => {
     const isSuperAdmin = req.role === 'superadmin';
     const whereCond = isSuperAdmin
       ? eq(conversations.id, Number(req.params.id))
-      : and(eq(conversations.id, Number(req.params.id)), eq(conversations.organizationId, req.organizationId));
+      : and(eq(conversations.id, Number(req.params.id)), or(eq(conversations.organizationId, req.organizationId), eq(conversations.channelType, 'web')));
 
     const [existing] = await db.select({ id: conversations.id }).from(conversations)
       .where(whereCond)
@@ -99,20 +171,37 @@ router.patch('/:id', requireAuth, async (req, res) => {
   } catch (err) { console.error(err); res.status(500).json({ error: 'Internal server error' }); }
 });
 
-// DELETE /api/conversations/:id
+// DELETE /api/conversations/:id (Soft-delete by default, Permanent if ?permanent=true)
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
     const isSuperAdmin = req.role === 'superadmin';
+    const isOrgAdmin = req.role === 'owner' || req.role === 'admin';
+    const isPermanent = req.query.permanent === 'true';
+
     const whereCond = isSuperAdmin
       ? eq(conversations.id, Number(req.params.id))
-      : and(eq(conversations.id, Number(req.params.id)), eq(conversations.organizationId, req.organizationId));
+      : and(eq(conversations.id, Number(req.params.id)), or(eq(conversations.organizationId, req.organizationId), eq(conversations.channelType, 'web')));
 
-    const [existing] = await db.select({ id: conversations.id }).from(conversations)
+    const [existing] = await db.select({ id: conversations.id, status: conversations.status }).from(conversations)
       .where(whereCond)
       .limit(1);
     if (!existing) { res.status(404).json({ error: 'Not found' }); return; }
-    await db.delete(conversations).where(eq(conversations.id, Number(req.params.id)));
-    res.status(204).send();
+
+    if (isPermanent) {
+      if (!isSuperAdmin && !isOrgAdmin) {
+        res.status(403).json({ error: 'Forbidden: Admin privileges required for permanent deletion' });
+        return;
+      }
+      await db.delete(conversations).where(eq(conversations.id, Number(req.params.id)));
+      res.json({ success: true, permanent: true });
+    } else {
+      // Soft-delete to trash
+      const [trashed] = await db.update(conversations).set({
+        status: 'trash',
+        updatedAt: new Date(),
+      }).where(eq(conversations.id, Number(req.params.id))).returning();
+      res.json({ success: true, permanent: false, conversation: trashed });
+    }
   } catch (err) { console.error(err); res.status(500).json({ error: 'Internal server error' }); }
 });
 
@@ -219,4 +308,29 @@ router.post('/:id/messages', requireAuth, async (req, res) => {
   } catch (err) { console.error(err); res.status(500).json({ error: 'Internal server error' }); }
 });
 
+// Auto-cleanup: periodically permanently delete conversations in trash older than 30 days
+export async function cleanupExpiredTrash(): Promise<number> {
+  try {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    await db.delete(conversations).where(
+      and(
+        eq(conversations.status, 'trash'),
+        lt(conversations.updatedAt, thirtyDaysAgo)
+      )
+    );
+    console.log('[Trash Cleanup] Expired trash check completed.');
+    return 0;
+  } catch (err) {
+    console.error('[Trash Cleanup] Error during automatic trash cleanup:', err);
+    return 0;
+  }
+}
+
+// Run cleanup once on startup and then every 24 hours
+cleanupExpiredTrash().catch(() => {});
+setInterval(() => {
+  cleanupExpiredTrash().catch(() => {});
+}, 24 * 60 * 60 * 1000);
+
 export default router;
+

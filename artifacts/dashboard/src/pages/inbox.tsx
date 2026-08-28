@@ -37,13 +37,17 @@ import {
   ShoppingBag,
   Truck,
   Zap,
-  Volume2
+  Volume2,
+  Trash2,
+  RotateCcw,
+  AlertTriangle
 } from 'lucide-react';
 import { formatTime, getInitials } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { getToken } from '@/lib/auth';
+import { adminApi } from '@/lib/admin-api';
 
 const CANNED_REPLIES = [
   { label: 'ترحيب بالعميل', text: 'أهلاً بك يا فندم في Ecomate! كيف نقدر نساعدك اليوم؟ يسعدنا جداً تواصلك معنا.' },
@@ -68,6 +72,124 @@ export default function Inbox() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // ─── Current User & Role ───────────────────────────────────────────────────
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: adminApi.getMe,
+    staleTime: 60_000,
+  });
+  const isAdmin = user?.role === 'superadmin' || user?.role === 'owner' || user?.role === 'admin';
+
+  // ─── Trash Count Query ──────────────────────────────────────────────────────
+  const { data: trashData, refetch: refetchTrashCount } = useQuery({
+    queryKey: ['trash-count'],
+    queryFn: async () => {
+      const token = getToken();
+      const res = await fetch('/api/conversations/trash/count', {
+        headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      });
+      if (!res.ok) return { count: 0 };
+      return res.json();
+    },
+    refetchInterval: 5000,
+  });
+
+  // ─── Move to Trash (Soft Delete) ──────────────────────────────────────────
+  const handleMoveToTrash = async (convId: number) => {
+    try {
+      const token = getToken();
+      const res = await fetch(`/api/conversations/${convId}`, {
+        method: 'DELETE',
+        headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      });
+      if (!res.ok) throw new Error('فشل نقل المحادثة إلى السلة');
+      toast({
+        title: '🗑️ نُقلت إلى سلة المحذوفات',
+        description: 'تم نقل المحادثة إلى سلة المحذوفات. يمكنك استرجاعها في أي وقت.',
+      });
+      queryClient.invalidateQueries({ queryKey: getListConversationsQueryKey({}) });
+      refetchTrashCount();
+      if (selectedConversationId === convId) {
+        setSelectedConversationId(null);
+      }
+    } catch (err: any) {
+      toast({ title: 'خطأ', description: err.message, variant: 'destructive' });
+    }
+  };
+
+  // ─── Restore from Trash ───────────────────────────────────────────────────
+  const handleRestoreConversation = async (convId: number) => {
+    try {
+      const token = getToken();
+      const res = await fetch(`/api/conversations/${convId}/restore`, {
+        method: 'POST',
+        headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      });
+      if (!res.ok) throw new Error('فشل استرجاع المحادثة');
+      toast({
+        title: '✅ تم استرجاع المحادثة',
+        description: 'عادت المحادثة إلى صندوق المحادثات النشطة.',
+      });
+      queryClient.invalidateQueries({ queryKey: getListConversationsQueryKey({}) });
+      refetchTrashCount();
+      setSelectedConversationId(null);
+    } catch (err: any) {
+      toast({ title: 'خطأ', description: err.message, variant: 'destructive' });
+    }
+  };
+
+  // ─── Permanent Delete (Admin only) ────────────────────────────────────────
+  const handlePermanentDelete = async (convId: number) => {
+    if (!confirm('⚠️ هل أنت متأكد من حذف هذه المحادثة نهائياً من قاعدة البيانات؟ لا يمكن التراجع عن هذا الإجراء.')) return;
+    try {
+      const token = getToken();
+      const res = await fetch(`/api/conversations/${convId}?permanent=true`, {
+        method: 'DELETE',
+        headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'فشل الحذف النهائي');
+      }
+      toast({
+        title: '⚠️ تم الحذف النهائي',
+        description: 'تم حذف المحادثة وكافة رسائلها بشكل دائم.',
+      });
+      queryClient.invalidateQueries({ queryKey: getListConversationsQueryKey({}) });
+      refetchTrashCount();
+      if (selectedConversationId === convId) {
+        setSelectedConversationId(null);
+      }
+    } catch (err: any) {
+      toast({ title: 'خطأ', description: err.message, variant: 'destructive' });
+    }
+  };
+
+  // ─── Empty All Trash (Admin only) ─────────────────────────────────────────
+  const handleEmptyTrash = async () => {
+    if (!confirm('⚠️ هل أنت متأكد من إفراغ سلة المحذوفات بالكامل؟ سيتم حذف جميع المحادثات الموجودة في السلة نهائياً وبلا رجعة.')) return;
+    try {
+      const token = getToken();
+      const res = await fetch('/api/conversations/trash/empty', {
+        method: 'DELETE',
+        headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'فشل إفراغ السلة');
+      }
+      toast({
+        title: '🗑️ تم إفراغ السلة',
+        description: 'تم مسح كافة المحادثات المحذوفة نهائياً.',
+      });
+      queryClient.invalidateQueries({ queryKey: getListConversationsQueryKey({}) });
+      refetchTrashCount();
+      setSelectedConversationId(null);
+    } catch (err: any) {
+      toast({ title: 'خطأ', description: err.message, variant: 'destructive' });
+    }
+  };
 
   // ─── 1. Fetch Conversations with Live Polling (3s) ──────────────────────────
   const { data: conversations = [], isLoading } = useListConversations(
@@ -297,6 +419,73 @@ export default function Inbox() {
             />
           </div>
 
+          {/* Status Tabs: Active / Resolved / Trash */}
+          <div className="flex items-center gap-1 p-1 bg-muted/40 rounded-lg border border-border/50 text-xs">
+            <button
+              type="button"
+              onClick={() => { setStatusFilter('all'); setSelectedConversationId(null); }}
+              className={cn(
+                "flex-1 py-1 px-2 rounded-md font-medium transition-all text-center text-xs",
+                statusFilter === 'all'
+                  ? "bg-card text-foreground shadow-xs font-semibold"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              النشطة
+            </button>
+            <button
+              type="button"
+              onClick={() => { setStatusFilter('resolved'); setSelectedConversationId(null); }}
+              className={cn(
+                "flex-1 py-1 px-2 rounded-md font-medium transition-all text-center text-xs",
+                statusFilter === 'resolved'
+                  ? "bg-card text-foreground shadow-xs font-semibold"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              المكتملة
+            </button>
+            <button
+              type="button"
+              onClick={() => { setStatusFilter('trash'); setSelectedConversationId(null); }}
+              className={cn(
+                "py-1 px-2.5 rounded-md font-medium transition-all flex items-center justify-center gap-1 text-xs",
+                statusFilter === 'trash'
+                  ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 font-semibold"
+                  : "text-muted-foreground hover:text-red-500"
+              )}
+              title="سلة المحذوفات"
+            >
+              <Trash2 className="w-3 h-3" />
+              <span>السلة</span>
+              {(trashData?.count || 0) > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                  {trashData.count}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Trash Mode Banner & Empty Action */}
+          {statusFilter === 'trash' && (
+            <div className="flex items-center justify-between p-2 rounded-lg bg-red-500/5 border border-red-500/15 text-[11px] text-red-600 dark:text-red-400">
+              <span className="flex items-center gap-1.5 font-medium">
+                <Trash2 className="w-3.5 h-3.5" />
+                سلة المحذوفات ({filteredConversations.length})
+              </span>
+              {isAdmin && filteredConversations.length > 0 && (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  className="h-6 text-[10px] px-2 gap-1"
+                  onClick={handleEmptyTrash}
+                >
+                  إفراغ السلة
+                </Button>
+              )}
+            </div>
+          )}
+
           {/* Omni-Channel Filter Tabs (Tashgheel Style) */}
           <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
             {[
@@ -438,16 +627,57 @@ export default function Inbox() {
               </div>
 
               {/* Action Controls */}
-              <div className="flex items-center gap-3">
-                {/* AI Auto-Pilot Switch */}
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/40 border border-border">
-                  <Bot className={cn("w-4 h-4", selectedConversation.aiHandled ? "text-primary" : "text-muted-foreground")} />
-                  <span className="text-xs font-medium hidden sm:inline">AI Auto-Reply</span>
-                  <Switch
-                    checked={selectedConversation.aiHandled}
-                    onCheckedChange={handleToggleAiHandled}
-                  />
-                </div>
+              <div className="flex items-center gap-2">
+                {/* Trash Actions */}
+                {(selectedConversation.status as string) === 'trash' ? (
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs gap-1.5 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+                      onClick={() => handleRestoreConversation(selectedConversation.id)}
+                      title="استرجاع المحادثة إلى النشطة"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>استرجاع</span>
+                    </Button>
+                    {isAdmin && (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="h-8 text-xs gap-1.5"
+                        onClick={() => handlePermanentDelete(selectedConversation.id)}
+                        title="حذف نهائي من قاعدة البيانات"
+                      >
+                        <AlertTriangle className="w-3.5 h-3.5" />
+                        <span>حذف نهائي</span>
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-1.5"
+                    onClick={() => handleMoveToTrash(selectedConversation.id)}
+                    title="نقل المحادثة إلى سلة المحذوفات"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span className="hidden md:inline">نقل للسلة</span>
+                  </Button>
+                )}
+
+                {/* AI Auto-Pilot Switch (only for non-trashed chats) */}
+                {(selectedConversation.status as string) !== 'trash' && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/40 border border-border">
+                    <Bot className={cn("w-4 h-4", selectedConversation.aiHandled ? "text-primary" : "text-muted-foreground")} />
+                    <span className="text-xs font-medium hidden sm:inline">AI Auto-Reply</span>
+                    <Switch
+                      checked={selectedConversation.aiHandled}
+                      onCheckedChange={handleToggleAiHandled}
+                    />
+                  </div>
+                )}
 
                 {/* Toggle 360 CRM Panel Button */}
                 <Button
@@ -461,6 +691,25 @@ export default function Inbox() {
                 </Button>
               </div>
             </div>
+
+            {/* Trash Notice Banner */}
+            {(selectedConversation.status as string) === 'trash' && (
+              <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 flex items-center justify-between text-xs text-amber-900 dark:text-amber-300 shrink-0">
+                <div className="flex items-center gap-2">
+                  <Trash2 className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>هذه المحادثة في سلة المحذوفات (تُحذف تلقائياً بعد مرور 30 يوماً).</span>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-6 text-[11px] gap-1 border-amber-500/30 hover:bg-amber-500/10"
+                  onClick={() => handleRestoreConversation(selectedConversation.id)}
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  استرجاع
+                </Button>
+              </div>
+            )}
 
             {/* Message Stream */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-muted/15">
@@ -556,93 +805,110 @@ export default function Inbox() {
             </div>
 
             {/* Omni-Channel Input Bar */}
-            <div className="p-4 border-t border-border bg-card space-y-2 shrink-0">
-              {/* Quick Actions Header */}
-              <div className="flex items-center justify-between gap-2">
-                {/* Public vs Internal Note Toggle */}
-                <div className="flex items-center gap-1 bg-muted/50 p-0.5 rounded-lg text-xs">
-                  <button
-                    type="button"
-                    onClick={() => setIsInternalNote(false)}
-                    className={cn(
-                      "px-3 py-1 rounded-md transition-all font-medium flex items-center gap-1",
-                      !isInternalNote ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <Globe className="w-3 h-3" /> رد على العميل
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsInternalNote(true)}
-                    className={cn(
-                      "px-3 py-1 rounded-md transition-all font-medium flex items-center gap-1",
-                      isInternalNote ? "bg-amber-500 text-white shadow-sm" : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <Lock className="w-3 h-3" /> ملاحظة داخلية
-                  </button>
+            {(selectedConversation.status as string) === 'trash' ? (
+              <div className="p-4 border-t border-border bg-card/70 flex items-center justify-between gap-3 shrink-0">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Trash2 className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span>هذه المحادثة في سلة المحذوفات. يرجى استرجاعها أولاً للتمكن من إرسال ردود جديدة.</span>
                 </div>
-
-                {/* AI Copilot & Canned Replies */}
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="h-7 text-xs gap-1.5 text-primary border-primary/20 hover:bg-primary/10"
-                    onClick={handleAiCopilot}
-                    disabled={isAiGenerating}
-                  >
-                    <Sparkles className="w-3 h-3" />
-                    <span>{isAiGenerating ? 'جاري الاقتراح...' : 'اقتراح رد ذكي'}</span>
-                  </Button>
-
-                  {/* Canned Responses selector */}
-                  <select
-                    className="h-7 text-[11px] rounded-md border border-border bg-card px-2 text-foreground focus:ring-1 focus:ring-primary"
-                    onChange={(e) => {
-                      if (e.target.value) {
-                        setMessageContent(e.target.value);
-                        e.target.value = '';
-                      }
-                    }}
-                  >
-                    <option value="">ردود سريعة...</option>
-                    {CANNED_REPLIES.map((c, i) => (
-                      <option key={i} value={c.text}>{c.label}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Text Input Area */}
-              <div className="flex items-end gap-2">
-                <Textarea
-                  placeholder={isInternalNote ? "اكتب ملاحظة داخلية لفريق العمل (لن يراها العميل)..." : "اكتب ردك للعميل (Enter للإرسال)..."}
-                  value={messageContent}
-                  onChange={(e) => setMessageContent(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSendMessage();
-                    }
-                  }}
-                  className={cn(
-                    "resize-none text-xs min-h-[64px]",
-                    isInternalNote && "bg-amber-500/5 border-amber-500/30 focus-visible:ring-amber-500"
-                  )}
-                  rows={2}
-                />
-
                 <Button
-                  onClick={handleSendMessage}
-                  disabled={!messageContent.trim()}
-                  className={cn("h-16 px-5", isInternalNote ? "bg-amber-600 hover:bg-amber-700 text-white" : "")}
+                  size="sm"
+                  className="h-8 text-xs gap-1.5 shrink-0 bg-primary"
+                  onClick={() => handleRestoreConversation(selectedConversation.id)}
                 >
-                  <Send className="w-4 h-4" />
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  استرجاع المحادثة للرد
                 </Button>
               </div>
-            </div>
+            ) : (
+              <div className="p-4 border-t border-border bg-card space-y-2 shrink-0">
+                {/* Quick Actions Header */}
+                <div className="flex items-center justify-between gap-2">
+                  {/* Public vs Internal Note Toggle */}
+                  <div className="flex items-center gap-1 bg-muted/50 p-0.5 rounded-lg text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setIsInternalNote(false)}
+                      className={cn(
+                        "px-3 py-1 rounded-md transition-all font-medium flex items-center gap-1",
+                        !isInternalNote ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <Globe className="w-3 h-3" /> رد على العميل
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsInternalNote(true)}
+                      className={cn(
+                        "px-3 py-1 rounded-md transition-all font-medium flex items-center gap-1",
+                        isInternalNote ? "bg-amber-500 text-white shadow-sm" : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <Lock className="w-3 h-3" /> ملاحظة داخلية
+                    </button>
+                  </div>
+
+                  {/* AI Copilot & Canned Replies */}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-7 text-xs gap-1.5 text-primary border-primary/20 hover:bg-primary/10"
+                      onClick={handleAiCopilot}
+                      disabled={isAiGenerating}
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      <span>{isAiGenerating ? 'جاري الاقتراح...' : 'اقتراح رد ذكي'}</span>
+                    </Button>
+
+                    {/* Canned Responses selector */}
+                    <select
+                      className="h-7 text-[11px] rounded-md border border-border bg-card px-2 text-foreground focus:ring-1 focus:ring-primary"
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          setMessageContent(e.target.value);
+                          e.target.value = '';
+                        }
+                      }}
+                    >
+                      <option value="">ردود سريعة...</option>
+                      {CANNED_REPLIES.map((c, i) => (
+                        <option key={i} value={c.text}>{c.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Text Input Area */}
+                <div className="flex items-end gap-2">
+                  <Textarea
+                    placeholder={isInternalNote ? "اكتب ملاحظة داخلية لفريق العمل (لن يراها العميل)..." : "اكتب ردك للعميل (Enter للإرسال)..."}
+                    value={messageContent}
+                    onChange={(e) => setMessageContent(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendMessage();
+                      }
+                    }}
+                    className={cn(
+                      "resize-none text-xs min-h-[64px]",
+                      isInternalNote && "bg-amber-500/5 border-amber-500/30 focus-visible:ring-amber-500"
+                    )}
+                    rows={2}
+                  />
+
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={!messageContent.trim()}
+                    className={cn("h-16 px-5", isInternalNote ? "bg-amber-600 hover:bg-amber-700 text-white" : "")}
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>

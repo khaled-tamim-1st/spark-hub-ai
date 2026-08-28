@@ -200,6 +200,7 @@ export const ConversationStatus = {
   resolved: 'resolved',
   pending: 'pending',
   snoozed: 'snoozed',
+  trash: 'trash',
 } as const;
 
 export type ConversationChannelType = typeof ConversationChannelType[keyof typeof ConversationChannelType];
