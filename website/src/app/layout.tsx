@@ -111,7 +111,7 @@ export default function RootLayout({
         <Script
           id="ecomate-widget-script"
           src="/widget.js"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
           data-channel="1"
           data-color="#3B4FE8"
           data-title="مساعد ECOMATE الذكي"
