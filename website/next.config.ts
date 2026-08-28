@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   async rewrites() {
-    const apiTarget = process.env.API_SERVER_URL || "http://127.0.0.1:3000";
+    // api-server runs on port 8080 on the VPS (confirmed via ss -tlnp)
+    const apiTarget = process.env.API_SERVER_URL || "http://127.0.0.1:8080";
     return [
       {
         source: "/api/:path*",

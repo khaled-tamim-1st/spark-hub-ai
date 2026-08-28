@@ -26,13 +26,13 @@ async function handleProxy(request: NextRequest, path: string[]) {
   const subPath = path.join("/");
   const searchParams = request.nextUrl.search;
 
-  // Primary target is port 3000 (where the backend dashboard & api listen on VPS)
+  // Primary target: api-server on port 8080 (confirmed via: ss -tlnp | grep 8080)
+  // Fallback: spark-hub-api on port 3000 (has basic widget routes but not our full system)
   const targets = [
     process.env.API_SERVER_URL,
-    "http://127.0.0.1:3000",
-    "http://localhost:3000",
-    "http://127.0.0.1:5000",
-    "http://localhost:5000",
+    "http://127.0.0.1:8080",  // api-server — our system (dashboard + AI + inbox)
+    "http://127.0.0.1:3000",  // spark-hub-api — fallback
+    "http://127.0.0.1:5000",  // supporthub-api — last resort
   ].filter(Boolean) as string[];
 
   let bodyText: string | undefined = undefined;
@@ -50,7 +50,7 @@ async function handleProxy(request: NextRequest, path: string[]) {
     try {
       const targetUrl = `${target.replace(/\/+$/, "")}/api/${subPath}${searchParams}`;
       const headers: Record<string, string> = {};
-      
+
       request.headers.forEach((value, key) => {
         const lower = key.toLowerCase();
         if (lower !== "host" && lower !== "content-length" && lower !== "connection") {
@@ -68,9 +68,11 @@ async function handleProxy(request: NextRequest, path: string[]) {
       const responseText = await res.text();
       const contentType = res.headers.get("content-type") || "application/json";
 
-      const isJson = contentType.includes("application/json") || 
-                     responseText.trim().startsWith("{") || 
-                     responseText.trim().startsWith("[");
+      // Only forward JSON responses — skip HTML error pages from wrong servers
+      const isJson =
+        contentType.includes("application/json") ||
+        responseText.trim().startsWith("{") ||
+        responseText.trim().startsWith("[");
 
       if (res.ok || isJson) {
         return new NextResponse(responseText, {
