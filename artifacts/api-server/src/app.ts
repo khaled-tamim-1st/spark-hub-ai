@@ -53,8 +53,9 @@ app.use(express.static(dashboardDist));
 
 // Fallback for React Router SPA
 app.use((req, res) => {
-  if (req.path.startsWith('/api') || req.path.startsWith('/widget')) {
-    res.status(404).json({ error: 'API route not found' });
+  const fullUrl = req.originalUrl || req.url || '';
+  if (fullUrl.startsWith('/api') || fullUrl.startsWith('/widget') || req.path.startsWith('/api') || req.path.startsWith('/widget')) {
+    res.status(404).json({ error: `API route not found: ${req.method} ${fullUrl}` });
     return;
   }
   const indexPath = path.join(dashboardDist, 'index.html');

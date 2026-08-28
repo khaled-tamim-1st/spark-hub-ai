@@ -6,6 +6,40 @@ import { generateAiReplyDetailed } from '../services/ai-service.js';
 
 const router: IRouter = Router();
 
+async function getOrCreateDefaultChannel(channelId?: number) {
+  let channel: any = null;
+  if (channelId && !isNaN(channelId)) {
+    [channel] = await db.select().from(channels).where(eq(channels.id, channelId)).limit(1);
+  }
+  if (!channel) {
+    [channel] = await db.select().from(channels).limit(1);
+  }
+  if (!channel) {
+    let [firstOrg] = await db.select().from(organizations).limit(1);
+    if (!firstOrg) {
+      [firstOrg] = await db.insert(organizations).values({
+        name: 'ECOMATE Store',
+        slug: 'ecomate-store',
+      }).returning();
+    }
+    const [newChannel] = await db.insert(channels).values({
+      organizationId: firstOrg.id,
+      name: 'ودجت الشات الرئيسي',
+      channelType: 'web',
+      provider: 'web_widget',
+      isActive: true,
+      config: {
+        widgetName: 'مساعد المتجر الذكي',
+        welcomeMessage: 'أهلاً بك 👋 كيف يمكننا مساعدتك اليوم؟',
+        primaryColor: '#3B4FE8',
+        position: 'right',
+      },
+    }).returning();
+    channel = newChannel;
+  }
+  return channel;
+}
+
 /**
  * GET /api/widget/config/:channelId
  * Public endpoint to fetch widget configuration
@@ -13,16 +47,7 @@ const router: IRouter = Router();
 router.get('/config/:channelId', async (req: Request, res: Response): Promise<void> => {
   try {
     const channelId = Number(req.params.channelId);
-    if (!channelId || isNaN(channelId)) {
-      res.status(400).json({ error: 'Invalid channelId' });
-      return;
-    }
-
-    const [channel] = await db.select().from(channels).where(eq(channels.id, channelId)).limit(1);
-    if (!channel || !channel.isActive) {
-      res.status(404).json({ error: 'Widget channel not found or inactive' });
-      return;
-    }
+    const channel = await getOrCreateDefaultChannel(channelId);
 
     const [org] = await db.select({ id: organizations.id, name: organizations.name })
       .from(organizations).where(eq(organizations.id, channel.organizationId)).limit(1);
@@ -47,7 +72,7 @@ router.get('/config/:channelId', async (req: Request, res: Response): Promise<vo
       widgetName: config.widgetName || channel.name || 'مساعد المتجر الذكي',
       welcomeMessage: config.welcomeMessage || 'أهلاً بك 👋 كيف يمكننا مساعدتك اليوم؟',
       primaryColor: config.primaryColor || '#3B4FE8',
-      position: config.position || 'right', // right | left
+      position: config.position || 'right',
       showAvatar: config.showAvatar ?? true,
       botName: config.botName || 'المساعد الذكي',
     });
@@ -65,21 +90,8 @@ router.post('/session', async (req: Request, res: Response): Promise<void> => {
   try {
     const { channelId, visitorId, name = 'زائر الموقع', phone, email } = req.body ?? {};
 
-    const numericChannelId = Number(channelId);
-    if (!numericChannelId || isNaN(numericChannelId)) {
-      res.status(400).json({ error: 'Valid channelId is required' });
-      return;
-    }
-
-    let [channel] = await db.select().from(channels).where(eq(channels.id, numericChannelId)).limit(1);
-    if (!channel) {
-      [channel] = await db.select().from(channels).limit(1);
-    }
-    if (!channel) {
-      res.status(404).json({ error: 'Channel not found' });
-      return;
-    }
-
+    const numericChannelId = Number(channelId) || 1;
+    const channel = await getOrCreateDefaultChannel(numericChannelId);
     const orgId = channel.organizationId;
     const finalVisitorId = visitorId || `visitor_${Math.random().toString(36).substring(2, 11)}`;
 
@@ -211,16 +223,7 @@ router.post('/messages', async (req: Request, res: Response): Promise<void> => {
 
     // Auto-resolve or create conversation if ID wasn't provided or found
     if (!conv) {
-      const numericChannelId = Number(channelId) || 1;
-      let [channel] = await db.select().from(channels).where(eq(channels.id, numericChannelId)).limit(1);
-      if (!channel) {
-        [channel] = await db.select().from(channels).limit(1);
-      }
-      if (!channel) {
-        res.status(404).json({ error: 'No active channel found' });
-        return;
-      }
-
+      const channel = await getOrCreateDefaultChannel(Number(channelId) || 1);
       const orgId = channel.organizationId;
       const finalVisitorId = visitorId || `visitor_${Math.random().toString(36).substring(2, 11)}`;
 
