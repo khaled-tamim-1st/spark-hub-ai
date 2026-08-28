@@ -28,12 +28,12 @@ async function getOrCreateDefaultChannel(channelId?: number) {
       channelType: 'web',
       provider: 'web_widget',
       isActive: true,
-      config: {
+      config: JSON.stringify({
         widgetName: 'مساعد المتجر الذكي',
         welcomeMessage: 'أهلاً بك 👋 كيف يمكننا مساعدتك اليوم؟',
         primaryColor: '#3B4FE8',
         position: 'right',
-      },
+      }),
     }).returning();
     channel = newChannel;
   }
