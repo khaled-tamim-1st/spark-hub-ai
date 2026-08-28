@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { db } from '@workspace/db';
 import { conversations, contacts, messages, users, channels } from '@workspace/db';
-import { eq, and, or, ne, desc, asc, sql } from 'drizzle-orm';
+import { eq, and, or, ne, lt, desc, asc, sql } from 'drizzle-orm';
 import { requireAuth } from '../middlewares/auth.js';
 import { sendWhatsAppMessage } from '../services/whatsapp-web.js';
 import { sendMetaMessage } from '../services/meta-messenger.js';
+import { getSupervisorStats } from '../services/ai-supervisor/index.js';
 
 const router = Router();
 
@@ -84,6 +85,17 @@ router.get('/trash/count', requireAuth, async (req, res) => {
     res.json({ count: Number(countResult?.count || 0) });
   } catch (err) {
     console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /api/conversations/supervisor/stats (Section 17: Supervisor Activity Metrics)
+router.get('/supervisor/stats', requireAuth, async (req, res) => {
+  try {
+    const stats = await getSupervisorStats(req.organizationId || 1);
+    res.json(stats);
+  } catch (err: any) {
+    console.error('[Supervisor API] Stats error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

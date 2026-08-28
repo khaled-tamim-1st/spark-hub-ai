@@ -95,6 +95,20 @@ export default function Inbox() {
     refetchInterval: 5000,
   });
 
+  // ─── AI Supervisor Stats Query (Section 17) ──────────────────────────────
+  const { data: supervisorStats } = useQuery({
+    queryKey: ['supervisor-stats'],
+    queryFn: async () => {
+      const token = getToken();
+      const res = await fetch('/api/conversations/supervisor/stats', {
+        headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      });
+      if (!res.ok) return null;
+      return res.json();
+    },
+    refetchInterval: 10_000,
+  });
+
   // ─── Move to Trash (Soft Delete) ──────────────────────────────────────────
   const handleMoveToTrash = async (convId: number) => {
     try {
@@ -512,6 +526,21 @@ export default function Inbox() {
             ))}
           </div>
         </div>
+
+        {/* AI Supervisor Live Status Banner (Section 17) */}
+        {supervisorStats && supervisorStats.totalAnalyzed > 0 && (
+          <div className="px-3.5 py-1.5 bg-primary/5 border-b border-primary/10 flex items-center justify-between text-[10px] text-primary shrink-0">
+            <span className="flex items-center gap-1.5 font-semibold">
+              <Sparkles className="w-3 h-3 text-primary" />
+              المشرف الذكي (Supervisor)
+            </span>
+            <div className="flex items-center gap-2.5 font-mono text-[10px]">
+              <span title="محادثات تم تدقيقها">فحص: {supervisorStats.totalAnalyzed}</span>
+              <span className="text-amber-600 dark:text-amber-400 font-bold" title="تصعيد بشري">🚨 {supervisorStats.escalationsCount}</span>
+              <span className="text-emerald-600 dark:text-emerald-400 font-bold" title="صفقات مبيعات CRM">💰 {supervisorStats.dealsCount}</span>
+            </div>
+          </div>
+        )}
 
         {/* Conversation List Items */}
         <div className="flex-1 overflow-y-auto divide-y divide-border/60">

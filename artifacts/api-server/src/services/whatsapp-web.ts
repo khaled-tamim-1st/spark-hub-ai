@@ -15,6 +15,7 @@ import { db } from '@workspace/db';
 import { channels, contacts, conversations, messages } from '@workspace/db';
 import { eq, and } from 'drizzle-orm';
 import { generateAiReply } from './ai-service.js';
+import { dispatchSupervisorInspection } from './ai-supervisor/index.js';
 
 export type WhatsAppWebStatus =
   | 'idle'
@@ -290,13 +291,42 @@ async function handleIncomingMessage(channelId: number, socket: WASocket, msg: W
 
     console.log(`[WhatsApp ${isFromMe ? 'Mobile Outgoing' : 'Incoming'}] (${senderDisplayPhone}): "${text.substring(0, 50)}"`);
 
-    // 4. Trigger AI Auto-Reply ONLY for incoming customer messages
+    // 4. Trigger AI Supervisor & Auto-Reply ONLY for incoming customer messages
     if (!isFromMe) {
+      // ─── Dispatch AI Operations Supervisor (Non-blocking) ─────────────────
+      dispatchSupervisorInspection({
+        organizationId: orgId,
+        conversationId: conv.id,
+        contactId: conv.contactId,
+        messageId: messageExternalId,
+        channelType: 'whatsapp',
+        incomingText: text,
+        customerName: pushName,
+      });
+
+      // ─── Critical Safety Gate ─────────────────────────────────────────────
+      const [currentConv] = await db.select({ aiHandled: conversations.aiHandled })
+        .from(conversations).where(eq(conversations.id, conv.id)).limit(1);
+
+      if (currentConv && !currentConv.aiHandled) {
+        console.log(`[WhatsApp AI] Safety Gate: Conversation #${conv.id} is manual/escalated. Skipping AI auto-reply.`);
+        return;
+      }
+
       const aiReply = await generateAiReply({
         organizationId: orgId,
         customerName: pushName,
         incomingText: text,
       });
+
+      // Re-check safety gate right before transmitting message to WhatsApp socket
+      const [recheckConv] = await db.select({ aiHandled: conversations.aiHandled })
+        .from(conversations).where(eq(conversations.id, conv.id)).limit(1);
+
+      if (recheckConv && !recheckConv.aiHandled) {
+        console.log(`[WhatsApp AI] Safety Gate: Conversation #${conv.id} switched to manual while generating. Aborting reply.`);
+        return;
+      }
 
       if (aiReply) {
         console.log(`[WhatsApp AI] Sending auto-reply to ${remoteJid}...`);

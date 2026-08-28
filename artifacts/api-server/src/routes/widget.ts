@@ -3,6 +3,7 @@ import { eq, and, desc, asc } from 'drizzle-orm';
 import { db } from '@workspace/db';
 import { channels, organizations, contacts, conversations, messages } from '@workspace/db/schema';
 import { generateAiReplyDetailed } from '../services/ai-service.js';
+import { dispatchSupervisorInspection } from '../services/ai-supervisor/index.js';
 
 const router: IRouter = Router();
 
@@ -315,47 +316,70 @@ router.post('/messages', async (req: Request, res: Response): Promise<void> => {
       updatedAt: new Date(),
     }).where(eq(conversations.id, numericConvId));
 
-    // 3. Trigger AI Auto-Reply if enabled
+    // ─── Dispatch AI Operations Supervisor (Non-blocking) ─────────────────
+    dispatchSupervisorInspection({
+      organizationId: orgId,
+      conversationId: numericConvId,
+      contactId: conv.contactId,
+      messageId: userMsg.id,
+      channelType: 'web',
+      incomingText: cleanContent,
+      customerName: visitorName,
+    });
+
+    // 3. Trigger AI Auto-Reply if enabled (with Critical Safety Gate)
     let botReplyMsg: any = null;
     try {
-      // Build conversation history
-      const pastMessages = await db.select({ senderType: messages.senderType, content: messages.content })
-        .from(messages)
-        .where(eq(messages.conversationId, numericConvId))
-        .orderBy(desc(messages.createdAt))
-        .limit(10);
+      // Critical Safety Gate: If conversation was set to manual/escalated, do NOT generate reply
+      const [latestConv] = await db.select({ aiHandled: conversations.aiHandled })
+        .from(conversations).where(eq(conversations.id, numericConvId)).limit(1);
 
-      const formattedHistory: Array<{ sender: string; text: string }> = pastMessages.reverse().map(m => ({
-        sender: m.senderType === 'contact' ? 'العميل' : 'المساعد',
-        text: m.content,
-      }));
+      if (latestConv && !latestConv.aiHandled) {
+        console.log(`[Widget API] Safety Gate: Conv #${numericConvId} is manual/escalated. Skipping AI reply.`);
+      } else {
+        // Build conversation history
+        const pastMessages = await db.select({ senderType: messages.senderType, content: messages.content })
+          .from(messages)
+          .where(eq(messages.conversationId, numericConvId))
+          .orderBy(desc(messages.createdAt))
+          .limit(10);
 
-      const aiResult = await generateAiReplyDetailed({
-        organizationId: orgId,
-        customerName: visitorName,
-        incomingText: cleanContent,
-        conversationHistory: formattedHistory,
-        forceGenerate: true,
-      });
+        const formattedHistory: Array<{ sender: string; text: string }> = pastMessages.reverse().map(m => ({
+          sender: m.senderType === 'contact' ? 'العميل' : 'المساعد',
+          text: m.content,
+        }));
 
-      if (aiResult.success && aiResult.reply && aiResult.reply.trim()) {
-        const [savedAiMsg] = await db.insert(messages).values({
-          conversationId: numericConvId,
-          senderType: 'ai',
-          senderName: 'المساعد الذكي (ECOMATE)',
-          content: aiResult.reply.trim(),
-          messageType: 'text',
-          status: 'delivered',
-        }).returning();
+        const aiResult = await generateAiReplyDetailed({
+          organizationId: orgId,
+          customerName: visitorName,
+          incomingText: cleanContent,
+          conversationHistory: formattedHistory,
+          forceGenerate: true,
+        });
 
-        botReplyMsg = savedAiMsg;
+        // Re-check safety gate right before committing the reply
+        const [recheckConv] = await db.select({ aiHandled: conversations.aiHandled })
+          .from(conversations).where(eq(conversations.id, numericConvId)).limit(1);
 
-        await db.update(conversations).set({
-          lastMessage: aiResult.reply.substring(0, 200),
-          lastMessageAt: new Date(),
-          aiHandled: true,
-          updatedAt: new Date(),
-        }).where(eq(conversations.id, numericConvId));
+        if ((!recheckConv || recheckConv.aiHandled) && aiResult.success && aiResult.reply && aiResult.reply.trim()) {
+          const [savedAiMsg] = await db.insert(messages).values({
+            conversationId: numericConvId,
+            senderType: 'ai',
+            senderName: 'المساعد الذكي (ECOMATE)',
+            content: aiResult.reply.trim(),
+            messageType: 'text',
+            status: 'delivered',
+          }).returning();
+
+          botReplyMsg = savedAiMsg;
+
+          await db.update(conversations).set({
+            lastMessage: aiResult.reply.substring(0, 200),
+            lastMessageAt: new Date(),
+            aiHandled: true,
+            updatedAt: new Date(),
+          }).where(eq(conversations.id, numericConvId));
+        }
       }
     } catch (aiErr) {
       console.warn('[Widget API] AI generation skipped or failed:', aiErr);
