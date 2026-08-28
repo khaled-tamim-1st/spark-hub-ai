@@ -5,7 +5,7 @@ import { eq, and, or, ne, lt, desc, asc, sql } from 'drizzle-orm';
 import { requireAuth } from '../middlewares/auth.js';
 import { sendWhatsAppMessage } from '../services/whatsapp-web.js';
 import { sendMetaMessage } from '../services/meta-messenger.js';
-import { getSupervisorStats } from '../services/ai-supervisor/index.js';
+import { getSupervisorStats, isInternalNoteContent } from '../services/ai-supervisor/index.js';
 
 const router = Router();
 
@@ -282,19 +282,21 @@ router.post('/:id/messages', requireAuth, async (req, res) => {
       updatedAt: new Date(),
     }).where(eq(conversations.id, convId));
 
-    // Send through WhatsApp socket if not private and channel is WhatsApp
-    if (!isPrivate && conv.channelType === 'whatsapp' && conv.contactId) {
+    const isInternal = Boolean(isPrivate) || String(messageType) === 'internal_note' || isInternalNoteContent(String(content));
+
+    // Send through WhatsApp socket ONLY if strictly non-internal
+    if (!isInternal && conv.channelType === 'whatsapp' && conv.contactId) {
       const [contact] = await db.select({ phone: contacts.phone }).from(contacts)
         .where(eq(contacts.id, conv.contactId)).limit(1);
       
       if (contact?.phone) {
         console.log(`[Conversations] Sending WhatsApp reply to ${contact.phone}...`);
-        await sendWhatsAppMessage(conv.channelId || 1, contact.phone, String(content));
+        await sendWhatsAppMessage(conv.channelId || 1, contact.phone, String(content), { isPrivate: false, messageType: 'text' });
       }
     }
 
-    // Send through Meta Graph API if channel is messenger or instagram
-    if (!isPrivate && (conv.channelType === 'messenger' || conv.channelType === 'instagram') && conv.contactId) {
+    // Send through Meta Graph API ONLY if strictly non-internal
+    if (!isInternal && (conv.channelType === 'messenger' || conv.channelType === 'instagram') && conv.contactId) {
       const [contact] = await db.select({ phone: contacts.phone }).from(contacts)
         .where(eq(contacts.id, conv.contactId)).limit(1);
 
@@ -309,7 +311,7 @@ router.post('/:id/messages', requireAuth, async (req, res) => {
 
         if (metaChannelId) {
           console.log(`[Conversations] Sending Meta reply via channel ${metaChannelId} to ${contact.phone}...`);
-          await sendMetaMessage(metaChannelId, contact.phone, String(content));
+          await sendMetaMessage(metaChannelId, contact.phone, String(content), { isPrivate: false, messageType: 'text' });
         } else {
           console.warn(`[Conversations] Cannot send Meta reply: No active Meta channel found.`);
         }

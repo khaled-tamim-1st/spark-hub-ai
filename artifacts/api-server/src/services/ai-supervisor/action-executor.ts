@@ -2,6 +2,7 @@ import { db } from '@workspace/db';
 import { conversations, messages, contacts, deals, tags, contactTags } from '@workspace/db';
 import { eq, and } from 'drizzle-orm';
 import { SupervisorDecision } from './types.js';
+import { createInternalNote } from './internal-notes.js';
 
 export interface ActionResult {
   escalated: boolean;
@@ -14,13 +15,14 @@ export interface ActionResult {
 /**
  * Execute Escalation to Human Agent:
  * 1. Switch conversation.aiHandled = false (stops bot instantly)
- * 2. Create Internal Note (Yellow Sticky Note) visible to support agent
+ * 2. Create Internal Note (Yellow Sticky Note) visible ONLY to support agent in Dashboard
  */
 export async function executeEscalationAction(params: {
   conversationId: number;
   decision: SupervisorDecision;
+  incomingText?: string;
 }): Promise<boolean> {
-  const { conversationId, decision } = params;
+  const { conversationId, decision, incomingText } = params;
 
   try {
     // 1. Critical safety gate: Disarm AI auto-reply on this conversation
@@ -29,34 +31,36 @@ export async function executeEscalationAction(params: {
       updatedAt: new Date(),
     }).where(eq(conversations.id, conversationId));
 
-    // 2. Format yellow internal guidance note
+    // 2. Format yellow internal guidance note according to Section 8
     const sentimentLabel = {
-      angry: 'غاضب جداً 😡 (أولوية قصوى)',
-      frustrated: 'مستاء / متضايق ⚠️',
-      neutral: 'عادي ℹ️',
-      positive: 'إيجابي / راضٍ ✨',
+      angry: 'غاضب جداً (Angry)',
+      frustrated: 'مستاء / متضايق (Frustrated)',
+      neutral: 'عادي (Neutral)',
+      positive: 'إيجابي (Positive)',
     }[decision.sentiment] || decision.sentiment;
 
-    const noteContent = `🚨 AI Supervisor Alert — تنبيه تصعيد ذكي
+    const noteContent = `🚨 AI Supervisor — تصعيد لخدمة العملاء
 
-السبب:
-${decision.escalation.reason || (decision.humanRequested ? 'طلب العميل التحدث مع موظف بشري صراحة.' : 'تم رصد استياء أو شكوى تتطلب تدخلاً يدوياً.')}
+الحالة:
+عميل مستاء / طلب تدخل بشري
 
-شعور العميل:
+${incomingText ? `رسالة العميل:\n"${incomingText}"\n\n` : ''}Sentiment:
 ${sentimentLabel}
 
-التوجيه المقترح لموظف الدعم:
-${decision.escalation.suggestedInternalNote || 'يرجى الترحيب بالعميل والاعتذار عن أي تأخير، والتحقق من تفاصيل الطلب وحلها فوراً.'}`;
+Human Requested:
+${decision.humanRequested ? 'نعم (Yes)' : 'لا (No)'}
 
-    // 3. Insert internal note
-    await db.insert(messages).values({
+سبب التصعيد:
+${decision.escalation.reason || 'تعبير واضح عن عدم الرضا أو الحاجة لتدخل بشري.'}
+
+التوجيه للموظف:
+${decision.escalation.suggestedInternalNote || 'ابدأ باعتذار مختصر واسأل العميل عن المشكلة لمساعدته فوراً. لا تفترض سبب الشكوى.'}`;
+
+    // 3. Isolated Internal Note creation (guaranteed isPrivate=true, messageType='internal_note')
+    await createInternalNote({
       conversationId,
-      senderType: 'system',
-      senderName: 'المشرف الذكي (AI Supervisor)',
       content: noteContent,
-      messageType: 'internal_note',
-      isPrivate: true,
-      status: 'delivered',
+      source: 'ai_supervisor',
     });
 
     console.log(`[AI Supervisor] Escalated conversation #${conversationId} to human agent.`);
@@ -122,18 +126,14 @@ export async function executeDealUpsertAction(params: {
       console.log(`[AI Supervisor] Created new CRM deal #${dealId} for contact #${contactId}.`);
     }
 
-    // 2. Add helpful Internal Note in chat
-    await db.insert(messages).values({
+    // 2. Add isolated Internal Note in chat
+    await createInternalNote({
       conversationId,
-      senderType: 'system',
-      senderName: 'المشرف الذكي (AI Supervisor)',
       content: `💰 رصد فرصة مبيعات جديدة في الـ CRM:
 العنوان: ${dealTitle}
 القيمة التقديرية: ${dealAmount} ${dealCurrency}
 رقم الصفقة: #${dealId}`,
-      messageType: 'internal_note',
-      isPrivate: true,
-      status: 'delivered',
+      source: 'ai_supervisor',
     });
 
     return { success: true, dealId };

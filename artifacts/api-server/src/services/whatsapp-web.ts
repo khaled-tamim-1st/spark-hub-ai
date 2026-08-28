@@ -15,7 +15,7 @@ import { db } from '@workspace/db';
 import { channels, contacts, conversations, messages } from '@workspace/db';
 import { eq, and } from 'drizzle-orm';
 import { generateAiReply } from './ai-service.js';
-import { dispatchSupervisorInspection } from './ai-supervisor/index.js';
+import { dispatchSupervisorInspection, isInternalNoteContent, CUSTOMER_HANDOFF_TEXT } from './ai-supervisor/index.js';
 
 export type WhatsAppWebStatus =
   | 'idle'
@@ -329,6 +329,12 @@ async function handleIncomingMessage(channelId: number, socket: WASocket, msg: W
       }
 
       if (aiReply) {
+        // Outbound content safety guard: ensure no internal supervisor text leaks
+        if (isInternalNoteContent(aiReply)) {
+          console.error('[CRITICAL SECURITY GUARD] Blocked attempt to send internal supervisor note to WhatsApp!');
+          return;
+        }
+
         console.log(`[WhatsApp AI] Sending auto-reply to ${remoteJid}...`);
         
         try {
@@ -345,6 +351,7 @@ async function handleIncomingMessage(channelId: number, socket: WASocket, msg: W
           senderName: 'سند AI',
           content: aiReply,
           messageType: 'text',
+          isPrivate: false,
           status: 'sent',
         });
 
@@ -550,7 +557,18 @@ export async function stopWhatsAppWebSession(channelId: number): Promise<void> {
 /**
  * Send an outgoing message via WhatsApp socket
  */
-export async function sendWhatsAppMessage(channelId: number, toPhoneOrJid: string, text: string): Promise<boolean> {
+export async function sendWhatsAppMessage(
+  channelId: number,
+  toPhoneOrJid: string,
+  text: string,
+  options?: { isPrivate?: boolean; messageType?: string }
+): Promise<boolean> {
+  // ─── Central Outbound Safety Guard (Section 3) ───────────────────────────
+  if (options?.isPrivate || options?.messageType === 'internal_note' || isInternalNoteContent(text)) {
+    console.error('[CRITICAL SECURITY GUARD] Blocked attempt to send internal note to WhatsApp:', text.substring(0, 80));
+    throw new Error('Internal notes cannot be sent externally to WhatsApp');
+  }
+
   let session = sessions.get(channelId);
 
   if (!session?.socket || session.snapshot.status !== 'connected') {

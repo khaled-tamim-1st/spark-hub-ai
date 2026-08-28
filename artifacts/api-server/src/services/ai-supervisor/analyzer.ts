@@ -156,6 +156,7 @@ export async function analyzeAndSupervise(
       const escalated = await executeEscalationAction({
         conversationId: input.conversationId,
         decision,
+        incomingText: input.incomingText,
       });
       if (escalated) {
         summary.escalated = true;

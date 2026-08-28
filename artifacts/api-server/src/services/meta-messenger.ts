@@ -2,6 +2,7 @@ import { db } from '@workspace/db';
 import { channels, contacts, conversations, messages } from '@workspace/db';
 import { eq, and, or } from 'drizzle-orm';
 import { generateAiReply } from './ai-service.js';
+import { isInternalNoteContent } from './ai-supervisor/index.js';
 
 export interface MetaConfig {
   pageId?: string;
@@ -56,8 +57,15 @@ export async function restoreMetaSubscriptions() {
 export async function sendMetaMessage(
   channelId: number,
   recipientId: string,
-  text: string
+  text: string,
+  options?: { isPrivate?: boolean; messageType?: string }
 ): Promise<boolean> {
+  // ─── Central Outbound Safety Guard (Section 3) ───────────────────────────
+  if (options?.isPrivate || options?.messageType === 'internal_note' || isInternalNoteContent(text)) {
+    console.error('[CRITICAL SECURITY GUARD] Blocked attempt to send internal note to Meta:', text.substring(0, 80));
+    throw new Error('Internal notes cannot be sent externally to Meta');
+  }
+
   try {
     const [channel] = await db.select().from(channels).where(eq(channels.id, channelId)).limit(1);
     if (!channel || !channel.config) {

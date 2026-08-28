@@ -1,9 +1,9 @@
 import { Router, type IRouter, type Request, type Response } from 'express';
-import { eq, and, desc, asc } from 'drizzle-orm';
+import { eq, and, ne, desc, asc } from 'drizzle-orm';
 import { db } from '@workspace/db';
 import { channels, organizations, contacts, conversations, messages } from '@workspace/db/schema';
 import { generateAiReplyDetailed } from '../services/ai-service.js';
-import { dispatchSupervisorInspection } from '../services/ai-supervisor/index.js';
+import { dispatchSupervisorInspection, CUSTOMER_HANDOFF_TEXT, isInternalNoteContent } from '../services/ai-supervisor/index.js';
 
 const router: IRouter = Router();
 
@@ -163,9 +163,13 @@ router.post('/session', async (req: Request, res: Response): Promise<void> => {
       conversationId = newConv.id;
     }
 
-    // 3. Fetch past messages
+    // 3. Fetch past messages (INTERNAL NOTES STRICTLY EXCLUDED FROM CUSTOMER SESSIONS)
     const messageRows = await db.select().from(messages)
-      .where(eq(messages.conversationId, conversationId))
+      .where(and(
+        eq(messages.conversationId, conversationId),
+        eq(messages.isPrivate, false),
+        ne(messages.messageType, 'internal_note')
+      ))
       .orderBy(asc(messages.createdAt));
 
     res.json({
@@ -189,6 +193,7 @@ router.post('/session', async (req: Request, res: Response): Promise<void> => {
 /**
  * GET /api/widget/messages/:conversationId
  * Public endpoint to poll latest messages for a conversation
+ * (INTERNAL NOTES STRICTLY EXCLUDED FROM CUSTOMER POLLING)
  */
 router.get('/messages/:conversationId', async (req: Request, res: Response): Promise<void> => {
   try {
@@ -201,7 +206,11 @@ router.get('/messages/:conversationId', async (req: Request, res: Response): Pro
     }
 
     const messageRows = await db.select().from(messages)
-      .where(eq(messages.conversationId, conversationId))
+      .where(and(
+        eq(messages.conversationId, conversationId),
+        eq(messages.isPrivate, false),
+        ne(messages.messageType, 'internal_note')
+      ))
       .orderBy(asc(messages.createdAt));
 
     const filtered = afterId > 0 ? messageRows.filter(m => m.id > afterId) : messageRows;
@@ -330,17 +339,31 @@ router.post('/messages', async (req: Request, res: Response): Promise<void> => {
     // 3. Trigger AI Auto-Reply if enabled (with Critical Safety Gate)
     let botReplyMsg: any = null;
     try {
-      // Critical Safety Gate: If conversation was set to manual/escalated, do NOT generate reply
+      // Critical Safety Gate: If conversation was set to manual/escalated, send handoff message only
       const [latestConv] = await db.select({ aiHandled: conversations.aiHandled })
         .from(conversations).where(eq(conversations.id, numericConvId)).limit(1);
 
       if (latestConv && !latestConv.aiHandled) {
-        console.log(`[Widget API] Safety Gate: Conv #${numericConvId} is manual/escalated. Skipping AI reply.`);
+        console.log(`[Widget API] Safety Gate: Conv #${numericConvId} is manual/escalated. Providing handoff notice.`);
+        const [savedHandoff] = await db.insert(messages).values({
+          conversationId: numericConvId,
+          senderType: 'ai',
+          senderName: 'فريق الدعم (Support)',
+          content: CUSTOMER_HANDOFF_TEXT,
+          messageType: 'text',
+          isPrivate: false,
+          status: 'delivered',
+        }).returning();
+        botReplyMsg = savedHandoff;
       } else {
-        // Build conversation history
+        // Build conversation history (INTERNAL NOTES STRICTLY EXCLUDED)
         const pastMessages = await db.select({ senderType: messages.senderType, content: messages.content })
           .from(messages)
-          .where(eq(messages.conversationId, numericConvId))
+          .where(and(
+            eq(messages.conversationId, numericConvId),
+            eq(messages.isPrivate, false),
+            ne(messages.messageType, 'internal_note')
+          ))
           .orderBy(desc(messages.createdAt))
           .limit(10);
 
@@ -361,28 +384,55 @@ router.post('/messages', async (req: Request, res: Response): Promise<void> => {
         const [recheckConv] = await db.select({ aiHandled: conversations.aiHandled })
           .from(conversations).where(eq(conversations.id, numericConvId)).limit(1);
 
-        if ((!recheckConv || recheckConv.aiHandled) && aiResult.success && aiResult.reply && aiResult.reply.trim()) {
-          const [savedAiMsg] = await db.insert(messages).values({
+        if (!recheckConv || recheckConv.aiHandled) {
+          if (aiResult.success && aiResult.reply && aiResult.reply.trim()) {
+            // Outbound content safety guard: ensure no internal supervisor text leaks
+            let replyToSend = aiResult.reply.trim();
+            if (isInternalNoteContent(replyToSend)) {
+              console.error('[CRITICAL SECURITY] Blocked leaked internal note from AI reply. Falling back to handoff text.');
+              replyToSend = CUSTOMER_HANDOFF_TEXT;
+            }
+
+            const [savedAiMsg] = await db.insert(messages).values({
+              conversationId: numericConvId,
+              senderType: 'ai',
+              senderName: 'المساعد الذكي (ECOMATE)',
+              content: replyToSend,
+              messageType: 'text',
+              isPrivate: false,
+              status: 'delivered',
+            }).returning();
+
+            botReplyMsg = savedAiMsg;
+
+            await db.update(conversations).set({
+              lastMessage: replyToSend.substring(0, 200),
+              lastMessageAt: new Date(),
+              aiHandled: true,
+              updatedAt: new Date(),
+            }).where(eq(conversations.id, numericConvId));
+          }
+        } else {
+          // If escalated during generation, send handoff message
+          const [savedHandoff] = await db.insert(messages).values({
             conversationId: numericConvId,
             senderType: 'ai',
-            senderName: 'المساعد الذكي (ECOMATE)',
-            content: aiResult.reply.trim(),
+            senderName: 'فريق الدعم (Support)',
+            content: CUSTOMER_HANDOFF_TEXT,
             messageType: 'text',
+            isPrivate: false,
             status: 'delivered',
           }).returning();
-
-          botReplyMsg = savedAiMsg;
-
-          await db.update(conversations).set({
-            lastMessage: aiResult.reply.substring(0, 200),
-            lastMessageAt: new Date(),
-            aiHandled: true,
-            updatedAt: new Date(),
-          }).where(eq(conversations.id, numericConvId));
+          botReplyMsg = savedHandoff;
         }
       }
     } catch (aiErr) {
       console.warn('[Widget API] AI generation skipped or failed:', aiErr);
+    }
+
+    // Never return internal notes in response payload
+    if (botReplyMsg && (botReplyMsg.isPrivate || botReplyMsg.messageType === 'internal_note' || isInternalNoteContent(botReplyMsg.content))) {
+      botReplyMsg = null;
     }
 
     res.json({
