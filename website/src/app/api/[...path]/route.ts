@@ -25,15 +25,21 @@ export async function DELETE(request: NextRequest, context: { params: Promise<{ 
 async function handleProxy(request: NextRequest, path: string[]) {
   const subPath = path.join("/");
   const searchParams = request.nextUrl.search;
+  const isWidgetRoute = subPath.startsWith("widget/");
 
-  // Primary target: api-server on port 8080 (confirmed via: ss -tlnp | grep 8080)
-  // Fallback: spark-hub-api on port 3000 (has basic widget routes but not our full system)
-  const targets = [
-    process.env.API_SERVER_URL,
-    "http://127.0.0.1:8080",  // api-server — our system (dashboard + AI + inbox)
-    "http://127.0.0.1:3000",  // spark-hub-api — fallback
-    "http://127.0.0.1:5000",  // supporthub-api — last resort
-  ].filter(Boolean) as string[];
+  // For widget routes: use supporthub-api (port 3000) which has the widget DB and AI
+  // For other API routes: use api-server (port 8080) which serves the dashboard
+  const targets = isWidgetRoute
+    ? [
+        process.env.WIDGET_SERVER_URL,
+        "http://127.0.0.1:3000",  // supporthub-api cluster — has widget routes + DB
+        "http://127.0.0.1:8080",  // api-server — fallback
+      ].filter(Boolean) as string[]
+    : [
+        process.env.API_SERVER_URL,
+        "http://127.0.0.1:8080",  // api-server — dashboard APIs
+        "http://127.0.0.1:3000",  // fallback
+      ].filter(Boolean) as string[];
 
   let bodyText: string | undefined = undefined;
   if (request.method !== "GET" && request.method !== "HEAD") {
@@ -68,23 +74,23 @@ async function handleProxy(request: NextRequest, path: string[]) {
       const responseText = await res.text();
       const contentType = res.headers.get("content-type") || "application/json";
 
-      // Only forward JSON responses — skip HTML error pages from wrong servers
       const isJson =
         contentType.includes("application/json") ||
         responseText.trim().startsWith("{") ||
         responseText.trim().startsWith("[");
 
-      if (res.ok || isJson) {
+      // Only forward successful (2xx) responses OR JSON responses from correct target
+      if (res.ok && isJson) {
         return new NextResponse(responseText, {
           status: res.status,
           headers: {
-            "Content-Type": isJson ? "application/json" : contentType,
+            "Content-Type": "application/json",
             "X-Proxied-From": target,
           },
         });
       }
 
-      errors.push(`${target}: status ${res.status} non-json`);
+      errors.push(`${target}: status ${res.status}`);
     } catch (e: any) {
       errors.push(`${target}: ${e?.message || "connection failed"}`);
     }
