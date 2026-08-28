@@ -29,9 +29,10 @@ async function handleProxy(request: NextRequest, path: string[]) {
   const targets = [
     process.env.API_SERVER_URL,
     "http://127.0.0.1:5000",
-    "http://localhost:5000",
-    "http://127.0.0.1:5005",
     "http://127.0.0.1:3000",
+    "http://127.0.0.1:5005",
+    "http://localhost:5000",
+    "http://localhost:3000",
   ].filter(Boolean) as string[];
 
   let bodyText: string | undefined = undefined;

@@ -11,6 +11,7 @@
     })();
 
   function resolveServerOrigin() {
+    // If an explicit data-server attribute is set, always use it
     const explicit = currentScript?.getAttribute('data-server');
     if (explicit && explicit.trim()) {
       return explicit.trim().replace(/\/+$/, '');
@@ -18,17 +19,31 @@
     if (typeof window !== 'undefined') {
       const p = window.location.protocol;
       const h = window.location.hostname;
-      if (window.location.port === '4000' || window.location.port === '3000') {
+      const port = window.location.port;
+
+      // If running on the dashboard (port 5005 dev), use same origin API
+      if (port === '5005') {
         return `${p}//${h}:5000`;
       }
-      if (h.includes('ecomate.ai')) {
-        return `${p}//app.ecomate.ai`;
+
+      // On port 4000 (website / Next.js), use SAME origin so Next.js proxy handles /api/* 
+      if (port === '4000') {
+        return `${p}//${h}:4000`;
       }
+
+      // If loaded from ecomate.ai domain, use same origin (Nginx handles routing)
+      if (h.includes('ecomate.ai')) {
+        return window.location.origin;
+      }
+
+      // Try to detect origin from the script src (e.g. when loaded from API server directly)
       if (currentScript?.src && !currentScript.src.startsWith('blob:')) {
         try {
           return new URL(currentScript.src).origin;
         } catch {}
       }
+
+      // Default: same origin
       return window.location.origin;
     }
     return '';
