@@ -102,29 +102,28 @@ ${kbContext ? `=== قاعدة معرفة المتجر والمنتجات الر�
     const provider = (overrideSettings?.provider || settings?.provider || 'groq').toLowerCase().trim();
     let model = (overrideSettings?.model || settings?.model || '').trim();
 
-    // Groq model fallback chain — ordered by availability (newest/most-available first)
+    // Active Groq models as of August 2026 (openai/gpt-oss series & compound systems)
     const GROQ_FALLBACK_MODELS = [
+      'openai/gpt-oss-120b',
+      'openai/gpt-oss-20b',
+      'groq/compound',
+      'groq/compound-mini',
       'llama-3.3-70b-versatile',
-      'llama-3.1-70b-versatile',
-      'llama3-70b-8192',
       'llama-3.1-8b-instant',
-      'llama3-8b-8192',
-      'gemma2-9b-it',
-      'gemma-7b-it',
     ];
 
-    // Normalize legacy/deprecated Groq model names
+    // Normalize legacy/deprecated Groq model names to active modern ones
     if (provider === 'groq') {
       if (
         !model ||
         model === 'llama3' ||
         model === 'llama3-70b-8192' ||
+        model === 'llama3-8b-8192' ||
         model === 'mixtral-8x7b-32768' ||
-        model.includes('120b') ||
-        model.includes('20b') ||
-        model === 'openai/gpt-oss-120b'
+        model === 'llama-3.1-8b-instant' ||
+        model === 'llama-3.3-70b-versatile'
       ) {
-        model = GROQ_FALLBACK_MODELS[0];
+        model = GROQ_FALLBACK_MODELS[0]; // 'openai/gpt-oss-120b'
       }
     }
 

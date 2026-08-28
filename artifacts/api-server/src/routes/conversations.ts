@@ -13,7 +13,12 @@ router.get('/', requireAuth, async (req, res) => {
   try {
     const { status, page = '1', limit = '50' } = req.query as Record<string, string>;
     const orgId = req.organizationId;
-    const conditions = [eq(conversations.organizationId, orgId)];
+    const isSuperAdmin = req.role === 'superadmin';
+    const conditions: any[] = [];
+    
+    if (!isSuperAdmin && orgId) {
+      conditions.push(eq(conversations.organizationId, orgId));
+    }
     if (status && status !== 'all') conditions.push(eq(conversations.status, status));
 
     const rows = await db.select({
@@ -36,7 +41,7 @@ router.get('/', requireAuth, async (req, res) => {
     })
       .from(conversations)
       .leftJoin(contacts, eq(conversations.contactId, contacts.id))
-      .where(and(...conditions))
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
       .orderBy(desc(conversations.lastMessageAt), desc(conversations.createdAt))
       .limit(Number(limit))
       .offset((Number(page) - 1) * Number(limit));
@@ -74,8 +79,13 @@ router.post('/', requireAuth, async (req, res) => {
 // PATCH /api/conversations/:id
 router.patch('/:id', requireAuth, async (req, res) => {
   try {
+    const isSuperAdmin = req.role === 'superadmin';
+    const whereCond = isSuperAdmin
+      ? eq(conversations.id, Number(req.params.id))
+      : and(eq(conversations.id, Number(req.params.id)), eq(conversations.organizationId, req.organizationId));
+
     const [existing] = await db.select({ id: conversations.id }).from(conversations)
-      .where(and(eq(conversations.id, Number(req.params.id)), eq(conversations.organizationId, req.organizationId)))
+      .where(whereCond)
       .limit(1);
     if (!existing) { res.status(404).json({ error: 'Not found' }); return; }
     const { status, assigneeId, aiHandled } = req.body ?? {};
@@ -92,8 +102,13 @@ router.patch('/:id', requireAuth, async (req, res) => {
 // DELETE /api/conversations/:id
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
+    const isSuperAdmin = req.role === 'superadmin';
+    const whereCond = isSuperAdmin
+      ? eq(conversations.id, Number(req.params.id))
+      : and(eq(conversations.id, Number(req.params.id)), eq(conversations.organizationId, req.organizationId));
+
     const [existing] = await db.select({ id: conversations.id }).from(conversations)
-      .where(and(eq(conversations.id, Number(req.params.id)), eq(conversations.organizationId, req.organizationId)))
+      .where(whereCond)
       .limit(1);
     if (!existing) { res.status(404).json({ error: 'Not found' }); return; }
     await db.delete(conversations).where(eq(conversations.id, Number(req.params.id)));
@@ -105,8 +120,13 @@ router.delete('/:id', requireAuth, async (req, res) => {
 router.get('/:id/messages', requireAuth, async (req, res) => {
   try {
     const orgId = req.organizationId;
+    const isSuperAdmin = req.role === 'superadmin';
+    const whereCond = isSuperAdmin
+      ? eq(conversations.id, Number(req.params.id))
+      : and(eq(conversations.id, Number(req.params.id)), eq(conversations.organizationId, orgId));
+
     const [conv] = await db.select({ id: conversations.id }).from(conversations)
-      .where(and(eq(conversations.id, Number(req.params.id)), eq(conversations.organizationId, orgId)))
+      .where(whereCond)
       .limit(1);
     if (!conv) { res.status(404).json({ error: 'Not found' }); return; }
     const msgs = await db.select().from(messages)
@@ -124,13 +144,18 @@ router.post('/:id/messages', requireAuth, async (req, res) => {
     const { content, messageType = 'text', isPrivate = false } = req.body ?? {};
     if (!content) { res.status(400).json({ error: 'Content is required' }); return; }
     
+    const isSuperAdmin = req.role === 'superadmin';
+    const whereCond = isSuperAdmin
+      ? eq(conversations.id, convId)
+      : and(eq(conversations.id, convId), eq(conversations.organizationId, orgId));
+
     const [conv] = await db.select({ 
       id: conversations.id,
       channelType: conversations.channelType,
       channelId: conversations.channelId,
       contactId: conversations.contactId,
     }).from(conversations)
-      .where(and(eq(conversations.id, convId), eq(conversations.organizationId, orgId)))
+      .where(whereCond)
       .limit(1);
 
     if (!conv) { res.status(404).json({ error: 'Not found' }); return; }

@@ -301,6 +301,7 @@ export default function Inbox() {
           <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
             {[
               { id: 'all', label: 'الكل' },
+              { id: 'web', label: 'الموقع / شات', icon: 'web' },
               { id: 'whatsapp', label: 'واتساب', icon: 'whatsapp' },
               { id: 'instagram', label: 'انستغرام', icon: 'instagram' },
               { id: 'messenger', label: 'ماسنجر', icon: 'messenger' },
