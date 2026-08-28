@@ -100,21 +100,36 @@ ${kbContext ? `=== قاعدة معرفة المتجر والمنتجات الر�
 4. الأسلوب: تحدث بأسلوب سعودي/عربي ودود، راقٍ وموجز وواضح، وخاطب العميل باحترام (اسم العميل: ${customerName}).`;
 
     const provider = (overrideSettings?.provider || settings?.provider || 'groq').toLowerCase().trim();
-    let model = (overrideSettings?.model || settings?.model || (provider === 'groq' ? 'openai/gpt-oss-120b' : 'llama3')).trim();
-    
-    // Auto-normalize legacy or inactive model names for Groq to active Groq models
+    let model = (overrideSettings?.model || settings?.model || '').trim();
+
+    // Groq model fallback chain — ordered by availability (newest/most-available first)
+    const GROQ_FALLBACK_MODELS = [
+      'llama-3.3-70b-versatile',
+      'llama-3.1-70b-versatile',
+      'llama3-70b-8192',
+      'llama-3.1-8b-instant',
+      'llama3-8b-8192',
+      'gemma2-9b-it',
+      'gemma-7b-it',
+    ];
+
+    // Normalize legacy/deprecated Groq model names
     if (provider === 'groq') {
       if (
-        !model || 
-        model === 'llama3' || 
-        model === 'llama3-70b-8192' || 
+        !model ||
+        model === 'llama3' ||
+        model === 'llama3-70b-8192' ||
         model === 'mixtral-8x7b-32768' ||
         model.includes('120b') ||
         model.includes('20b') ||
         model === 'openai/gpt-oss-120b'
       ) {
-        model = 'llama-3.3-70b-versatile';
+        model = GROQ_FALLBACK_MODELS[0];
       }
+    }
+
+    if (!model) {
+      model = provider === 'groq' ? GROQ_FALLBACK_MODELS[0] : 'llama3';
     }
 
     // Default to low temperature (0.3) for high factual accuracy in ecommerce support
@@ -213,43 +228,59 @@ ${kbContext ? `=== قاعدة معرفة المتجر والمنتجات الر�
     ];
 
     try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model,
-          messages,
-          temperature,
-          max_tokens: overrideSettings?.maxTokens || settings?.maxTokens || 800,
-        }),
-      });
+      // For Groq, build a list of models to try (configured model first, then fallbacks)
+      const modelsToTry: string[] = provider === 'groq'
+        ? [model, ...GROQ_FALLBACK_MODELS.filter(m => m !== model)]
+        : [model];
 
-      if (!res.ok) {
-        const errText = await res.text().catch(() => '');
-        let parsedMessage = errText;
-        try {
-          const json = JSON.parse(errText);
-          parsedMessage = json.error?.message || json.message || errText;
-        } catch {}
-        console.warn(`[AI Service] API error from ${endpoint} [${res.status}]: ${parsedMessage}`);
-        return { success: false, error: `${provider.toUpperCase()} Error (${res.status}): ${parsedMessage}` };
+      for (const tryModel of modelsToTry) {
+        console.log(`[AI Service] Trying Provider: [${provider}], Model: [${tryModel}]`);
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: tryModel,
+            messages,
+            temperature,
+            max_tokens: overrideSettings?.maxTokens || settings?.maxTokens || 800,
+          }),
+        });
+
+        if (!res.ok) {
+          const errText = await res.text().catch(() => '');
+          let parsedMessage = errText;
+          try {
+            const json = JSON.parse(errText);
+            parsedMessage = json.error?.message || json.message || errText;
+          } catch {}
+          console.warn(`[AI Service] API error from ${endpoint} [${res.status}]: ${parsedMessage}`);
+
+          // If model not found (404), try next model in fallback chain
+          if (res.status === 404 && provider === 'groq') {
+            continue;
+          }
+          return { success: false, error: `${provider.toUpperCase()} Error (${res.status}): ${parsedMessage}` };
+        }
+
+        const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
+        const reply = data.choices?.[0]?.message?.content?.trim();
+        if (!reply) {
+          return { success: false, error: 'Provider returned an empty response.' };
+        }
+
+        console.log(`[AI Service] Generated ${reply.length} chars successfully from [${tryModel}]`);
+        return { success: true, reply };
       }
 
-      const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
-      const reply = data.choices?.[0]?.message?.content?.trim();
-      if (!reply) {
-        return { success: false, error: 'Provider returned an empty response.' };
-      }
-
-      console.log(`[AI Service] Generated ${reply.length} chars successfully from [${model}]`);
-      return { success: true, reply };
+      return { success: false, error: `All Groq models unavailable. Please check your API key or update the model in AI Settings.` };
     } catch (fetchErr: any) {
       console.error(`[AI Service] Network error calling ${endpoint}:`, fetchErr);
       return { success: false, error: `Network error connecting to ${provider}: ${fetchErr.message}` };
     }
+
   } catch (err: any) {
     console.error('[AI Service] Unexpected error:', err);
     return { success: false, error: err.message || 'Internal AI service error' };
