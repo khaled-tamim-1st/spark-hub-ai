@@ -48,10 +48,10 @@ export default function Navbar() {
               />
             </div>
             <div className="flex flex-col text-right">
-              <span className="text-[#0454FF] font-black text-xl tracking-tight font-sans leading-none flex items-center justify-end" dir="ltr">
-                ECOMATE
+              <span className="text-slate-950 font-black text-xl tracking-tight font-sans flex items-center justify-end" dir="ltr">
+                <span>ECOM</span><span className="text-[#3B4FE8]">ATE</span>
               </span>
-              <span className="text-[10.5px] text-[#0454FF] font-bold tracking-tight mt-1">
+              <span className="text-[10px] text-slate-500 font-bold -mt-0.5">
                 حلول الأعمال والمنتجات الرقمية
               </span>
             </div>

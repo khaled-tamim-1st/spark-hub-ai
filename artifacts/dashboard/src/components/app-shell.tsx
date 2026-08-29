@@ -148,10 +148,10 @@ export function AppShell({ children }: AppShellProps) {
               isExpanded ? "opacity-100" : "opacity-0"
             )}
           >
-            <span className="font-black text-sm tracking-wider leading-tight text-blue-400 font-sans" dir="ltr">
+            <span className="font-black text-sm tracking-tight leading-tight text-sidebar-foreground">
               {t.brandName}
             </span>
-            <span className="text-[10px] text-blue-300/90 font-bold tracking-tight mt-0.5">
+            <span className="text-[10px] text-blue-400 font-bold tracking-wider">
               {t.brandTagline}
             </span>
           </div>

@@ -147,8 +147,8 @@ export interface Translations {
 
 const translations: Record<Language, Translations> = {
   ar: {
-    brandName: 'ECOMATE',
-    brandTagline: 'حلول الأعمال والمنتجات الرقمية',
+    brandName: 'Ecomate',
+    brandTagline: 'المساعد الذكي لمتجرك',
 
     navOperations: 'التشغيل والمحادثات',
     navCrm: 'العملاء والطلبات',

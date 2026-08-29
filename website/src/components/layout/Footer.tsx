@@ -50,10 +50,11 @@ export default function Footer() {
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-white font-black text-2xl tracking-tight font-sans leading-none flex items-center" dir="ltr">
-                  <span>ECOM</span><span className="text-[#5B8EFF]">ATE</span>
+                <span className="text-white font-black text-2xl tracking-tight font-sans flex items-center" dir="ltr">
+                  <span>ECOM</span>
+                  <span className="text-[#7B8FFF]">ATE</span>
                 </span>
-                <span className="text-[11px] text-[#5B8EFF] font-bold tracking-tight mt-1">
+                <span className="text-[10px] text-slate-400 font-bold -mt-0.5">
                   حلول الأعمال والمنتجات الرقمية
                 </span>
               </div>

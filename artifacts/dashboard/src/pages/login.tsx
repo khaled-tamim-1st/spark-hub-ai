@@ -69,11 +69,11 @@ export default function Login() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl overflow-hidden mb-4 shadow-lg border border-primary/20 bg-card p-2.5">
-            <img src="/logo.png?v=3" alt="ECOMATE" className="w-full h-full object-contain" />
+            <img src="/logo.png?v=3" alt="Ecomate" className="w-full h-full object-contain" />
           </div>
-          <h1 className="text-3xl font-black mb-1 tracking-wider text-[#0454FF] font-sans" dir="ltr">ECOMATE</h1>
-          <p className="text-sm font-bold text-[#0454FF]">
-            {selectingOrg ? 'اختر مساحة عمل المتجر أو الشركة' : 'حلول الأعمال والمنتجات الرقمية'}
+          <h1 className="text-3xl font-black mb-1 tracking-tight">Ecomate</h1>
+          <p className="text-muted-foreground text-sm font-medium">
+            {selectingOrg ? 'اختر مساحة عمل المتجر أو الشركة' : 'المساعد الذكي لمتاجر سلة والتجارة الإلكترونية 🛒'}
           </p>
         </div>
 
