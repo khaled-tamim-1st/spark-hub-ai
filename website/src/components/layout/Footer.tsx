@@ -41,11 +41,12 @@ export default function Footer() {
             <Link href="/" className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 relative flex-shrink-0 rounded-xl bg-white p-1 shadow-sm">
                 <Image
-                  src="/logo.png"
+                  src="/logo.png?v=2"
                   alt="ECOMATE Logo"
                   width={40}
                   height={40}
                   className="object-contain p-0.5"
+                  unoptimized
                 />
               </div>
               <div className="flex flex-col">

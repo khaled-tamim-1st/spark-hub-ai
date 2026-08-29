@@ -38,11 +38,13 @@ export default function Navbar() {
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 relative flex-shrink-0 rounded-xl bg-white p-1 border border-slate-200 group-hover:border-[#3B4FE8]/50 transition-all duration-300 shadow-xs">
               <Image
-                src="/logo.png"
+                src="/logo.png?v=2"
                 alt="ECOMATE Logo"
                 width={40}
                 height={40}
                 className="object-contain p-0.5"
+                unoptimized
+                priority
               />
             </div>
             <div className="flex flex-col text-right">

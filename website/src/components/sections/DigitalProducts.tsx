@@ -60,7 +60,7 @@ export default function DigitalProducts() {
           <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-slate-100 mb-8">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-2xl bg-white p-1 border border-slate-200 shadow-sm relative shrink-0">
-                <Image src="/logo.png" alt="ECOMATE" fill className="object-contain p-1" />
+                <Image src="/logo.png?v=2" alt="ECOMATE" fill className="object-contain p-1" unoptimized />
               </div>
               <div>
                 <span className="text-[11px] font-bold text-[#3B4FE8] tracking-wider uppercase block">

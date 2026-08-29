@@ -477,7 +477,7 @@ export default function AssistantHero() {
               <div className="bg-[#075E54] rounded-t-2xl px-3.5 py-2.5 flex items-center justify-between text-white">
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center p-0.5 shadow-sm overflow-hidden relative">
-                    <Image src="/logo.png" alt="Ecomate" fill className="object-contain p-0.5" />
+                    <Image src="/logo.png?v=2" alt="Ecomate" fill className="object-contain p-0.5" unoptimized />
                   </div>
                   <div>
                     <div className="flex items-center gap-1">

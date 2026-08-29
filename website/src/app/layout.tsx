@@ -63,6 +63,14 @@ export const metadata: Metadata = {
       "ردود تلقائية على واتساب وسلة بالذكاء الاصطناعي. جرّب Ecomate مجاناً.",
     images: ["/logo.png"],
   },
+  icons: {
+    icon: [
+      { url: "/favicon.png?v=2", type: "image/png" },
+      { url: "/favicon.ico?v=2" },
+    ],
+    shortcut: "/favicon.png?v=2",
+    apple: "/favicon.png?v=2",
+  },
   robots: {
     index: true,
     follow: true,
