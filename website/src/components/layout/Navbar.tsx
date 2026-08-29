@@ -36,22 +36,22 @@ export default function Navbar() {
           
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 relative flex-shrink-0 rounded-xl bg-white p-1 border border-slate-200 group-hover:border-[#3B4FE8]/50 transition-all duration-300 shadow-xs">
+            <div className="w-10 h-10 relative flex-shrink-0 rounded-xl bg-white p-1 border border-slate-200 group-hover:border-[#0454FF]/40 transition-all duration-300 shadow-xs">
               <Image
-                src="/logo.png?v=2"
+                src="/logo.png?v=3"
                 alt="ECOMATE Logo"
                 width={40}
                 height={40}
-                className="object-contain p-0.5"
+                className="object-contain"
                 unoptimized
                 priority
               />
             </div>
             <div className="flex flex-col text-right">
-              <span className="text-slate-950 font-black text-xl tracking-tight font-sans flex items-center justify-end" dir="ltr">
-                <span>ECOM</span><span className="text-[#3B4FE8]">ATE</span>
+              <span className="text-[#0454FF] font-black text-xl tracking-tight font-sans leading-none flex items-center justify-end" dir="ltr">
+                ECOMATE
               </span>
-              <span className="text-[10px] text-slate-500 font-bold -mt-0.5">
+              <span className="text-[10.5px] text-[#0454FF] font-bold tracking-tight mt-1">
                 حلول الأعمال والمنتجات الرقمية
               </span>
             </div>

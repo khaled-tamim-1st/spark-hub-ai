@@ -41,20 +41,19 @@ export default function Footer() {
             <Link href="/" className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 relative flex-shrink-0 rounded-xl bg-white p-1 shadow-sm">
                 <Image
-                  src="/logo.png?v=2"
+                  src="/logo.png?v=3"
                   alt="ECOMATE Logo"
                   width={40}
                   height={40}
-                  className="object-contain p-0.5"
+                  className="object-contain"
                   unoptimized
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-white font-black text-2xl tracking-tight font-sans flex items-center" dir="ltr">
-                  <span>ECOM</span>
-                  <span className="text-[#7B8FFF]">ATE</span>
+                <span className="text-white font-black text-2xl tracking-tight font-sans leading-none flex items-center" dir="ltr">
+                  <span>ECOM</span><span className="text-[#5B8EFF]">ATE</span>
                 </span>
-                <span className="text-[10px] text-slate-400 font-bold -mt-0.5">
+                <span className="text-[11px] text-[#5B8EFF] font-bold tracking-tight mt-1">
                   حلول الأعمال والمنتجات الرقمية
                 </span>
               </div>
