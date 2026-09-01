@@ -10,6 +10,7 @@ import EcoCxSection from "@/components/corporate/EcoCxSection";
 import BlogShowcase from "@/components/corporate/BlogShowcase";
 import FinalContactCTA from "@/components/corporate/FinalContactCTA";
 import ConsultationModal from "@/components/corporate/ConsultationModal";
+import FloatingWhatsApp from "@/components/corporate/FloatingWhatsApp";
 
 export default function Home() {
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
@@ -23,32 +24,32 @@ export default function Home() {
       <Navbar onOpenConsultation={openConsultation} />
 
       <main className="flex-1">
-        {/* 2. Hero Section: نبني لبراندك هوية وأدوات تخليه يوصل لعملاء أكتر */}
+        {/* 2. Hero Section: إدارة نمو المنشآت مدعومة بنظام ECO CX */}
         <section id="hero">
           <HeroSection onOpenConsultation={openConsultation} />
         </section>
 
-        {/* 3. رحلة النمو: الأعمدة الأربعة (براندنج، تسويق، حلول تقنية، أتمتة) */}
+        {/* 3. رحلة النمو: الأعمدة الأربعة (الهوية، التسويق، التقنية، الأتمتة) */}
         <section id="solutions">
           <GrowthJourney onOpenConsultation={openConsultation} />
         </section>
 
-        {/* 4. قسم الأمثلة القطاعية: لأي نوع براند بنشتغل (مطاعم، عيادات، صالونات) */}
+        {/* 4. نماذج التطبيق العملي لمختلف الأنشطة التجارية */}
         <section id="sectors">
           <SectorShowcase onOpenConsultation={openConsultation} />
         </section>
 
-        {/* 5. قسم ECO CX: منصة تجربة العملاء (قيد التطوير / وصول مبكر) */}
+        {/* 5. قسم نظام ECO CX الحصري لإدارة وتتبع علاقات العملاء */}
         <section id="eco-cx">
           <EcoCxSection />
         </section>
 
-        {/* 6. قسم المدونة والمعرفة العملية للبراندات */}
+        {/* 6. قسم المعرفة وأدلة نمو الأعمال */}
         <section id="blog">
           <BlogShowcase />
         </section>
 
-        {/* 7. CTA ختامي: عندك براند وعايز يكبر؟ احجز مكالمتك المجانية */}
+        {/* 7. قسم التواصل والبدء: طلب دراسة نمو لمنشأتك */}
         <section id="contact">
           <FinalContactCTA onOpenConsultation={openConsultation} />
         </section>
@@ -62,6 +63,9 @@ export default function Home() {
         isOpen={isConsultationOpen}
         onClose={closeConsultation}
       />
+
+      {/* 10. Floating WhatsApp Button for Instant Saudi Conversion */}
+      <FloatingWhatsApp />
     </div>
   );
 }

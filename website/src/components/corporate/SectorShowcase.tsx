@@ -8,7 +8,9 @@ import {
   CheckCircle2,
   Sparkles,
   ArrowLeft,
-  Building2,
+  Target,
+  TrendingUp,
+  BarChart3,
 } from "lucide-react";
 
 interface SectorShowcaseProps {
@@ -18,38 +20,41 @@ interface SectorShowcaseProps {
 const examples = [
   {
     title: "قطاع المطاعم والمقاهي",
-    subtitle: "الفروع المفردة والمتعددة",
+    subtitle: "الفروع الفردية وسلاسل الفروع",
     icon: UtensilsCrossed,
     color: "text-amber-600 bg-amber-50 border-amber-200",
-    desc: "توحيد الهوية البصرية بين الفروع ونقاط البيع، مع إتاحة قنوات طلب وحجز مباشرة عبر القوائم الرقمية، وتفعيل ردود تلقائية للاستفسارات المتكررة حول الموقع والمنيو.",
+    desc: "توحيد الهوية البصرية بين الفروع ونقاط البيع، مع تفعيل قنوات طلب وحجز مباشرة بدون عمولات وسيطة، وأتمتة الرد على استفسارات المنيو والموقع في أوقات الذروة.",
+    metric: "تخفيض عمولات التوصيل وزيادة الطلب المباشر",
     points: [
-      "توحيد لغة التصميم في المنيو، اللافتات، ومواد التغليف",
-      "قنوات طلب واستلام مباشرة دون عمولات وسيطة",
-      "أتمتة الرد على استفسارات المنيو وأوقات العمل والموقع",
+      "توحيد لغة التصميم في المنيو، اللافتات، ومواد التغليف الفاخرة",
+      "قنوات طلب واستلام مباشرة عبر الجوال وربط بوابات الدفع (مدى، Apple Pay)",
+      "أتمتة الرد اللحظي على استفسارات المنيو وأوقات العمل والموقع 24/7",
     ],
   },
   {
-    title: "العيادات والمراكز الطبية",
-    subtitle: "الأسنان، الجلدية، والمراكز التخصصية",
+    title: "العيادات والمراكز الطبية التخصصية",
+    subtitle: "الأسنان، الجلدية، جراحة اليوم الواحد",
     icon: Stethoscope,
     color: "text-blue-600 bg-blue-50 border-blue-200",
-    desc: "بناء هوية تعكس الثقة والوقار الطبي، مع نظام حجز مواعيد رقمي ميسر وتذكير آلي بالرسائل يقلل من نسبة غياب المرضى عن مواعيدهم المجدولة.",
+    desc: "بناء هوية مؤسسية تعكس الثقة والوقار الطبي، مع نظام حجز مواعيد مرن وتذكير آلي بالرسائل يقلل من نسبة غياب المرضى عن مواعيدهم المجدولة.",
+    metric: "خفض نسب الغياب (No-Shows) بنسبة تصل إلى 80%",
     points: [
-      "نظام حجز مواعيد مرن وسهل الاستخدام للمرضى",
-      "إشعارات وتذكير آلي بالمواعيد يقلل الغياب (No-Shows)",
-      "هوية بصرية وقوالب رقمية تعزز ثقة المراجعين",
+      "نظام حجز مواعيد رقمي ميسر يتيح اختيار الطبيب والوقت المتاح",
+      "إشعارات وتذكير آلي بالمواعيد يضمن تأكيد الحضور وحفظ أوقات الكوادر",
+      "حملات استهداف محلي للباحثين عن الخدمات الطبية في نطاق المركز",
     ],
   },
   {
-    title: "صالونات ومراكز العناية الشخصية",
-    subtitle: "الصالونات الرجالية والنسائية والسبا",
+    title: "مراكز العناية والتجميل والسبا",
+    subtitle: "الصالونات الرجالية والنسائية ومراكز الاسترخاء",
     icon: Scissors,
     color: "text-purple-600 bg-purple-50 border-purple-200",
-    desc: "إتاحة حجز الخدمات واختيار الأوقات رقمياً على مدار اليوم، مع استهداف تسويقي لسكان النطاق الجغرافي وتنبيهات مخصصة لمتابعة تكرار الزيارات.",
+    desc: "إتاحة حجز الخدمات واختيار الأوقات والأخصائيين رقمياً على مدار اليوم، مع حملات إعلانية مركزة جغرافياً وتنبيهات مخصصة لمتابعة تكرار الزيارات.",
+    metric: "رفع معدل تكرار الزيارات (Retention & LTV)",
     points: [
-      "إمكانية حجز الخدمات واختيار الوقت المتاح 24/7",
-      "حملات تسويق محلي تركز على النطاق الجغرافي المحيط",
-      "تنبيهات دورية لمتابعة رضا العملاء وتكرار الزيارة",
+      "إمكانية حجز الخدمات واختيار الأخصائي المتاح رقمياً على مدار 24 ساعة",
+      "حملات إعلانية موجهة جغرافياً لسكان الأحياء والمناطق المحيطة",
+      "تنبيهات تلقائية لمتابعة رضا العملاء وعروض العودة الدورية",
     ],
   },
 ];
@@ -71,7 +76,7 @@ export default function SectorShowcase({ onOpenConsultation }: SectorShowcasePro
           </h2>
 
           <p className="text-slate-600 text-base sm:text-lg font-medium leading-relaxed">
-            تتنوع خصوصية كل نشاط تجاري، وتتكامل منظومتنا لتلائم المتطلبات التشغيلية والتسويقية لكل قطاع وفق نموذج عمله.
+            تتنوع خصوصية كل منشأة وعلامة تجارية، وتتكامل منظومتنا لتلائم المتطلبات التشغيلية والتسويقية لتحقيق نتائج مالية وتجارية قابلة للقياس.
           </p>
         </div>
 
@@ -103,9 +108,15 @@ export default function SectorShowcase({ onOpenConsultation }: SectorShowcasePro
                 </h3>
 
                 {/* Paragraph Description */}
-                <p className="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed mb-5">
+                <p className="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed mb-4">
                   {item.desc}
                 </p>
+
+                {/* Metric Pill */}
+                <div className="bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-1.5 mb-5 flex items-center gap-1.5 text-[11px] font-bold text-slate-700">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span>{item.metric}</span>
+                </div>
 
                 {/* Points */}
                 <ul className="space-y-2.5 pt-4 border-t border-slate-100 mb-6">
@@ -130,7 +141,7 @@ export default function SectorShowcase({ onOpenConsultation }: SectorShowcasePro
         {/* Informative Note */}
         <div className="bg-white border border-slate-200 rounded-2xl p-5 text-center max-w-2xl mx-auto shadow-xs">
           <p className="text-slate-700 text-xs sm:text-sm font-medium">
-            هل تدير نشاطاً تجارياً في قطاع آخر؟ <button onClick={onOpenConsultation} className="text-[#0454FF] font-bold underline mr-1 hover:text-[#0047E0]">تواصل معنا</button> للاطلاع على سبل مواءمة خدماتنا مع نموذج عملك.
+            هل تدير منشأة تجارية في قطاع آخر؟ <button onClick={onOpenConsultation} className="text-[#0454FF] font-bold underline mr-1 hover:text-[#0047E0]">تواصل معنا</button> للاطلاع على سبل مواءمة خدماتنا وتقنياتنا مع نموذج عملك.
           </p>
         </div>
 

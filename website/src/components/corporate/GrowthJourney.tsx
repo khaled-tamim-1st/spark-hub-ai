@@ -9,7 +9,9 @@ import {
   Sparkles,
   ArrowLeft,
   CheckCircle2,
-  Layers,
+  Target,
+  TrendingUp,
+  BarChart3,
 } from "lucide-react";
 
 interface GrowthJourneyProps {
@@ -21,12 +23,13 @@ const pillars = [
     step: "01",
     pillar: "البراندنج والهوية التجارية",
     title: "تأسيس الهوية البصرية والاتساق المؤسسي",
-    desc: "بناء وتطوير هوية بصرية موحدة تضمن ظهوراً احترافياً ومتسقاً لعلامتك التجارية عبر كافة الفروع ونقاط الاتصال مع العميل.",
+    desc: "بناء وتطوير هوية بصرية متكاملة ترفع القيمة السوقية لعلامتك التجارية وتضمن اتساقاً تاماً عبر الفروع ونقاط الاتصال.",
     details: [
-      "تصميم الشعار وتطوير الدليل الإرشادي الكامل للهوية (Brand Identity Guidelines)",
-      "توحيد لغة التصميم في واجهات الفروع، المنيو، المطبوعات، ومواد التغليف",
-      "إعداد قوالب بصرية متسقة للحسابات الرقمية وقنوات التواصل الاجتماعي",
+      "تطوير دليل الهوية المؤسسية الكامل (Brand Guidelines) لضمان دقة التنفيذ",
+      "توحيد لغة التصميم في واجهات الفروع، المنيو، المطبوعات، ومواد التغليف الفاخرة",
+      "إعداد قوالب بصرية متسقة للحسابات الرقمية وقنوات التواصل التسويقي",
     ],
+    metric: "بناء ثقة أعلى وترسيخ اسم المنشأة",
     icon: Palette,
     badgeBg: "bg-purple-50 text-purple-700 border-purple-200",
     gradient: "from-purple-500/10 via-purple-500/5 to-transparent",
@@ -34,14 +37,15 @@ const pillars = [
   },
   {
     step: "02",
-    pillar: "التسويق والنمو المحلي",
-    title: "استراتيجيات التسويق الموجه وبناء الجمهور",
-    desc: "صياغة وإدارة خطط تسويقية تعتمد على الاستهداف الجغرافي المدروس للوصول إلى الجمهور الفعلي في نطاق فروعك وتحفيز تكرار الزيارات.",
+    pillar: "التسويق والاستحواذ الموجه",
+    title: "إدارة الحملات الإعلانية ومضاعفة العائد (ROAS)",
+    desc: "صياغة وإدارة استراتيجيات تسويق موجهة عبر القنوات الأكثر فاعلية محلياً (سناب شات، تيك توك، جوجل، X) لتحقيق أعلى عائد إعلاني وخفض تكلفة الاستحواذ.",
     details: [
-      "إدارة الحملات الإعلانية الموجهة جغرافياً (Geo-Targeting) في النطاق المحيط",
-      "تخطيط وإطلاق العروض الترويجية والحملات الموسمية لتحريك المبيعات",
-      "تحسين محركات البحث المحلي والظهور الاحترافي على خرائط جوجل",
+      "استهداف جغرافي وديموغرافي دقيق للجمهور الفعلي في نطاق فروع منشأتك",
+      "تحسين مسارات التحويل وتخفيض تكلفة الاستحواذ على العميل (CAC)",
+      "إدارة الحملات والعروض الموسمية ورفع تصدر الخرائط ومحركات البحث",
     ],
+    metric: "مضاعفة العائد الإعلاني (ROAS)",
     icon: Megaphone,
     badgeBg: "bg-blue-50 text-[#0454FF] border-blue-200",
     gradient: "from-blue-500/10 via-blue-500/5 to-transparent",
@@ -50,13 +54,14 @@ const pillars = [
   {
     step: "03",
     pillar: "الحلول والأنظمة التقنية",
-    title: "تطوير أدوات تفاعلية تسهّل تجربة العميل",
-    desc: "بناء وتجهيز منصات حجز وطلب رقمية خفيفة وسريعة تمكّن عملاءك من التفاعل والشراء المباشر دون وسطاء أو تعقيد في الإجراءات.",
+    title: "تطوير البنية التقنية والتكامل مع المنظومة المحلية",
+    desc: "بناء وتجهيز منصات حجز وطلب رقمية متكاملة تقنياً مع منصات التجارة (سلة، زد، شوبيفاي) وأنظمة الفوترة الإلكترونية وبوابات الدفع.",
     details: [
-      "صفحات ومنصات حجز مواعيد وطلب مباشر متوافقة بالكامل مع الجوال",
-      "قوائم ومنيوهات رقمية تفاعلية تتيح استعراض الخدمات والمنتجات بوضوح",
-      "ربط وتكامل تقني مباشر مع بوابات الدفع الإلكتروني وقنوات التواصل",
+      "تطوير منصات حجز وطلب مباشر سريعة ومتوافقة مع الجوال وبوابات الدفع (مدى، Apple Pay)",
+      "تكامل معتمد مع أنظمة الفوترة الإلكترونية لهيئة الزكاة والضريبة والجمارك (ZATCA)",
+      "ربط مباشر مع منصات سلة وزد وشوبيفاي لإدارة المنتجات والمخزون بسلاسة",
     ],
+    metric: "تسريع العمليات وتقليل الاعتماد على وسطاء",
     icon: Code2,
     badgeBg: "bg-emerald-50 text-emerald-700 border-emerald-200",
     gradient: "from-emerald-500/10 via-emerald-500/5 to-transparent",
@@ -64,14 +69,15 @@ const pillars = [
   },
   {
     step: "04",
-    pillar: "الأتمتة والتشغيل الذكي",
-    title: "أتمتة العمليات وقنوات خدمة العملاء",
-    desc: "توظيف الأتمتة الذكية للرد اللحظي على الاستفسارات المتكررة وإرسال تذكيرات المواعيد المجدولة لرفع كفاءة التشغيل وتوفير الوقت.",
+    pillar: "الأتمتة وإدارة العلاقات (ECO CX)",
+    title: "أتمتة خدمة العملاء ورفع القيمة الدائمة (LTV)",
+    desc: "توظيف محرك الأتمتة الذكي لربط قنوات التواصل، والرد اللحظي 24/7، وإرسال التذكيرات الآلية لرفع معدل تكرار الشراء وخفض تكلفة التشغيل.",
     details: [
-      "ردود مؤتمتة وفورية على الاستفسارات الشائعة والمنيو والموقع على مدار الساعة",
-      "نظام إشعارات وتذكير آلي بالمواعيد والطلبات لتقليل نسبة الغياب (No-Shows)",
-      "أتمتة استطلاعات الرأي وجمع التقييمات الإيجابية بعد إتمام الخدمة",
+      "ردود مؤتمتة ولحظية على الاستفسارات والطلبات عبر الواتساب وقنوات المراسلة",
+      "إشعارات وتذكير آلي بالمواعيد يقلل نسبة الغياب (No-Shows) إلى أدنى حد",
+      "أتمتة متابعة ما بعد الخدمة واستطلاعات قياس الرضا لبناء ولاء مستدام",
     ],
+    metric: "رفع معدل الاحتفاظ وتكرار الزيارات",
     icon: Zap,
     badgeBg: "bg-amber-50 text-amber-700 border-amber-200",
     gradient: "from-amber-500/10 via-amber-500/5 to-transparent",
@@ -92,11 +98,11 @@ export default function GrowthJourney({ onOpenConsultation }: GrowthJourneyProps
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 leading-tight mb-4">
-            تكامل الهوية، التسويق، والتقنية في مسار واحد
+            تكامل الهوية، التسويق، والتقنية لتحقيق أثر تجاري ملموس
           </h2>
 
           <p className="text-slate-600 text-base sm:text-lg font-medium leading-relaxed">
-            نؤمن أن تميز البراند لا يتحقق بالحلول المجزأة؛ بل بتكامل الهوية البصرية مع استراتيجيات التسويق والأدوات الرقمية التي يلمسها العميل في كل زيارة.
+            نُدير نمو منشأتك عبر شراكة عمل مؤسسية تربط بين قوة الهوية البصرية، وكفاءة الحملات الإعلانية، وأتمتة تجربة العملاء المدعومة بأنظمتنا التقنية.
           </p>
         </div>
 
@@ -141,6 +147,13 @@ export default function GrowthJourney({ onOpenConsultation }: GrowthJourneyProps
                   {item.desc}
                 </p>
 
+                {/* Metric Box */}
+                <div className="bg-white border border-slate-200/80 rounded-xl px-4 py-2 mb-6 flex items-center gap-2 text-xs font-bold text-slate-800">
+                  <span className="w-2 h-2 rounded-full bg-[#0454FF]" />
+                  <span>الأثر المستهدف:</span>
+                  <span className="text-[#0454FF]">{item.metric}</span>
+                </div>
+
                 {/* Scope Points */}
                 <ul className="space-y-2.5 pt-4 border-t border-slate-200/80 mb-6">
                   {item.details.map((detail) => (
@@ -154,12 +167,12 @@ export default function GrowthJourney({ onOpenConsultation }: GrowthJourneyProps
 
               {/* Bottom Card Footer */}
               <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#0454FF]">
-                <span>حلول مصممة وفق نموذج نشاطك</span>
+                <span>حلول مؤسسية متوافقة مع الأنظمة المحلية</span>
                 <button
                   onClick={onOpenConsultation}
                   className="flex items-center gap-1 hover:underline"
                 >
-                  <span>استفسر عن هذه الخدمة</span>
+                  <span>استفسر عن هذا الحل</span>
                   <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
                 </button>
               </div>
@@ -176,10 +189,10 @@ export default function GrowthJourney({ onOpenConsultation }: GrowthJourneyProps
         >
           <div className="text-right">
             <h4 className="text-lg sm:text-xl font-black text-slate-950 mb-1">
-              كيف نحدد أولويات احتياجات براندك؟
+              هل ترغب في تقييم الوضع التسويقي والتشغيلي لمنشأتك؟
             </h4>
             <p className="text-slate-600 text-xs sm:text-sm font-medium">
-              نقوم بدراسة وضع براندك الحالي وفروعه وقنوات تسويقه لتحديد الحلول ذات الأثر الأكبر على أعمالك.
+              يقوم فريقنا بدراسة مؤشرات الأداء الحالية ونقاط الاتصال لتحديد الفرص الأكثر جدوى لتحقيق عائد سريع.
             </p>
           </div>
 
@@ -187,7 +200,7 @@ export default function GrowthJourney({ onOpenConsultation }: GrowthJourneyProps
             onClick={onOpenConsultation}
             className="shrink-0 bg-[#0454FF] hover:bg-[#0047E0] text-white px-7 py-3.5 rounded-xl font-bold text-sm shadow-md shadow-[#0454FF]/20 hover:scale-105 transition-all flex items-center gap-2"
           >
-            <span>طلب جلسة استشارية أولية</span>
+            <span>طلب دراسة نمو لمنشأتك</span>
             <ArrowLeft size={16} />
           </button>
         </motion.div>
