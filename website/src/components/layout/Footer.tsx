@@ -2,26 +2,26 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, Sparkles, Heart } from "lucide-react";
 
 const footerNavigation = {
-  solutions: [
-    { name: "أتمتة العمليات والمهام", href: "/#services" },
-    { name: "إدارة وتجربة العملاء (CRM)", href: "/#services" },
-    { name: "تحليل البيانات والتقارير", href: "/#services" },
-    { name: "تطوير حلول برمجية مخصصة", href: "/#services" },
+  pillars: [
+    { name: "1. البراندنج والهوية البصرية", href: "/#growth-journey" },
+    { name: "2. التسويق والنمو المحلي", href: "/#growth-journey" },
+    { name: "3. الحلول التقنية والأنظمة", href: "/#growth-journey" },
+    { name: "4. الأتمتة وردود الواتساب", href: "/#growth-journey" },
   ],
-  products: [
-    { name: "المساعد الذكي للمتاجر 🚀", href: "/assistant" },
-    { name: "محاكي واتساب التفاعلي", href: "/assistant" },
-    { name: "حاسبة التوفير والعائد (ROI)", href: "/assistant#roi-calculator" },
-    { name: "باقات وأسعار المساعد", href: "/pricing" },
+  sectors: [
+    { name: "مطاعم وسلاسل مطاعم 🍽️", href: "/#sectors" },
+    { name: "عيادات ومراكز طبية 🩺", href: "/#sectors" },
+    { name: "صالونات ومراكز عناية ✂️", href: "/#sectors" },
+    { name: "منصة ECO CX (قريباً)", href: "/#eco-cx" },
   ],
   company: [
-    { name: "عن ECOMATE", href: "/" },
-    { name: "خدماتنا وحلولنا", href: "/#services" },
+    { name: "الرئيسية", href: "/" },
+    { name: "رحلة نمو البراندات", href: "/#growth-journey" },
     { name: "المدونة والمعرفة", href: "/blog" },
-    { name: "تواصل معنا", href: "mailto:hello@ecomate.ai" },
+    { name: "احجز مكالمتك المجانية", href: "/#contact" },
   ],
   legal: [
     { name: "شروط الاستخدام", href: "#" },
@@ -32,12 +32,12 @@ const footerNavigation = {
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0D0E1F] border-t border-slate-800 text-slate-300 pt-16 pb-12">
+    <footer className="bg-[#0D0E1F] border-t border-slate-800 text-slate-300 pt-16 pb-12 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-10 mb-12">
           
           {/* Brand Info */}
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 text-right">
             <Link href="/" className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 relative flex-shrink-0 rounded-xl bg-white p-1 shadow-sm">
                 <Image
@@ -61,21 +61,21 @@ export default function Footer() {
             </Link>
 
             <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-sm font-medium">
-              حلول رقمية وأتمتة ذكية تساعد أعمالك على العمل بكفاءة أعلى، وخدمة عملائها بشكل أفضل، والنمو باستدامة.
+              شريكك في بناء هوية براندك، الوصول للعملاء الصح، وبناء الأدوات والأتمتة اللي تخليهم يرجعوا لك كل يوم.
             </p>
 
             {/* Trust badge */}
             <div className="inline-flex items-center gap-2 bg-slate-800/80 border border-slate-700 px-3.5 py-1.5 rounded-xl text-xs text-slate-300 font-bold">
-              <ShieldCheck size={14} className="text-emerald-400" />
-              <span>حلول رقمية وأتمتة ذكية مدعومة بالذكاء الاصطناعي</span>
+              <Sparkles size={14} className="text-[#5B8EFF]" />
+              <span>حلول شاملة للبراندات والأعمال المحلية في السوق السعودي</span>
             </div>
           </div>
 
-          {/* Solutions Column */}
-          <div>
-            <h4 className="text-white font-bold text-sm mb-4">حلول الأعمال</h4>
+          {/* Pillars Column */}
+          <div className="text-right">
+            <h4 className="text-white font-bold text-sm mb-4">أركان النمو الأربعة</h4>
             <ul className="space-y-2.5 text-xs text-slate-400 font-semibold">
-              {footerNavigation.solutions.map((link) => (
+              {footerNavigation.pillars.map((link) => (
                 <li key={link.name}>
                   <Link href={link.href} className="hover:text-white transition-colors">
                     {link.name}
@@ -85,14 +85,14 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Products Column */}
-          <div>
-            <h4 className="text-white font-bold text-sm mb-4">المنتجات الرقمية</h4>
+          {/* Sectors Column */}
+          <div className="text-right">
+            <h4 className="text-white font-bold text-sm mb-4">قطاعات الأعمال</h4>
             <ul className="space-y-2.5 text-xs text-slate-400 font-semibold">
-              {footerNavigation.products.map((link) => (
+              {footerNavigation.sectors.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="hover:text-[#7B8FFF] transition-colors flex items-center gap-1">
-                    <span>{link.name}</span>
+                  <Link href={link.href} className="hover:text-[#7B8FFF] transition-colors">
+                    {link.name}
                   </Link>
                 </li>
               ))}
@@ -100,7 +100,7 @@ export default function Footer() {
           </div>
 
           {/* Company Column */}
-          <div>
+          <div className="text-right">
             <h4 className="text-white font-bold text-sm mb-4">الشركة والمعرفة</h4>
             <ul className="space-y-2.5 text-xs text-slate-400 font-semibold">
               {footerNavigation.company.map((link) => (

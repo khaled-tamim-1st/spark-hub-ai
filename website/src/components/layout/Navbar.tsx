@@ -3,17 +3,22 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, ArrowLeft, Bot, MessageSquare } from "lucide-react";
+import { Menu, X, ArrowLeft, PhoneCall, Sparkles, MessageSquare } from "lucide-react";
+
+interface NavbarProps {
+  onOpenConsultation?: () => void;
+}
 
 const navLinks = [
   { label: "الرئيسية", href: "/" },
-  { label: "عن الشركة", href: "/#about" },
-  { label: "الخدمات والحلول", href: "/#services" },
-  { label: "المساعد الذكي للمتاجر", href: "/assistant" },
-  { label: "المدونة والمعرفة", href: "/#blog" },
+  { label: "حلولنا", href: "/#growth-journey" },
+  { label: "قطاعات الأعمال", href: "/#sectors" },
+  { label: "منصة ECO CX", href: "/#eco-cx" },
+  { label: "المدونة", href: "/blog" },
+  { label: "تواصل معنا", href: "/#contact" },
 ];
 
-export default function Navbar() {
+export default function Navbar({ onOpenConsultation }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -22,6 +27,15 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleCtaClick = () => {
+    if (onOpenConsultation) {
+      onOpenConsultation();
+    } else {
+      const el = document.getElementById("contact");
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <header
@@ -63,7 +77,7 @@ export default function Navbar() {
               <Link
                 key={link.label}
                 href={link.href}
-                className="text-slate-600 hover:text-[#3B4FE8] px-3.5 py-1.5 rounded-full text-xs font-bold transition-all hover:bg-blue-50"
+                className="text-slate-600 hover:text-[#0454FF] px-3.5 py-1.5 rounded-full text-xs font-bold transition-all hover:bg-blue-50"
               >
                 {link.label}
               </Link>
@@ -73,21 +87,23 @@ export default function Navbar() {
           {/* Action CTAs */}
           <div className="hidden md:flex items-center gap-3">
             <a
-              href="mailto:hello@ecomate.ai?subject=استشارة أعمال"
-              className="text-slate-700 hover:text-[#3B4FE8] text-xs font-bold px-3.5 py-2 rounded-xl transition-colors hover:bg-slate-100 flex items-center gap-1.5"
+              href="https://wa.me/966500000000?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D9%81%D8%B1%D9%8A%D9%82%20ECOMATE"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-700 hover:text-[#0454FF] text-xs font-bold px-3.5 py-2 rounded-xl transition-colors hover:bg-slate-100 flex items-center gap-1.5"
             >
-              <MessageSquare size={14} className="text-[#3B4FE8]" />
-              <span>تحدث معنا</span>
+              <MessageSquare size={14} className="text-[#0454FF]" />
+              <span>واتساب</span>
             </a>
 
-            <Link
-              href="/assistant"
-              className="bg-[#3B4FE8] hover:bg-[#2D3ED0] text-white px-4.5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm shadow-[#3B4FE8]/20 hover:scale-105 flex items-center gap-1.5"
+            <button
+              onClick={handleCtaClick}
+              className="bg-[#0454FF] hover:bg-[#0047E0] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-[#0454FF]/20 hover:scale-105 flex items-center gap-1.5"
             >
-              <Bot size={14} />
-              <span>مساعد المتاجر</span>
+              <Sparkles size={13} />
+              <span>احجز استشارة مجانية</span>
               <ArrowLeft size={13} />
-            </Link>
+            </button>
           </div>
 
           {/* Mobile hamburger button */}
@@ -109,7 +125,7 @@ export default function Navbar() {
                   key={link.label}
                   href={link.href}
                   onClick={() => setIsOpen(false)}
-                  className="text-slate-700 hover:text-[#3B4FE8] px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors hover:bg-blue-50 flex items-center justify-between"
+                  className="text-slate-700 hover:text-[#0454FF] px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors hover:bg-blue-50 flex items-center justify-between"
                 >
                   <span>{link.label}</span>
                   <span className="text-slate-400 text-xs">←</span>
@@ -117,20 +133,16 @@ export default function Navbar() {
               ))}
             </div>
             <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
-              <a
-                href="mailto:hello@ecomate.ai"
-                className="w-full text-center text-slate-700 hover:text-[#3B4FE8] py-2.5 text-xs font-bold rounded-xl bg-slate-100"
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  handleCtaClick();
+                }}
+                className="w-full text-center bg-[#0454FF] text-white py-3 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1.5"
               >
-                تحدث مع فريق ECOMATE
-              </a>
-              <Link
-                href="/assistant"
-                onClick={() => setIsOpen(false)}
-                className="w-full text-center bg-[#3B4FE8] text-white py-2.5 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1.5"
-              >
-                <Bot size={14} />
-                <span>اكتشف مساعد المتاجر</span>
-              </Link>
+                <Sparkles size={14} />
+                <span>احجز استشارة مجانية لبراندك</span>
+              </button>
             </div>
           </div>
         )}
