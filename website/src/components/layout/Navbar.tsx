@@ -3,18 +3,18 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, ArrowLeft, PhoneCall, Sparkles, MessageSquare } from "lucide-react";
+import { Menu, X, ArrowLeft, Sparkles, MessageSquare } from "lucide-react";
 
 interface NavbarProps {
   onOpenConsultation?: () => void;
 }
 
 const navLinks = [
-  { label: "الرئيسية", href: "/" },
-  { label: "حلولنا", href: "/#growth-journey" },
-  { label: "قطاعات الأعمال", href: "/#sectors" },
+  { label: "عن ECOMATE", href: "/#about" },
+  { label: "منظومة الخدمات", href: "/#solutions" },
+  { label: "مجالات التطبيق", href: "/#sectors" },
   { label: "منصة ECO CX", href: "/#eco-cx" },
-  { label: "المدونة", href: "/blog" },
+  { label: "المدونة والمعرفة", href: "/blog" },
   { label: "تواصل معنا", href: "/#contact" },
 ];
 
@@ -39,7 +39,7 @@ export default function Navbar({ onOpenConsultation }: NavbarProps) {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 font-sans ${
         isScrolled
           ? "py-3 bg-white/95 backdrop-blur-xl border-b border-slate-200/80 shadow-xs"
           : "py-4 bg-transparent"
@@ -93,7 +93,7 @@ export default function Navbar({ onOpenConsultation }: NavbarProps) {
               className="text-slate-700 hover:text-[#0454FF] text-xs font-bold px-3.5 py-2 rounded-xl transition-colors hover:bg-slate-100 flex items-center gap-1.5"
             >
               <MessageSquare size={14} className="text-[#0454FF]" />
-              <span>واتساب</span>
+              <span>استفسار</span>
             </a>
 
             <button
@@ -101,7 +101,7 @@ export default function Navbar({ onOpenConsultation }: NavbarProps) {
               className="bg-[#0454FF] hover:bg-[#0047E0] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-[#0454FF]/20 hover:scale-105 flex items-center gap-1.5"
             >
               <Sparkles size={13} />
-              <span>احجز استشارة مجانية</span>
+              <span>طلب استشارة</span>
               <ArrowLeft size={13} />
             </button>
           </div>
@@ -141,7 +141,7 @@ export default function Navbar({ onOpenConsultation }: NavbarProps) {
                 className="w-full text-center bg-[#0454FF] text-white py-3 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1.5"
               >
                 <Sparkles size={14} />
-                <span>احجز استشارة مجانية لبراندك</span>
+                <span>طلب جلسة استشارية أولية</span>
               </button>
             </div>
           </div>

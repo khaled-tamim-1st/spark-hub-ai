@@ -7,36 +7,36 @@ import Link from "next/link";
 const articles = [
   {
     slug: "local-brand-identity-guide",
-    title: "الهوية البصرية للبراندات المحلية: كيف تجعل فروعك معروفة من أول نظرة؟",
+    title: "أصول الهوية البصرية للبراندات المحلية: كيف تبني اتساقاً يعزز ثقة العميل؟",
     category: "البراندنج والهوية",
     categoryColor: "text-purple-700 bg-purple-50 border-purple-100",
     icon: Palette,
     readTime: "6 دقائق",
-    desc: "دليل عملي لأصحاب المطاعم والصالونات: كيف توحد المنيو، التغليف، واللافتات لتبني اسماً يرسخ في ذهن العميل.",
+    desc: "دليل منهجي لأصحاب الأنشطة التجارية: أسس توحيد المنيو، التغليف، والواجهات لبناء هوية راسخة وموثوقة لدى عملائك.",
   },
   {
     slug: "local-business-geo-marketing",
-    title: "التسويق المحلي: كيف تجذب عملاء حقيقيين لمطعمك أو عيادتك في منطقتك؟",
+    title: "التسويق الجغرافي الموجه: آليات استقطاب العملاء الفعليين في نطاق فروعك",
     category: "التسويق والنمو",
     categoryColor: "text-[#0454FF] bg-blue-50 border-blue-100",
     icon: Megaphone,
     readTime: "7 دقائق",
-    desc: "استراتيجيات التسويق الجغرافي وحملات المناسبات التي تحرك المبيعات الفعلية وتجلب زواراً لفروعك بدل اللايكات فقط.",
+    desc: "استراتيجيات عملية لتصميم حملات إعلانية مركزة جغرافياً وإدارة العروض الموسمية التي تحقق عائداً ملموساً على المبيعات.",
   },
   {
     slug: "reducing-no-shows-with-automation",
-    title: "تقليل غياب المواعيد (No-Shows) في العيادات والصالونات بالأتمتة البسيطة",
+    title: "إدارة المواعيد وتجربة المراجعين: كيف تسهم الأتمتة في خفض نسب الغياب؟",
     category: "الأتمتة وتجربة العميل",
     categoryColor: "text-amber-700 bg-amber-50 border-amber-100",
     icon: Zap,
     readTime: "5 دقائق",
-    desc: "كيف تصمم رسائل تذكير تلقائية ومحترمة على الواتساب تحافظ على أوقات الأطباء والخبراء وتمنع خسارة المواعيد.",
+    desc: "دراسة وتطبيق عملي لبناء تدفقات تذكير ذكية عبر قنوات المراسلة تضمن تأكيد الحضور وتحفظ وقت الكوادر التشغيلية والطبية.",
   },
 ];
 
 export default function BlogShowcase() {
   return (
-    <section id="blog" className="py-24 bg-[#F8FAFC] border-y border-slate-200 relative overflow-hidden">
+    <section id="blog" className="py-24 bg-[#F8FAFC] border-y border-slate-200 relative overflow-hidden font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         
         {/* Section Header */}
@@ -44,15 +44,15 @@ export default function BlogShowcase() {
           <div>
             <div className="inline-flex items-center gap-2 bg-blue-50 border border-[#0454FF]/20 text-[#0454FF] px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 shadow-xs">
               <BookOpen size={14} />
-              <span>المدونة ودليل نمو البراندات</span>
+              <span>المعرفة وأدلة نمو الأعمال</span>
             </div>
 
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 leading-tight mb-3">
-              أفكار وأدلة عملية لتطوير براندك
+              تحليلات وأدلة لتطوير وإدارة البراندات
             </h2>
 
             <p className="text-slate-600 text-sm sm:text-base max-w-2xl font-medium leading-relaxed">
-              مقالات واقعية وتجارب تطبيقية في البراندنج، التسويق، وتجربة العملاء مكتوبة خصيصاً لأصحاب الأعمال في السوق المحلي.
+              نشارككم رؤى وتجارب عملية في مجالات الهوية، التسويق، وأتمتة العمليات، صُممت خصيصاً لدعم بيئة الأعمال والبراندات المحلية.
             </p>
           </div>
 
@@ -60,7 +60,7 @@ export default function BlogShowcase() {
             href="/blog"
             className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-900 border border-slate-300 px-6 py-3.5 rounded-xl text-xs sm:text-sm font-bold shadow-xs hover:border-[#0454FF]/40 transition-all self-start md:self-auto shrink-0"
           >
-            <span>استعراض كافة المقالات</span>
+            <span>استعراض كافة المقالات والأدلة</span>
             <ArrowLeft size={16} className="text-[#0454FF]" />
           </Link>
         </div>
@@ -74,7 +74,7 @@ export default function BlogShowcase() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
-              className="bg-white rounded-3xl p-7 border border-slate-200 hover:border-[#0454FF]/40 flex flex-col justify-between transition-all duration-300 shadow-xs hover:shadow-xl hover:-translate-y-1 group"
+              className="bg-white rounded-3xl p-7 border border-slate-200 hover:border-[#0454FF]/40 flex flex-col justify-between transition-all duration-300 shadow-xs hover:shadow-xl hover:-translate-y-1 group text-right"
             >
               <div>
                 {/* Category & Read Time */}
@@ -103,7 +103,7 @@ export default function BlogShowcase() {
                 href={`/blog`}
                 className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-900 group-hover:text-[#0454FF] transition-colors"
               >
-                <span>قراءة المقال</span>
+                <span>قراءة المقال الكامل</span>
                 <ArrowUpLeft size={16} />
               </Link>
             </motion.div>

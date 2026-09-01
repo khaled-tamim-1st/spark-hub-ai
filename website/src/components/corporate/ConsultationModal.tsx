@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, CheckCircle2, Phone, Building2, User, Sparkles, Send, ArrowLeft } from "lucide-react";
+import { X, CheckCircle2, Phone, Building2, User, Sparkles, ArrowLeft } from "lucide-react";
 
 interface ConsultationModalProps {
   isOpen: boolean;
@@ -28,13 +28,11 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
     e.preventDefault();
     if (!name.trim() || !phone.trim()) return;
 
-    // Build WhatsApp message for direct instant conversion
     const sectorLabel = sectors.find(s => s.id === sector)?.label || sector;
     const text = encodeURIComponent(
-      `مرحباً فريق ECOMATE،\nأود حجز استشارة مجانية لبراندي:\n- الاسم: ${name}\n- اسم البراند: ${brandName || 'لم يُحدد'}\n- النشاط: ${sectorLabel}\n- رقم التواصل: ${phone}`
+      `مرحباً فريق ECOMATE،\nأود طلب جلسة استشارية أولية لبحث حلول الأعمال:\n- الاسم: ${name}\n- اسم البراند/النشاط: ${brandName || 'لم يُحدد'}\n- نوع النشاط: ${sectorLabel}\n- وسيلة التواصل: ${phone}`
     );
     
-    // Open WhatsApp in new tab and show success state
     window.open(`https://wa.me/966500000000?text=${text}`, '_blank');
     setSubmitted(true);
   };
@@ -51,7 +49,7 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 font-sans">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -66,7 +64,7 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 overflow-hidden z-10 text-right font-sans"
+            className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 overflow-hidden z-10 text-right"
           >
             {/* Close Button */}
             <button
@@ -83,13 +81,13 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                 <div className="mb-6">
                   <div className="inline-flex items-center gap-1.5 bg-blue-50 text-[#0454FF] border border-blue-100 text-xs font-bold px-3 py-1 rounded-full mb-3">
                     <Sparkles size={13} />
-                    <span>مكالمة استشارية مجانية • 15 دقيقة</span>
+                    <span>جلسة استشارية أولية متخصصة</span>
                   </div>
                   <h3 className="text-2xl font-black text-slate-950 mb-2">
-                    احكي لنا عن براندك... ونرسم لك خطة نمو واضحة
+                    مناقشة متطلبات وأولويات براندك
                   </h3>
                   <p className="text-slate-600 text-xs sm:text-sm font-medium leading-relaxed">
-                    جلسة سريعة مع أحد خبرائنا لفهم وضع براندك الحالي، وتحديد الأدوات والخطوات المناسبة بدون أي التزام.
+                    جلسة مباشرة مع مستشاري ECOMATE لدراسة واقع فروعك وحضورك الرقمي وتحديد مسار العمل والحلول الأنسب لنشاطك.
                   </p>
                 </div>
 
@@ -98,7 +96,7 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                   {/* Name */}
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                      اسمك الكريم *
+                      الاسم الكريم *
                     </label>
                     <div className="relative">
                       <input
@@ -106,7 +104,7 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="مثال: عبدالله الشمري"
+                        placeholder="الاسم الكامل"
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:outline-none focus:border-[#0454FF] focus:bg-white transition-all pl-9"
                       />
                       <User size={16} className="absolute left-3 top-3 text-slate-400" />
@@ -116,14 +114,14 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                   {/* Brand Name */}
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                      اسم البراند أو المشروع
+                      اسم البراند أو المنشأة
                     </label>
                     <div className="relative">
                       <input
                         type="text"
                         value={brandName}
                         onChange={(e) => setBrandName(e.target.value)}
-                        placeholder="مثال: مطعم سحاب / عيادة د. سارة"
+                        placeholder="اسم البراند أو المشروع التجاري"
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:outline-none focus:border-[#0454FF] focus:bg-white transition-all pl-9"
                       />
                       <Building2 size={16} className="absolute left-3 top-3 text-slate-400" />
@@ -177,11 +175,11 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                       type="submit"
                       className="w-full bg-[#0454FF] hover:bg-[#0047E0] text-white py-3.5 px-6 rounded-xl font-bold text-sm shadow-md shadow-[#0454FF]/25 hover:shadow-lg transition-all flex items-center justify-center gap-2 group"
                     >
-                      <span>احجز مكالمتك المجانية الآن</span>
+                      <span>إرسال طلب الجلسة الاستشارية</span>
                       <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                     </button>
                     <span className="block text-center text-[11px] text-slate-400 font-medium mt-2">
-                      🔒 معلوماتك في سرية تامة وسنتواصل معك خلال ساعات العمل
+                      سيتواصل معك فريقنا لتنسيق موعد مناسب ومناقشة تفاصيل نشاطك
                     </span>
                   </div>
                 </form>
@@ -193,10 +191,10 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                   <CheckCircle2 size={32} />
                 </div>
                 <h4 className="text-2xl font-black text-slate-950 mb-2">
-                  تم استلام طلبك بنجاح! 🎉
+                  تم استلام طلبك بنجاح
                 </h4>
                 <p className="text-slate-600 text-sm font-medium leading-relaxed max-w-sm mx-auto mb-6">
-                  شكراً لك {name}. سيتواصل معك أحد مستشاري ECOMATE في أقرب وقت لتحديد موعد المكالمة ومساعدتك في تطوير براندك.
+                  شكراً لك {name}. سيتواصل معك أحد مستشاري ECOMATE لتنسيق الموعد وبحث متطلبات براندك.
                 </p>
                 <button
                   onClick={handleReset}

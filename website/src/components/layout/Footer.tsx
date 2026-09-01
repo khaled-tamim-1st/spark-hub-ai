@@ -2,26 +2,26 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ShieldCheck, Sparkles, Heart } from "lucide-react";
+import { ShieldCheck, Sparkles } from "lucide-react";
 
 const footerNavigation = {
   pillars: [
-    { name: "1. البراندنج والهوية البصرية", href: "/#growth-journey" },
-    { name: "2. التسويق والنمو المحلي", href: "/#growth-journey" },
-    { name: "3. الحلول التقنية والأنظمة", href: "/#growth-journey" },
-    { name: "4. الأتمتة وردود الواتساب", href: "/#growth-journey" },
+    { name: "1. البراندنج والهوية التجارية", href: "/#solutions" },
+    { name: "2. التسويق والنمو المحلي", href: "/#solutions" },
+    { name: "3. الحلول والأنظمة التقنية", href: "/#solutions" },
+    { name: "4. الأتمتة والتشغيل الذكي", href: "/#solutions" },
   ],
   sectors: [
-    { name: "مطاعم وسلاسل مطاعم 🍽️", href: "/#sectors" },
-    { name: "عيادات ومراكز طبية 🩺", href: "/#sectors" },
-    { name: "صالونات ومراكز عناية ✂️", href: "/#sectors" },
-    { name: "منصة ECO CX (قريباً)", href: "/#eco-cx" },
+    { name: "قطاع المطاعم والمقاهي", href: "/#sectors" },
+    { name: "العيادات والمراكز الطبية", href: "/#sectors" },
+    { name: "صالونات ومراكز العناية", href: "/#sectors" },
+    { name: "منصة ECO CX (قيد التطوير)", href: "/#eco-cx" },
   ],
   company: [
-    { name: "الرئيسية", href: "/" },
-    { name: "رحلة نمو البراندات", href: "/#growth-journey" },
+    { name: "عن ECOMATE", href: "/#about" },
+    { name: "منهجية العمل والخدمات", href: "/#solutions" },
     { name: "المدونة والمعرفة", href: "/blog" },
-    { name: "احجز مكالمتك المجانية", href: "/#contact" },
+    { name: "تواصل مع مستشارينا", href: "/#contact" },
   ],
   legal: [
     { name: "شروط الاستخدام", href: "#" },
@@ -61,19 +61,19 @@ export default function Footer() {
             </Link>
 
             <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-sm font-medium">
-              شريكك في بناء هوية براندك، الوصول للعملاء الصح، وبناء الأدوات والأتمتة اللي تخليهم يرجعوا لك كل يوم.
+              شريكك الاستراتيجي في بناء الهوية البصرية، إدارة قنوات التسويق، وتطوير الأدوات الرقمية والأتمتة للبراندات المحلية.
             </p>
 
             {/* Trust badge */}
             <div className="inline-flex items-center gap-2 bg-slate-800/80 border border-slate-700 px-3.5 py-1.5 rounded-xl text-xs text-slate-300 font-bold">
               <Sparkles size={14} className="text-[#5B8EFF]" />
-              <span>حلول شاملة للبراندات والأعمال المحلية في السوق السعودي</span>
+              <span>منظومة متكاملة لنمو واستدامة البراندات المحلية في السوق السعودي</span>
             </div>
           </div>
 
           {/* Pillars Column */}
           <div className="text-right">
-            <h4 className="text-white font-bold text-sm mb-4">أركان النمو الأربعة</h4>
+            <h4 className="text-white font-bold text-sm mb-4">أركان المنظومة</h4>
             <ul className="space-y-2.5 text-xs text-slate-400 font-semibold">
               {footerNavigation.pillars.map((link) => (
                 <li key={link.name}>
@@ -87,7 +87,7 @@ export default function Footer() {
 
           {/* Sectors Column */}
           <div className="text-right">
-            <h4 className="text-white font-bold text-sm mb-4">قطاعات الأعمال</h4>
+            <h4 className="text-white font-bold text-sm mb-4">نماذج التطبيق</h4>
             <ul className="space-y-2.5 text-xs text-slate-400 font-semibold">
               {footerNavigation.sectors.map((link) => (
                 <li key={link.name}>
