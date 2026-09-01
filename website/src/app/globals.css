@@ -1,36 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  /* Ecomate Owl Logo Colors — Navy + Cobalt Blue */
-  --color-brand: #3B4FE8;
-  --color-brand-dark: #2D3ED0;
-  --color-brand-navy: #1A1B3C;
-  --color-brand-mid: #5B6EFF;
-  --color-brand-light: #7B8FFF;
-  --color-brand-subtle: #EEF0FF;
-  --color-brand-surface: #F5F6FF;
+  /* Cairo Font Setup */
+  --font-sans: 'Cairo', var(--font-cairo), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-cairo: 'Cairo', sans-serif;
+
+  /* Ecomate Brand Colors — Electric Royal Blue + Clean White */
+  --color-brand: #0454FF;
+  --color-brand-dark: #0047E0;
+  --color-brand-navy: #0D0E1F;
+  --color-brand-mid: #3B4FE8;
+  --color-brand-light: #5B8EFF;
+  --color-brand-subtle: #EEF2FF;
+  --color-brand-surface: #F8FAFC;
 
   --color-text-dark: #0D0E1F;
   --color-text-navy: #1A1B3C;
   --color-text-muted: #64748B;
   --color-text-subtle: #94A3B8;
-
-  --font-family-sans: var(--font-cairo), 'Cairo', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 * {
   box-sizing: border-box;
+  font-family: 'Cairo', var(--font-cairo), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 html {
   scroll-behavior: smooth;
+  font-family: 'Cairo', var(--font-cairo), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
-  font-family: var(--font-family-sans);
+  font-family: 'Cairo', var(--font-cairo), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: #FFFFFF;
   color: #0D0E1F;
   overflow-x: hidden;
+  font-feature-settings: 'calt' 1, 'liga' 1;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Custom Scrollbar */
@@ -38,14 +45,14 @@ body {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #F5F6FF;
+  background: #F8FAFC;
 }
 ::-webkit-scrollbar-thumb {
-  background: #C7CAF5;
+  background: #CBD5E1;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #9DA4E8;
+  background: #94A3B8;
 }
 
 /* Glassmorphism Light */
@@ -53,8 +60,8 @@ body {
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(59, 79, 232, 0.12);
-  box-shadow: 0 10px 30px -10px rgba(59, 79, 232, 0.07);
+  border: 1px solid rgba(4, 84, 255, 0.12);
+  box-shadow: 0 10px 30px -10px rgba(4, 84, 255, 0.07);
 }
 
 .glass-card-light-hover {
@@ -62,17 +69,17 @@ body {
 }
 .glass-card-light-hover:hover {
   background: #FFFFFF;
-  border-color: rgba(59, 79, 232, 0.3);
-  box-shadow: 0 15px 35px -10px rgba(59, 79, 232, 0.14);
+  border-color: rgba(4, 84, 255, 0.3);
+  box-shadow: 0 15px 35px -10px rgba(4, 84, 255, 0.14);
   transform: translateY(-3px);
 }
 
-/* Ecomate Glow — Cobalt Blue */
+/* Ecomate Glow — Electric Blue */
 .ecomate-glow {
-  box-shadow: 0 0 50px rgba(59, 79, 232, 0.22), 0 0 100px rgba(91, 110, 255, 0.10);
+  box-shadow: 0 0 50px rgba(4, 84, 255, 0.22), 0 0 100px rgba(91, 142, 255, 0.10);
 }
 .ecomate-glow-sm {
-  box-shadow: 0 0 25px rgba(59, 79, 232, 0.18);
+  box-shadow: 0 0 25px rgba(4, 84, 255, 0.18);
 }
 
 /* Pulse Glow */
@@ -98,30 +105,27 @@ body {
 
 /* Subtle Grid Pattern */
 .bg-grid-light {
-  background-image: linear-gradient(to right, rgba(59, 79, 232, 0.05) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(59, 79, 232, 0.05) 1px, transparent 1px);
+  background-image: linear-gradient(to right, rgba(4, 84, 255, 0.05) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(4, 84, 255, 0.05) 1px, transparent 1px);
   background-size: 36px 36px;
   mask-image: radial-gradient(ellipse 65% 55% at 50% 50%, #000 70%, transparent 100%);
   -webkit-mask-image: radial-gradient(ellipse 65% 55% at 50% 50%, #000 70%, transparent 100%);
 }
 
-/* Hero Background — matches logo's soft cobalt aura */
+/* Hero Background — matches logo's soft royal blue aura */
 .hero-ecomate-bg {
-  background: radial-gradient(ellipse at 50% -5%, rgba(180, 186, 255, 0.35) 0%, rgba(238, 240, 255, 0.3) 40%, #FFFFFF 80%);
+  background: radial-gradient(ellipse at 50% -5%, rgba(190, 215, 255, 0.35) 0%, rgba(240, 245, 255, 0.3) 40%, #FFFFFF 80%);
 }
 
-/* Gradient text matching logo "MATE" gradient (black → cobalt → navy) */
+/* Gradient text matching logo gradient */
 .ecomate-gradient-text {
-  background: linear-gradient(135deg, #0D0E1F 0%, #3B4FE8 55%, #5B6EFF 100%);
+  background: linear-gradient(135deg, #0D0E1F 0%, #0454FF 55%, #5B8EFF 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Logo-style text gradient (ECO black, MATE cobalt-to-purple) */
-.ecomate-logo-text {
-  background: linear-gradient(90deg, #3B4FE8 0%, #1A1B3C 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* Monospace utility */
+.font-mono {
+  font-family: 'Space Mono', monospace;
 }

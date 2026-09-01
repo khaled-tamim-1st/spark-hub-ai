@@ -88,33 +88,33 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" className={`${cairo.variable} ${inter.variable}`}>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap"
+          rel="stylesheet"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "SoftwareApplication",
-              name: "Ecomate AI",
+              name: "ECOMATE",
               applicationCategory: "BusinessApplication",
               description:
-                "مساعد ذكي لخدمة عملاء المتاجر على سلة عبر واتساب والقنوات المتعددة",
+                "حلول الأعمال والنمو للبراندات والأنشطة المحلية في السوق السعودي",
               operatingSystem: "Web",
-              offers: {
-                "@type": "AggregateOffer",
-                priceCurrency: "SAR",
-                lowPrice: "149",
-                highPrice: "349",
-              },
               publisher: {
                 "@type": "Organization",
-                name: "Ecomate AI",
+                name: "ECOMATE",
                 url: "https://ecomate.ai",
               },
             }),
           }}
         />
       </head>
-      <body className="font-[family-name:var(--font-cairo)] antialiased bg-white text-slate-900 selection:bg-[#0052FF]/15 selection:text-[#0052FF]">
+      <body className="font-sans antialiased bg-white text-slate-900 selection:bg-[#0454FF]/15 selection:text-[#0454FF]">
         {children}
         {/* Live ECOMATE Web Chat Widget */}
         <Script
