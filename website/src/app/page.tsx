@@ -3,14 +3,18 @@
 import { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import HeroSection from "@/components/corporate/HeroSection";
-import GrowthJourney from "@/components/corporate/GrowthJourney";
-import SectorShowcase from "@/components/corporate/SectorShowcase";
-import EcoCxSection from "@/components/corporate/EcoCxSection";
-import BlogShowcase from "@/components/corporate/BlogShowcase";
-import FinalContactCTA from "@/components/corporate/FinalContactCTA";
+import Hero from "@/components/home/Hero";
+import EditorialStatement from "@/components/home/EditorialStatement";
+import BusinessComplexity from "@/components/home/BusinessComplexity";
+import SolutionsSection from "@/components/home/SolutionsSection";
+import HowWeThink from "@/components/home/HowWeThink";
+import BusinessImpact from "@/components/home/BusinessImpact";
+import IndustryExplorer from "@/components/home/IndustryExplorer";
+import DigitalProductsShowcase from "@/components/home/DigitalProductsShowcase";
+import EngineeringDNA from "@/components/home/EngineeringDNA";
+import AboutPhilosophy from "@/components/home/AboutPhilosophy";
+import FinalCTA from "@/components/home/FinalCTA";
 import ConsultationModal from "@/components/corporate/ConsultationModal";
-import FloatingWhatsApp from "@/components/corporate/FloatingWhatsApp";
 
 export default function Home() {
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
@@ -19,53 +23,75 @@ export default function Home() {
   const closeConsultation = () => setIsConsultationOpen(false);
 
   return (
-    <div className="bg-white text-slate-900 min-h-screen flex flex-col selection:bg-[#0454FF]/15 selection:text-[#0454FF] font-sans" dir="rtl">
-      {/* 1. Header / Navbar */}
+    <div className="bg-white text-slate-900 min-h-screen flex flex-col font-sans selection:bg-[#0454FF]/15 selection:text-[#0454FF]">
+      {/* 1. Global Navigation */}
       <Navbar onOpenConsultation={openConsultation} />
 
       <main className="flex-1">
-        {/* 2. Hero Section: إدارة نمو المنشآت مدعومة بنظام ECO CX */}
+        {/* 2. Hero: We Engineer Scalable Solutions for Complex Business Challenges */}
         <section id="hero">
-          <HeroSection onOpenConsultation={openConsultation} />
+          <Hero onOpenConsultation={openConsultation} />
         </section>
 
-        {/* 3. رحلة النمو: الأعمدة الأربعة (الهوية، التسويق، التقنية، الأتمتة) */}
+        {/* 3. Big Editorial Statement Transition */}
+        <section id="thesis">
+          <EditorialStatement />
+        </section>
+
+        {/* 4. Business Complexity: Fragmented vs. Connected Ecosystem */}
+        <section id="complexity">
+          <BusinessComplexity />
+        </section>
+
+        {/* 5. Core Capabilities: We Turn Business Complexity Into Working Systems */}
         <section id="solutions">
-          <GrowthJourney onOpenConsultation={openConsultation} />
+          <SolutionsSection />
         </section>
 
-        {/* 4. نماذج التطبيق العملي لمختلف الأنشطة التجارية */}
-        <section id="sectors">
-          <SectorShowcase onOpenConsultation={openConsultation} />
+        {/* 6. How We Think: Understand → Architect → Build → Evolve */}
+        <section id="methodology">
+          <HowWeThink />
         </section>
 
-        {/* 5. قسم نظام ECO CX الحصري لإدارة وتتبع علاقات العملاء */}
-        <section id="eco-cx">
-          <EcoCxSection />
+        {/* 7. Business Impact: Better Systems Create Better Businesses */}
+        <section id="impact">
+          <BusinessImpact />
         </section>
 
-        {/* 6. قسم المعرفة وأدلة نمو الأعمال */}
-        <section id="blog">
-          <BlogShowcase />
+        {/* 8. Interactive Industry Explorer */}
+        <section id="industries">
+          <IndustryExplorer />
         </section>
 
-        {/* 7. قسم التواصل والبدء: طلب دراسة نمو لمنشأتك */}
+        {/* 9. Proprietary Products & ECO CX Showcase */}
+        <section id="products">
+          <DigitalProductsShowcase />
+        </section>
+
+        {/* 10. Engineering DNA: 6-Layer Architectural Discipline */}
+        <section id="engineering-dna">
+          <EngineeringDNA />
+        </section>
+
+        {/* 11. About & Operating Philosophy */}
+        <section id="about-philosophy">
+          <AboutPhilosophy />
+        </section>
+
+        {/* 12. Final Culmination CTA: Let's Build What's Next */}
         <section id="contact">
-          <FinalContactCTA onOpenConsultation={openConsultation} />
+          <FinalCTA onOpenConsultation={openConsultation} />
         </section>
       </main>
 
-      {/* 8. Footer */}
+      {/* 13. Global Signature Footer */}
       <Footer />
 
-      {/* 9. Interactive Consultation Modal */}
+      {/* 14. Executive Discovery Session Modal */}
       <ConsultationModal
         isOpen={isConsultationOpen}
         onClose={closeConsultation}
       />
-
-      {/* 10. Floating WhatsApp Button for Instant Saudi Conversion */}
-      <FloatingWhatsApp />
     </div>
   );
 }

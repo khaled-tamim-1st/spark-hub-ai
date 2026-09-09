@@ -21,17 +21,6 @@ interface HeroSectionProps {
   onOpenConsultation: () => void;
 }
 
-const integrations = [
-  { name: "سلة • Salla", category: "منصة تجارة" },
-  { name: "زد • Zid", category: "منصة تجارة" },
-  { name: "Shopify", category: "منصة تجارة" },
-  { name: "سناب شات للأعمال", category: "إعلانات موجهة" },
-  { name: "تيك توك Ads", category: "إعلانات موجهة" },
-  { name: "إعلانات Google", category: "محركات البحث" },
-  { name: "منصة X", category: "إعلانات وتواصل" },
-  { name: "الفوترة الإلكترونية ZATCA", category: "امتثال معتمد" },
-  { name: "مدى & Apple Pay", category: "بوابات دفع" },
-];
 
 export default function HeroSection({ onOpenConsultation }: HeroSectionProps) {
   const whatsappUrl =
@@ -129,15 +118,10 @@ export default function HeroSection({ onOpenConsultation }: HeroSectionProps) {
             <ArrowLeft size={18} />
           </button>
 
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20BD5A] text-white px-7 py-4 rounded-xl text-sm sm:text-base font-bold shadow-md shadow-[#25D366]/20 transition-all hover:scale-105"
-          >
-            <MessageCircle size={18} />
-            <span>محادثة فورية عبر الواتساب</span>
-          </a>
+          
+            
+            
+          
 
           <a
             href="#solutions"
@@ -155,22 +139,11 @@ export default function HeroSection({ onOpenConsultation }: HeroSectionProps) {
           transition={{ duration: 0.5, delay: 0.35 }}
           className="bg-white/90 border border-slate-200 rounded-3xl p-5 sm:p-6 mb-12 shadow-xs"
         >
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center justify-center gap-2">
-            <ShieldCheck size={16} className="text-emerald-600" />
-            <span>تكامل معتمد مع المنظومة الرقمية والأنظمة السعودية</span>
-          </div>
+          
 
-          <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-4">
-            {integrations.map((item) => (
-              <div
-                key={item.name}
-                className="bg-slate-50 border border-slate-200/80 hover:border-[#0454FF]/30 px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 flex items-center gap-1.5 transition-colors"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-[#0454FF]" />
-                <span>{item.name}</span>
-              </div>
-            ))}
-          </div>
+          
+            
+          
         </motion.div>
 
         {/* 4 Pillars Summary Grid */}

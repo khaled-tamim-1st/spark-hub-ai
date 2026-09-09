@@ -1,42 +1,37 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  /* Cairo Font Setup */
-  --font-sans: 'Cairo', var(--font-cairo), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-cairo: 'Cairo', sans-serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
-  /* Ecomate Brand Colors — Electric Royal Blue + Clean White */
+  /* Enterprise Brand Colors */
   --color-brand: #0454FF;
-  --color-brand-dark: #0047E0;
-  --color-brand-navy: #0D0E1F;
-  --color-brand-mid: #3B4FE8;
-  --color-brand-light: #5B8EFF;
-  --color-brand-subtle: #EEF2FF;
+  --color-brand-dark: #003ECC;
+  --color-brand-navy: #0B0F19;
+  --color-brand-mid: #2563EB;
+  --color-brand-light: #60A5FA;
+  --color-brand-subtle: #F0F5FF;
   --color-brand-surface: #F8FAFC;
 
-  --color-text-dark: #0D0E1F;
-  --color-text-navy: #1A1B3C;
-  --color-text-muted: #64748B;
-  --color-text-subtle: #94A3B8;
+  --color-text-dark: #0B0F19;
+  --color-text-navy: #111827;
+  --color-text-muted: #4B5563;
+  --color-text-subtle: #9CA3AF;
 }
 
 * {
   box-sizing: border-box;
-  font-family: 'Cairo', var(--font-cairo), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 html {
   scroll-behavior: smooth;
-  font-family: 'Cairo', var(--font-cairo), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-sans);
 }
 
 body {
-  font-family: 'Cairo', var(--font-cairo), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-sans);
   background-color: #FFFFFF;
-  color: #0D0E1F;
+  color: #0B0F19;
   overflow-x: hidden;
-  font-feature-settings: 'calt' 1, 'liga' 1;
   -webkit-font-smoothing: antialiased;
 }
 

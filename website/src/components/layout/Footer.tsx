@@ -1,81 +1,112 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { ShieldCheck, Sparkles } from "lucide-react";
+import { Layers, ArrowRight, ExternalLink, ShieldCheck } from "lucide-react";
 
 const footerNavigation = {
-  pillars: [
-    { name: "1. البراندنج والهوية التجارية", href: "/#solutions" },
-    { name: "2. التسويق والنمو المحلي", href: "/#solutions" },
-    { name: "3. الحلول والأنظمة التقنية", href: "/#solutions" },
-    { name: "4. الأتمتة والتشغيل الذكي", href: "/#solutions" },
+  solutions: [
+    { name: "Digital Transformation", href: "/solutions#transformation" },
+    { name: "Custom Software & Platforms", href: "/solutions#custom-software" },
+    { name: "Intelligent Automation & AI", href: "/solutions#automation" },
+    { name: "Systems Integration", href: "/solutions#integration" },
+    { name: "Customer Experience (CX)", href: "/solutions#cx" },
+    { name: "Technology Advisory", href: "/solutions#advisory" },
   ],
-  sectors: [
-    { name: "قطاع المطاعم والمقاهي", href: "/#sectors" },
-    { name: "العيادات والمراكز الطبية", href: "/#sectors" },
-    { name: "صالونات ومراكز العناية", href: "/#sectors" },
-    { name: "منصة ECO CX (قيد التطوير)", href: "/#eco-cx" },
+  industries: [
+    { name: "Retail & E-Commerce", href: "/industries#retail" },
+    { name: "Financial Services & FinTech", href: "/industries#fintech" },
+    { name: "Real Estate & PropTech", href: "/industries#real-estate" },
+    { name: "Logistics & Supply Chain", href: "/industries#logistics" },
+    { name: "Healthcare & Life Sciences", href: "/industries#healthcare" },
+    { name: "B2B & Professional Services", href: "/industries#b2b" },
   ],
   company: [
-    { name: "عن ECOMATE", href: "/#about" },
-    { name: "منهجية العمل والخدمات", href: "/#solutions" },
-    { name: "المدونة والمعرفة", href: "/blog" },
-    { name: "تواصل مع مستشارينا", href: "/#contact" },
+    { name: "About Us", href: "/about" },
+    { name: "Our Methodology", href: "/about#approach" },
+    { name: "Case Studies / Impact", href: "/case-studies" },
+    { name: "Contact Our Team", href: "/contact" },
   ],
   legal: [
-    { name: "شروط الاستخدام", href: "#" },
-    { name: "سياسة الخصوصية", href: "#" },
-    { name: "أمان وحماية البيانات", href: "#" },
+    { name: "Privacy Policy", href: "#" },
+    { name: "Terms of Engagement", href: "#" },
+    { name: "Information Security", href: "#" },
   ],
 };
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0D0E1F] border-t border-slate-800 text-slate-300 pt-16 pb-12 font-sans">
+    <footer className="bg-[#0B0F19] border-t border-slate-800 text-slate-300 pt-20 pb-12 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-10 mb-12">
+        
+        {/* Large Signature Statement */}
+        <div className="pb-16 border-b border-slate-800 mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#0454FF] block mb-3">
+              BUSINESS &amp; TECHNOLOGY SOLUTIONS
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight">
+              Business challenges. <span className="text-[#0454FF]">Engineered solutions.</span>
+            </h2>
+          </div>
+          <Link
+            href="/contact"
+            className="inline-flex items-center gap-2 bg-[#0454FF] hover:bg-[#003ECC] text-white px-6 py-3.5 rounded-xl font-bold text-xs transition-all self-start md:self-auto group"
+          >
+            <span>Talk to Our Team</span>
+            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 mb-16">
           
-          {/* Brand Info */}
-          <div className="md:col-span-2 text-right">
-            <Link href="/" className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 relative flex-shrink-0 rounded-xl bg-white p-1 shadow-sm">
-                <Image
-                  src="/logo.png?v=3"
-                  alt="ECOMATE Logo"
-                  width={40}
-                  height={40}
-                  className="object-contain"
-                  unoptimized
-                />
+          {/* Brand Info & Summary */}
+          <div className="md:col-span-4 space-y-6">
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 rounded-xl bg-[#0454FF] text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                <Layers size={20} className="text-white" />
               </div>
               <div className="flex flex-col">
-                <span className="text-white font-black text-2xl tracking-tight font-sans flex items-center" dir="ltr">
-                  <span>ECOM</span>
-                  <span className="text-[#7B8FFF]">ATE</span>
+                <span className="text-white font-extrabold text-lg tracking-tight flex items-center gap-1">
+                  <span>ECOMATE</span>
+                  <span className="text-[#0454FF]">.</span>
                 </span>
-                <span className="text-[10px] text-slate-400 font-bold -mt-0.5">
-                  حلول الأعمال والمنتجات الرقمية
+                <span className="text-[10px] text-slate-400 font-mono font-semibold uppercase tracking-wider">
+                  Solutions &amp; Technology Partner
                 </span>
               </div>
             </Link>
 
-            <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-sm font-medium">
-              شريكك الاستراتيجي في بناء الهوية البصرية، إدارة قنوات التسويق، وتطوير الأدوات الرقمية والأتمتة للبراندات المحلية.
+            <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
+              We engineer scalable business solutions that help ambitious companies modernize operations, automate complexity, and build digital capabilities for sustainable growth.
             </p>
 
-            {/* Trust badge */}
-            <div className="inline-flex items-center gap-2 bg-slate-800/80 border border-slate-700 px-3.5 py-1.5 rounded-xl text-xs text-slate-300 font-bold">
-              <Sparkles size={14} className="text-[#5B8EFF]" />
-              <span>منظومة متكاملة لنمو واستدامة البراندات المحلية في السوق السعودي</span>
+            {/* ECO CX Dedicated Reference */}
+            <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl">
+              <div className="text-[11px] font-mono text-slate-400 font-bold uppercase mb-1">
+                Proprietary Platform
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-white">ECO CX Customer Suite</span>
+                <a
+                  href="https://ecocx.ai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-[#0454FF] hover:text-blue-400 font-bold flex items-center gap-1"
+                >
+                  <span>Explore Product</span>
+                  <ExternalLink size={12} />
+                </a>
+              </div>
             </div>
           </div>
 
-          {/* Pillars Column */}
-          <div className="text-right">
-            <h4 className="text-white font-bold text-sm mb-4">أركان المنظومة</h4>
-            <ul className="space-y-2.5 text-xs text-slate-400 font-semibold">
-              {footerNavigation.pillars.map((link) => (
+          {/* Solutions Column */}
+          <div className="md:col-span-3">
+            <h4 className="text-white font-mono font-bold text-xs uppercase tracking-wider mb-4">
+              Solutions
+            </h4>
+            <ul className="space-y-2.5 text-xs text-slate-400 font-medium">
+              {footerNavigation.solutions.map((link) => (
                 <li key={link.name}>
                   <Link href={link.href} className="hover:text-white transition-colors">
                     {link.name}
@@ -85,13 +116,15 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Sectors Column */}
-          <div className="text-right">
-            <h4 className="text-white font-bold text-sm mb-4">نماذج التطبيق</h4>
-            <ul className="space-y-2.5 text-xs text-slate-400 font-semibold">
-              {footerNavigation.sectors.map((link) => (
+          {/* Industries Column */}
+          <div className="md:col-span-3">
+            <h4 className="text-white font-mono font-bold text-xs uppercase tracking-wider mb-4">
+              Industries
+            </h4>
+            <ul className="space-y-2.5 text-xs text-slate-400 font-medium">
+              {footerNavigation.industries.map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="hover:text-[#7B8FFF] transition-colors">
+                  <Link href={link.href} className="hover:text-white transition-colors">
                     {link.name}
                   </Link>
                 </li>
@@ -100,9 +133,11 @@ export default function Footer() {
           </div>
 
           {/* Company Column */}
-          <div className="text-right">
-            <h4 className="text-white font-bold text-sm mb-4">الشركة والمعرفة</h4>
-            <ul className="space-y-2.5 text-xs text-slate-400 font-semibold">
+          <div className="md:col-span-2">
+            <h4 className="text-white font-mono font-bold text-xs uppercase tracking-wider mb-4">
+              Company
+            </h4>
+            <ul className="space-y-2.5 text-xs text-slate-400 font-medium">
               {footerNavigation.company.map((link) => (
                 <li key={link.name}>
                   <Link href={link.href} className="hover:text-white transition-colors">
@@ -115,9 +150,9 @@ export default function Footer() {
 
         </div>
 
-        {/* Bottom bar */}
-        <div className="pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-medium">
-          <p>© {new Date().getFullYear()} ECOMATE. جميع الحقوق محفوظة.</p>
+        {/* Bottom Bar */}
+        <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-mono">
+          <p>© {new Date().getFullYear()} ECOMATE Solutions. All rights reserved.</p>
           <div className="flex items-center gap-6">
             {footerNavigation.legal.map((item) => (
               <a key={item.name} href={item.href} className="hover:text-slate-400 transition-colors">

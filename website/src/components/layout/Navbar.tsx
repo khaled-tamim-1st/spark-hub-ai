@@ -2,25 +2,26 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { Menu, X, ArrowLeft, Sparkles, MessageSquare } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Menu, X, ArrowRight, Sparkles, Layers, ChevronRight } from "lucide-react";
 
 interface NavbarProps {
   onOpenConsultation?: () => void;
 }
 
 const navLinks = [
-  { label: "عن ECOMATE", href: "/#about" },
-  { label: "منظومة الخدمات", href: "/#solutions" },
-  { label: "مجالات التطبيق", href: "/#sectors" },
-  { label: "منصة ECO CX", href: "/#eco-cx" },
-  { label: "المدونة والمعرفة", href: "/blog" },
-  { label: "تواصل معنا", href: "/#contact" },
+  { label: "Solutions", href: "/solutions" },
+  { label: "Industries", href: "/industries" },
+  { label: "Digital Products", href: "/digital-products" },
+  { label: "About", href: "/about" },
+  { label: "Case Studies", href: "/case-studies" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export default function Navbar({ onOpenConsultation }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -31,118 +32,126 @@ export default function Navbar({ onOpenConsultation }: NavbarProps) {
   const handleCtaClick = () => {
     if (onOpenConsultation) {
       onOpenConsultation();
-    } else {
-      const el = document.getElementById("contact");
-      if (el) el.scrollIntoView({ behavior: "smooth" });
     }
   };
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 font-sans ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "py-3 bg-white/95 backdrop-blur-xl border-b border-slate-200/80 shadow-xs"
-          : "py-4 bg-transparent"
+          ? "py-3 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs"
+          : "py-5 bg-transparent"
       }`}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           
-          {/* Brand Logo */}
+          {/* Brand Logo & Strategic Tagline */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 relative flex-shrink-0 rounded-xl bg-white p-1 border border-slate-200 group-hover:border-[#0454FF]/40 transition-all duration-300 shadow-xs">
-              <Image
-                src="/logo.png?v=3"
-                alt="ECOMATE Logo"
-                width={40}
-                height={40}
-                className="object-contain"
-                unoptimized
-                priority
-              />
+            <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-lg tracking-tight group-hover:bg-blue-600 transition-colors shadow-sm">
+              <Layers size={20} className="text-blue-400 group-hover:text-white transition-colors" />
             </div>
-            <div className="flex flex-col text-right">
-              <span className="text-slate-950 font-black text-xl tracking-tight font-sans flex items-center justify-end" dir="ltr">
-                <span>ECOM</span><span className="text-[#3B4FE8]">ATE</span>
+            <div className="flex flex-col">
+              <span className="text-slate-950 font-extrabold text-lg tracking-tight flex items-center gap-1">
+                <span>ECOMATE</span>
+                <span className="text-blue-600">.</span>
               </span>
-              <span className="text-[10px] text-slate-500 font-bold -mt-0.5">
-                حلول الأعمال والمنتجات الرقمية
+              <span className="text-[10px] text-slate-500 font-semibold tracking-wide uppercase">
+                Business & Technology Solutions
               </span>
             </div>
           </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-1 bg-white/90 border border-slate-200 px-4 py-1.5 rounded-full shadow-xs">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="text-slate-600 hover:text-[#0454FF] px-3.5 py-1.5 rounded-full text-xs font-bold transition-all hover:bg-blue-50"
-              >
-                {link.label}
-              </Link>
-            ))}
+          {/* Desktop Navigation Links */}
+          <div className="hidden lg:flex items-center gap-1 bg-slate-50/80 border border-slate-200/80 px-4 py-1.5 rounded-full shadow-2xs backdrop-blur-xs">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    isActive
+                      ? "text-blue-600 bg-white shadow-2xs font-bold"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
 
-          {/* Action CTAs */}
+          {/* Desktop Action CTAs */}
           <div className="hidden md:flex items-center gap-3">
-            <a
-              href="https://wa.me/966500000000?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D9%81%D8%B1%D9%8A%D9%82%20ECOMATE"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-slate-700 hover:text-[#0454FF] text-xs font-bold px-3.5 py-2 rounded-xl transition-colors hover:bg-slate-100 flex items-center gap-1.5"
+            <Link
+              href="/solutions"
+              className="text-slate-700 hover:text-blue-600 text-xs font-semibold px-3 py-2 rounded-xl transition-colors"
             >
-              <MessageSquare size={14} className="text-[#0454FF]" />
-              <span>استفسار</span>
-            </a>
+              Explore Solutions
+            </Link>
 
-            <button
-              onClick={handleCtaClick}
-              className="bg-[#0454FF] hover:bg-[#0047E0] text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-[#0454FF]/20 hover:scale-105 flex items-center gap-1.5"
-            >
-              <Sparkles size={13} />
-              <span>طلب استشارة</span>
-              <ArrowLeft size={13} />
-            </button>
+            {onOpenConsultation ? (
+              <button
+                onClick={handleCtaClick}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow-md flex items-center gap-1.5 group cursor-pointer"
+              >
+                <span>Talk to Our Team</span>
+                <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            ) : (
+              <Link
+                href="/contact"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow-md flex items-center gap-1.5 group"
+              >
+                <span>Talk to Our Team</span>
+                <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            )}
           </div>
 
-          {/* Mobile hamburger button */}
+          {/* Mobile Menu Toggle Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden text-slate-700 p-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50"
-            aria-label={isOpen ? "إغلاق القائمة" : "فتح القائمة"}
+            className="lg:hidden text-slate-700 p-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 focus:outline-none"
+            aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
           >
             {isOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
 
-        {/* Mobile Menu Dropdown */}
+        {/* Mobile Navigation Dropdown */}
         {isOpen && (
-          <div className="lg:hidden mt-3 bg-white/95 border border-slate-200 rounded-2xl p-4 shadow-xl backdrop-blur-2xl">
+          <div className="lg:hidden mt-3 bg-white border border-slate-200 rounded-2xl p-4 shadow-xl">
             <div className="flex flex-col space-y-1 pb-3">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className="text-slate-700 hover:text-[#0454FF] px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors hover:bg-blue-50 flex items-center justify-between"
-                >
-                  <span>{link.label}</span>
-                  <span className="text-slate-400 text-xs">←</span>
-                </Link>
-              ))}
+              {navLinks.map((link) => {
+                const isActive = pathname === link.href;
+                return (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className={`px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-between ${
+                      isActive
+                        ? "text-blue-600 bg-blue-50/70 font-bold"
+                        : "text-slate-700 hover:text-blue-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    <span>{link.label}</span>
+                    <ChevronRight size={16} className="text-slate-400" />
+                  </Link>
+                );
+              })}
             </div>
             <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  handleCtaClick();
-                }}
-                className="w-full text-center bg-[#0454FF] text-white py-3 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1.5"
+              <Link
+                href="/contact"
+                onClick={() => setIsOpen(false)}
+                className="w-full text-center bg-blue-600 text-white py-3 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-2"
               >
                 <Sparkles size={14} />
-                <span>طلب جلسة استشارية أولية</span>
-              </button>
+                <span>Talk to Our Team</span>
+              </Link>
             </div>
           </div>
         )}
@@ -150,3 +159,4 @@ export default function Navbar({ onOpenConsultation }: NavbarProps) {
     </header>
   );
 }
+
