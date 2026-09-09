@@ -1,0 +1,178 @@
+{
+  "metadata": {
+    "title": "ECOMATE — Business Growth & Solutions Partner",
+    "description": "We bring together strategy, branding, marketing, digital, and technology to help businesses build stronger brands, create better experiences, and unlock sustainable growth.",
+    "siteName": "ECOMATE"
+  },
+  "nav": {
+    "solutions": "Solutions",
+    "industries": "Industries",
+    "digitalProducts": "Digital Products",
+    "about": "About",
+    "work": "Work",
+    "cta": "Talk to Our Team",
+    "langSwitch": "العربية"
+  },
+  "hero": {
+    "headline": ["We Build.", "We Grow.", "We Evolve."],
+    "sub": "We bring together strategy, branding, marketing, digital, and technology to help businesses build stronger brands, create better experiences, and unlock sustainable growth.",
+    "cta": "Start a Conversation",
+    "scrollLabel": "Explore"
+  },
+  "bigStatement": {
+    "headline": "Great Businesses Don't Grow in Silos.",
+    "sub": "Brand, marketing, digital, technology, and business strategy become far more powerful when they work together."
+  },
+  "challenges": {
+    "label": "Business Challenges",
+    "headline": "What Are You Trying to Move Forward?",
+    "items": [
+      { "title": "Build a Brand", "capabilities": "Branding & Creative" },
+      { "title": "Grow Your Market", "capabilities": "Marketing & Growth" },
+      { "title": "Launch Something New", "capabilities": "Strategy + Branding + Marketing + Digital" },
+      { "title": "Improve Customer Experience", "capabilities": "Digital Experiences + Technology" },
+      { "title": "Transform Your Digital Presence", "capabilities": "Digital Experiences" },
+      { "title": "Automate Your Business", "capabilities": "Business Solutions + Automation" },
+      { "title": "Build Custom Technology", "capabilities": "Technology & Software" }
+    ]
+  },
+  "capabilities": {
+    "label": "Our Capabilities",
+    "headline": "One Partner. Many Capabilities.",
+    "items": [
+      {
+        "number": "01",
+        "title": "Strategy & Business Solutions",
+        "tagline": "Clarity before execution.",
+        "description": "We start with the business challenge, not the solution. Our strategic work ensures every creative, marketing, and technology investment is anchored in clear business thinking.",
+        "capabilities": ["Business Strategy", "Growth Strategy", "Digital Strategy", "Go-To-Market Strategy", "Business Consulting", "Customer & Market Insights", "Business Process Improvement"]
+      },
+      {
+        "number": "02",
+        "title": "Branding & Creative",
+        "tagline": "Build brands people remember.",
+        "description": "From brand strategy and positioning to visual identity and creative direction, we build brands that stand out, connect with people, and create lasting impressions.",
+        "capabilities": ["Brand Strategy", "Brand Positioning", "Visual Identity", "Brand Guidelines", "Creative Direction", "Campaign Concepts", "Brand Experiences"]
+      },
+      {
+        "number": "03",
+        "title": "Marketing & Growth",
+        "tagline": "Turn attention into meaningful growth.",
+        "description": "We create marketing strategies that connect businesses with their audiences. From digital marketing and content to campaigns and performance, we drive results that matter.",
+        "capabilities": ["Marketing Strategy", "Digital Marketing", "Social Media", "Performance Marketing", "Content Strategy", "SEO", "Campaign Management"]
+      },
+      {
+        "number": "04",
+        "title": "Digital Experiences",
+        "tagline": "Create digital experiences that move people and businesses forward.",
+        "description": "We design and build digital experiences that are beautiful, functional, and strategically aligned with business goals. From websites to platforms, every interaction counts.",
+        "capabilities": ["Websites", "E-Commerce", "UX/UI Design", "Landing Pages", "Digital Platforms", "Customer Journeys", "Interactive Experiences"]
+      },
+      {
+        "number": "05",
+        "title": "Technology & Software",
+        "tagline": "Technology that serves the business.",
+        "description": "We build technology solutions that solve real business problems — custom software, automation, AI, integrations, and digital products that help companies operate smarter.",
+        "capabilities": ["Custom Software", "Business Platforms", "Automation", "AI Solutions", "System Integration", "Internal Business Tools", "Digital Product Development"]
+      }
+    ]
+  },
+  "methodology": {
+    "label": "How We Think",
+    "headline": "Understand → Define → Create → Activate → Evolve",
+    "steps": [
+      { "title": "Understand", "description": "We learn the business, audience, market, and challenge." },
+      { "title": "Define", "description": "We establish the strategy, direction, and priorities." },
+      { "title": "Create", "description": "We build the brand, campaign, experience, product, or solution." },
+      { "title": "Activate", "description": "We bring it to market and connect it to the business." },
+      { "title": "Evolve", "description": "We measure, learn, optimize, and keep improving." }
+    ]
+  },
+  "impact": {
+    "label": "Business Impact",
+    "headline": "Ideas Are Good. Results Are Better.",
+    "items": [
+      { "title": "Stronger Brands", "description": "Brand identities that create recognition, trust, and competitive advantage." },
+      { "title": "Better Customer Experiences", "description": "Interactions that feel seamless, personal, and valuable at every touchpoint." },
+      { "title": "More Effective Marketing", "description": "Campaigns and strategies that reach the right audience and drive meaningful results." },
+      { "title": "Smarter Operations", "description": "Processes and systems that reduce complexity and improve performance." },
+      { "title": "Connected Digital Experiences", "description": "Websites, platforms, and products that work together as a cohesive ecosystem." },
+      { "title": "Scalable Technology", "description": "Software and systems built to grow with the business." }
+    ]
+  },
+  "industries": {
+    "label": "Industries",
+    "headline": "Where We Create Value",
+    "items": [
+      {
+        "name": "Retail & E-Commerce",
+        "challenges": ["Customer acquisition", "Digital presence", "Omnichannel experience"],
+        "capabilities": ["E-Commerce platforms", "Brand strategy", "Digital marketing"]
+      },
+      {
+        "name": "Real Estate",
+        "challenges": ["Lead generation", "Brand differentiation", "Digital transformation"],
+        "capabilities": ["Brand identity", "Digital platforms", "Marketing automation"]
+      },
+      {
+        "name": "Financial Services",
+        "challenges": ["Customer experience", "Regulatory compliance", "Digital innovation"],
+        "capabilities": ["Digital platforms", "Process automation", "Customer experience"]
+      },
+      {
+        "name": "Healthcare",
+        "challenges": ["Patient experience", "Operational efficiency", "Digital access"],
+        "capabilities": ["Digital solutions", "Process improvement", "Platform development"]
+      },
+      {
+        "name": "Logistics",
+        "challenges": ["Operational complexity", "Customer communication", "Process optimization"],
+        "capabilities": ["Automation", "System integration", "Business platforms"]
+      },
+      {
+        "name": "Hospitality",
+        "challenges": ["Guest experience", "Brand presence", "Digital engagement"],
+        "capabilities": ["Brand strategy", "Digital experiences", "Marketing"]
+      }
+    ]
+  },
+  "products": {
+    "label": "Digital Products",
+    "headline": "We Don't Just Deliver Solutions. We Build Them Too.",
+    "ecoCx": {
+      "name": "ECO CX",
+      "description": "Our proprietary digital product built to help businesses manage and automate customer communication and experiences across channels.",
+      "cta": "Explore ECO CX"
+    }
+  },
+  "whyUs": {
+    "label": "Why ECOMATE",
+    "headline": "Different Disciplines. One Perspective.",
+    "principles": [
+      { "title": "Connected Thinking", "description": "We see the bigger picture. Strategy, brand, marketing, digital, and technology as one ecosystem." },
+      { "title": "Creative + Commercial", "description": "Ideas should be distinctive and useful. Creativity grounded in business outcomes." },
+      { "title": "Strategy Before Execution", "description": "We solve the right problem before creating the solution." },
+      { "title": "One Partner", "description": "Multiple capabilities without fragmented relationships." },
+      { "title": "Built to Evolve", "description": "We don't just launch things. We help them grow." }
+    ]
+  },
+  "finalCta": {
+    "headline": "Let's Build What's Next.",
+    "sub": "Have a business challenge, a new idea, a brand to build, or something you want to grow? Let's talk.",
+    "cta": "Start a Conversation"
+  },
+  "footer": {
+    "tagline": "BUSINESS GROWTH & SOLUTIONS",
+    "statement": "Everything Connects.",
+    "cta": "Talk to Our Team",
+    "description": "We bring together strategy, branding, marketing, digital, and technology to help businesses build, grow, and evolve.",
+    "ecoCxLabel": "Proprietary Product",
+    "ecoCxCta": "Explore Product",
+    "solutionsTitle": "Solutions",
+    "industriesTitle": "Industries",
+    "companyTitle": "Company",
+    "copyright": "ECOMATE. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Engagement"
+  }
+}

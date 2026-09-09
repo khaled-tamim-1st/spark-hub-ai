@@ -1,0 +1,392 @@
+{
+  "name": "ECOMATE - Customer Service AI (بدون متجر)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "customer-service",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-inbound",
+      "name": "📩 1. استقبال رسالة العميل (Webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "ecomate-cs-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================================\n// 🔍 استخراج بيانات الرسالة وكشف طلب العنصر البشري (Regex)\n// ========================================================\n\nconst raw = $input.first().json;\nconst body = raw.body || raw;\n\n// استخراج نص الرسالة وبيانات العميل\nconst message = (body.message || body.text || body.Body || body.content || '').toString().trim();\nconst customerName = (body.customerName || body.name || body.ProfileName || 'العميل').toString().trim();\nconst customerPhone = (body.phone || body.from || body.From || body.sender || '').toString().trim();\nconst conversationId = (body.conversationId || body.chatId || body.id || Date.now().toString()).toString();\n\n// قاموس الكلمات الدالة على طلب موظف بشري (عربي + إنجليزي)\nconst humanPatterns = [\n  /خدم[ةه]\\s*العملا[ءإ]/,\n  /عنصر\\s*بشر[يى]/,\n  /موظف/,\n  /بشر[يى]/,\n  /إنسان|انسان/,\n  /شخص\\s*(حقيقي)?/,\n  /آدمي|ادمي/,\n  /حولن[يى]/,\n  /أبغ[يى]\\s*(أ)?كلم/,\n  /ابغ[يى]\\s*(ا)?كلم/,\n  /عايز\\s*(أ)?كلم/,\n  /عاوز\\s*(أ)?كلم/,\n  /بدي\\s*احك[يى]/,\n  /تحدث\\s*مع/,\n  /محادث[ةه]\\s*بشر/,\n  /اتصال\\s*بشر/,\n  /كلمني\\s*حد/,\n  /ابي\\s*احد/,\n  /مسؤول/,\n  /مدير/,\n  /\\bhuman\\b/i,\n  /\\bagent\\b/i,\n  /\\brepresentative\\b/i,\n  /\\bsupport\\s*team\\b/i,\n  /\\breal\\s*person\\b/i,\n  /\\blive\\s*agent\\b/i\n];\n\nconst humanRequested = humanPatterns.some(pattern => pattern.test(message));\n\nreturn [{\n  json: {\n    message,\n    customerName,\n    customerPhone,\n    conversationId,\n    humanRequested,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "code-detect-human",
+      "name": "🔍 2. فحص طلب موظف بشري فوراً",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "check-human",
+              "leftValue": "={{ $json.humanRequested }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-human-requested",
+      "name": "❓ 3. هل طلب إنسان؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [720, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================================\n// 🛑 إيقاف الـ AI + تجهيز رد التحويل البشري والتنبيه الداخلي\n// ========================================================\n\nconst data = $input.first().json;\n\n// الرد الذي سيصل للعميل\nconst customerReply = `أهلاً بك ${data.customerName} 👋\\n\\nتم تحويل محادثتك لفريق خدمة العملاء، وسيقوم أحد ممثلينا بالتواصل معك والرد عليك في أقرب وقت.\\n\\nشكراً لصبرك 🙏`;\n\n// التنبيه الداخلي للموظفين (لا يصل للعميل أبداً)\nconst internalAlert = `🚨 طلب موظف بشري عاجل\\n━━━━━━━━━━━━━━━━━\\n👤 العميل: ${data.customerName}\\n📱 الرقم: ${data.customerPhone || 'غير محدد'}\\n💬 الرسالة: \"${data.message}\"\\n⏰ الوقت: ${new Date().toLocaleTimeString('ar-SA')}\\n\\n📌 الإجراء المطلوب:\\nيرجى فتح المحادثة والرد على العميل مباشرة.`;\n\nreturn [{\n  json: {\n    ...data,\n    action: 'human_handoff',\n    aiStopped: true,\n    replyToCustomer: customerReply,\n    internalAlert: internalAlert,\n    supervisorSentiment: 'neutral'\n  }\n}];"
+      },
+      "id": "code-human-handoff",
+      "name": "🛑 4. إيقاف AI وتجهيز رد التحويل",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 160]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.GROQ_API_KEY || 'gsk_YOUR_GROQ_API_KEY_HERE' }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"temperature\": 0.1,\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"أنت مشرف عمليات وذكاء اصطناعي (AI Supervisor) لخدمة العملاء. مهمتك فحص رسالة العميل وإرجاع تقييم بصيغة JSON فقط.\\n\\nالحقول المطلوبة في JSON:\\n- sentiment: 'positive' | 'neutral' | 'frustrated' | 'angry'\\n- shouldEscalate: boolean (true إذا كان العميل غاضب جداً، يشتكي من مشكلة فادحة، يهدد، أو يطالب باسترجاع مستعجل)\\n- escalationReason: string | null (سبب التصعيد باختصار)\\n- purchaseIntent: 'none' | 'inquiry' | 'high_intent' (هل العميل يريد الشراء/الحجز/الاشتراك الآن)\\n- suggestedAction: string (الإجراء المقترح للموظف)\\n- suggestedInternalNote: string | null (توجيه داخلي مختصر)\\n- confidence: number (من 0.0 إلى 1.0)\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"اسم العميل: {{ $json.customerName }}\\nرسالة العميل: {{ $json.message }}\"\n    }\n  ]\n}",
+        "options": {
+          "timeout": 12000
+        }
+      },
+      "id": "http-supervisor",
+      "name": "🧠 5. المشرف الذكي (AI Supervisor)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1000, 440],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================================\n// 📊 تحليل قرار المشرف الذكي وتحديد مسار التصعيد\n// ========================================================\n\nconst prev = $('🔍 2. فحص طلب موظف بشري فوراً').first().json;\nconst httpResult = $input.first().json;\n\nlet supervisor = {\n  sentiment: 'neutral',\n  shouldEscalate: false,\n  escalationReason: null,\n  purchaseIntent: 'none',\n  suggestedAction: 'رد تلقائي عادي',\n  suggestedInternalNote: null,\n  confidence: 0.8\n};\n\ntry {\n  const content = httpResult.choices?.[0]?.message?.content || '{}';\n  const parsed = JSON.parse(content);\n  supervisor = { ...supervisor, ...parsed };\n} catch (e) {\n  // في حال فشل التحليل استخدم الإعدادات التلقائية\n}\n\n// قواعد حسم التصعيد (بوابة الأمان)\nconst isAngry = supervisor.sentiment === 'angry';\nconst needsEscalation = (\n  supervisor.confidence >= 0.70 &&\n  (supervisor.shouldEscalate === true || isAngry)\n);\n\nreturn [{\n  json: {\n    ...prev,\n    supervisor,\n    needsEscalation\n  }\n}];"
+      },
+      "id": "code-parse-supervisor",
+      "name": "📊 6. تقييم نتائج المشرف",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1260, 440]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "check-escalation",
+              "leftValue": "={{ $json.needsEscalation }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-needs-escalation",
+      "name": "❓ 7. هل العميل غاضب أو يحتاج تصعيد؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1520, 440]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================================\n// 🚨 تجهيز رد اعتذاري للعميل وتنبيه غضب داخلي للموظفين\n// ========================================================\n\nconst data = $input.first().json;\nconst sv = data.supervisor;\n\n// الرد الموجه للعميل (مهدئ ومحترف دون ذكر أي كواليس)\nconst customerReply = `أهلاً بك ${data.customerName} 🙏\\n\\nنتفهم تماماً استياءك ونأسف لأي تجربة غير مرضية. تم تصعيد محادثتك فوراً لمسؤول خدمة العملاء وسيقوم بمراجعة الأمر والتواصل معك مباشرة لمعالجة مشكلتك بأفضل شكل.\\n\\nنقدّر صبرك معنا.`;\n\n// التنبيه الداخلي للموظفين (عزل تام P0 Isolation)\nconst internalAlert = `🚨 تنبيه تصعيد: عميل غاضب / استياء كبير\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n👤 العميل: ${data.customerName}\\n📱 الرقم: ${data.customerPhone || 'غير محدد'}\\n😡 الشعور: ${sv.sentiment}\\n📋 سبب التصعيد: ${sv.escalationReason || 'استياء عالي من الخدمة'}\\n💡 التوجيه للموظف: ${sv.suggestedAction || 'التواصل فوراً وحل المشكلة'}\\n💬 الرسالة: \"${data.message}\"\\n⏰ الوقت: ${new Date().toLocaleTimeString('ar-SA')}\\n🔒 نسبة الثقة: ${(sv.confidence * 100).toFixed(0)}%`;\n\nreturn [{\n  json: {\n    ...data,\n    action: 'escalation',\n    aiStopped: true,\n    replyToCustomer: customerReply,\n    internalAlert: internalAlert\n  }\n}];"
+      },
+      "id": "code-escalation",
+      "name": "🚨 8. تجهيز رد تصعيد وتنبيه غضب",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1800, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.GROQ_API_KEY || 'gsk_YOUR_GROQ_API_KEY_HERE' }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"temperature\": 0.3,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"أنت ممثل خدمة عملاء محترف، ذكي، وودود لمنشأة تجارية.\\n\\n=== معلومات وقاعدة معرفة المنشأة (Knowledge Base) ===\\n- اسم المنشأة: ECOMATE لحلول الأعمال والنمو\\n- الخدمات: بناء الهوية البصرية، إدارة الحملات التسويقية، الحلول البرمجية، وأتمتة خدمة العملاء.\\n- أوقات العمل: من الأحد إلى الخميس، من 9 صباحاً حتى 6 مساءً بتوقيت الرياض.\\n- طريقة التواصل وطلب الخدمات: يمكن حجز جلسة استشارية أولية مجاناً عبر موقعنا أو التواصل المباشر مع مستشارينا عبر الواتساب.\\n===================================================\\n\\nقواعد صارمة للرد:\\n1. الصدق التام: لا تخترع أسعاراً أو عروضاً أو معلومات غير مذكورة في قاعدة المعرفة أعلاه.\\n2. الأسلوب: تحدث بلهجة عربية/سعودية راقية، ودودة، وموجزة بدون إطالة ممملة.\\n3. إذا كان السؤال عن تفاصيل غير متوفرة لديك، اطلب من العميل تزويدك بتفاصيل نشاطه بلباقة أو وجهه لطلب استشارة مجانية مع الفريق.\\n4. ممنوع منعاً باتاً ذكر أي معلومات تقنية داخلية أو أنك نموذج ذكاء اصطناعي أو كلمات مثل (Supervisor, Internal Note).\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"اسم العميل: {{ $json.customerName }}\\nرسالة العميل: {{ $json.message }}\"\n    }\n  ]\n}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "http-ai-reply",
+      "name": "🤖 9. توليد رد الذكاء الاصطناعي (AI Reply)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1800, 560],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================================\n// 🛡️ فلتر الأمان الصارم (منع تسريب الملاحظات الداخلية P0)\n// ========================================================\n\nconst prev = $('❓ 7. هل العميل غاضب أو يحتاج تصعيد؟').first().json;\nconst httpResult = $input.first().json;\n\nlet reply = 'أهلاً بك! شكراً لتواصلك معنا، كيف نقدر نساعدك اليوم؟';\n\ntry {\n  reply = httpResult.choices?.[0]?.message?.content || reply;\n} catch (e) {\n  // في حال وجود مشكلة\n}\n\n// كلمات محظورة تمنع خروج أي نوت داخلي للعميل\nconst leakPatterns = [\n  /AI Supervisor/i,\n  /تنبيه تصعيد/,\n  /ملاحظة داخلية/,\n  /التوجيه للموظف/,\n  /internal note/i,\n  /🚨/,\n  /شعور العميل/,\n  /سبب التصعيد/\n];\n\nconst isLeaked = leakPatterns.some(p => p.test(reply));\n\nif (isLeaked) {\n  // استبدال فوري لحماية النظام\n  reply = `أهلاً بك ${prev.customerName} 👋\\nشكراً لتواصلك معنا! تم استلام رسالتك وسيتم الرد عليك في أقرب وقت.`;\n}\n\n// هل هناك نية شراء عالية تحتاج تنبيه الفريق الداخلي؟\nlet internalAlert = null;\nif (prev.supervisor?.purchaseIntent === 'high_intent') {\n  internalAlert = `🎯 فرصة بيع جديدة (High Intent)\\n━━━━━━━━━━━━━━━━━━━━\\n👤 العميل: ${prev.customerName}\\n📱 الرقم: ${prev.customerPhone || 'غير محدد'}\\n💬 الرسالة: \"${prev.message}\"\\n💡 العميل مهتم بالشراء/الطلب الآن، يُفضل متابعته.`;\n}\n\nreturn [{\n  json: {\n    ...prev,\n    action: 'ai_reply',\n    aiStopped: false,\n    replyToCustomer: reply,\n    internalAlert: internalAlert\n  }\n}];"
+      },
+      "id": "code-security-gate",
+      "name": "🛡️ 10. بوابة الأمان وتجهيز الرد",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2060, 560]
+    },
+    {
+      "parameters": {},
+      "id": "merge-all-paths",
+      "name": "🔀 11. دمج كافة المسارات",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [2340, 380],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "has-alert",
+              "leftValue": "={{ $json.internalAlert }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-has-alert",
+      "name": "❓ 12. هل يوجد تنبيه داخلي للموظفين؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [2580, 260]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN_HERE/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": \"YOUR_CHAT_ID_HERE\",\n  \"text\": \"{{ $json.internalAlert }}\"\n}",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "id": "send-staff-alert",
+      "name": "🔔 13. إرسال تنبيه للموظفين (Telegram/Slack)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2860, 200],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"action\": \"{{ $json.action }}\",\n  \"aiStopped\": {{ $json.aiStopped || false }},\n  \"reply\": \"{{ $json.replyToCustomer }}\",\n  \"customer\": {\n    \"name\": \"{{ $json.customerName }}\",\n    \"phone\": \"{{ $json.customerPhone }}\"\n  },\n  \"timestamp\": \"{{ $json.timestamp }}\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "respond-client",
+      "name": "📤 14. إرجاع الرد للعميل (Webhook Response)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2860, 440]
+    }
+  ],
+  "connections": {
+    "📩 1. استقبال رسالة العميل (Webhook)": {
+      "main": [
+        [
+          {
+            "node": "🔍 2. فحص طلب موظف بشري فوراً",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 2. فحص طلب موظف بشري فوراً": {
+      "main": [
+        [
+          {
+            "node": "❓ 3. هل طلب إنسان؟",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "❓ 3. هل طلب إنسان؟": {
+      "main": [
+        [
+          {
+            "node": "🛑 4. إيقاف AI وتجهيز رد التحويل",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "🧠 5. المشرف الذكي (AI Supervisor)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🛑 4. إيقاف AI وتجهيز رد التحويل": {
+      "main": [
+        [
+          {
+            "node": "🔀 11. دمج كافة المسارات",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 5. المشرف الذكي (AI Supervisor)": {
+      "main": [
+        [
+          {
+            "node": "📊 6. تقييم نتائج المشرف",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📊 6. تقييم نتائج المشرف": {
+      "main": [
+        [
+          {
+            "node": "❓ 7. هل العميل غاضب أو يحتاج تصعيد؟",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "❓ 7. هل العميل غاضب أو يحتاج تصعيد؟": {
+      "main": [
+        [
+          {
+            "node": "🚨 8. تجهيز رد تصعيد وتنبيه غضب",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "🤖 9. توليد رد الذكاء الاصطناعي (AI Reply)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🚨 8. تجهيز رد تصعيد وتنبيه غضب": {
+      "main": [
+        [
+          {
+            "node": "🔀 11. دمج كافة المسارات",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "🤖 9. توليد رد الذكاء الاصطناعي (AI Reply)": {
+      "main": [
+        [
+          {
+            "node": "🛡️ 10. بوابة الأمان وتجهيز الرد",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🛡️ 10. بوابة الأمان وتجهيز الرد": {
+      "main": [
+        [
+          {
+            "node": "🔀 11. دمج كافة المسارات",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "🔀 11. دمج كافة المسارات": {
+      "main": [
+        [
+          {
+            "node": "❓ 12. هل يوجد تنبيه داخلي للموظفين؟",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "📤 14. إرجاع الرد للعميل (Webhook Response)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "❓ 12. هل يوجد تنبيه داخلي للموظفين؟": {
+      "main": [
+        [
+          {
+            "node": "🔔 13. إرسال تنبيه للموظفين (Telegram/Slack)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

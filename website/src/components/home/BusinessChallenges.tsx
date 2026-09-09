@@ -1,112 +1,126 @@
-import { Unlink, RefreshCw, ServerOff, Clock, UserX, GitFork, EyeOff, TrendingDown, ArrowRight } from "lucide-react";
-import Link from "next/link";
+"use client";
 
-const challenges = [
-  {
-    icon: Unlink,
-    title: "Disconnected Systems",
-    description: "Siloed CRMs, ERPs, databases, and third-party tools that do not communicate or synchronize data seamlessly.",
-  },
-  {
-    icon: RefreshCw,
-    title: "Manual Processes",
-    description: "High-friction, repetitive manual tasks that consume executive hours and introduce human error.",
-  },
-  {
-    icon: ServerOff,
-    title: "Legacy Infrastructure",
-    description: "Aging systems and rigid architectures that slow down innovation and resist modern cloud upgrades.",
-  },
-  {
-    icon: Clock,
-    title: "Operational Bottlenecks",
-    description: "Inflexible workflows that cause cross-departmental delays and stall project execution.",
-  },
-  {
-    icon: UserX,
-    title: "Fragmented Customer Journeys",
-    description: "Inconsistent communication across channels that leads to customer churn and dropped leads.",
-  },
-  {
-    icon: GitFork,
-    title: "Inefficient Workflows",
-    description: "Complex handoffs between teams without centralized governance or automated state tracking.",
-  },
-  {
-    icon: EyeOff,
-    title: "Poor Data Visibility",
-    description: "Lack of real-time operational intelligence, leaving decision-makers to rely on outdated spreadsheets.",
-  },
-  {
-    icon: TrendingDown,
-    title: "Rigid, Unscalable Tech",
-    description: "Off-the-shelf tools that fail to adapt as transaction volumes, team sizes, and markets expand.",
-  },
-];
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus } from 'lucide-react';
 
-export default function BusinessChallenges() {
+interface BusinessChallengesProps {
+  locale: 'en' | 'ar';
+  dictionary: {
+    label: string;
+    headline: string;
+    items: { title: string; capabilities: string }[];
+  };
+}
+
+export default function BusinessChallenges({ locale, dictionary }: BusinessChallengesProps) {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const isRtl = locale === 'ar';
+
+  const toggleItem = (index: number) => {
+    setActiveIndex(activeIndex === index ? null : index);
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
+    },
+  };
+
   return (
-    <section className="py-20 md:py-28 bg-slate-950 text-white relative overflow-hidden">
-      {/* Subtle Background Glow */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 blur-[130px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-600/10 blur-[130px] pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
-        {/* Section Header */}
-        <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 bg-blue-900/40 border border-blue-800/80 text-blue-300 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
-            The Operational Reality
-          </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight mb-6">
-            Complex Business Problems Require More Than Off-the-Shelf Software.
-          </h2>
-          <p className="text-slate-400 text-base sm:text-lg leading-relaxed">
-            Standard software packages are built for generic use cases. When businesses grow, they outgrow rigid tools and accumulate operational friction across departments.
-          </p>
+    <section className="py-24 bg-white relative overflow-hidden" dir={isRtl ? 'rtl' : 'ltr'}>
+      <div className="container mx-auto px-4 md:px-8 max-w-7xl">
+        <div className="mb-16 md:mb-24 max-w-3xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+          >
+            <span className="font-mono text-sm tracking-widest uppercase text-[#0454FF] mb-6 block">
+              {dictionary.label}
+            </span>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-[#0B0F19]">
+              {dictionary.headline}
+            </h2>
+          </motion.div>
         </div>
 
-        {/* 8 Challenges Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-14">
-          {challenges.map((c) => {
-            const Icon = c.icon;
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          className="flex flex-wrap gap-4 md:gap-6 justify-center md:justify-start"
+        >
+          {dictionary.items.map((item, index) => {
+            const isActive = activeIndex === index;
+            // Create asymmetric sizing based on index
+            const sizeClass = 
+              index % 4 === 0 ? "w-full md:w-[48%]" : 
+              index % 4 === 1 ? "w-full md:w-[60%]" : 
+              index % 4 === 2 ? "w-full md:w-[36%]" : 
+              "w-full md:w-[48%]";
+            
             return (
-              <div
-                key={c.title}
-                className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl hover:border-blue-500/40 transition-all hover:bg-slate-900 group"
+              <motion.div
+                key={index}
+                variants={itemVariants}
+                className={`${sizeClass} relative group cursor-pointer`}
+                onClick={() => toggleItem(index)}
+                onMouseEnter={() => setActiveIndex(index)}
+                onMouseLeave={() => setActiveIndex(null)}
               >
-                <div className="w-10 h-10 rounded-xl bg-slate-800 text-blue-400 flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                  <Icon size={20} />
+                <div className={`p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] transition-colors duration-500 border border-slate-100 h-full flex flex-col justify-center ${isActive ? 'bg-slate-50 border-[#0454FF]/20' : 'bg-white hover:bg-slate-50'}`}>
+                  
+                  <div className="flex items-center justify-between gap-4">
+                    <h3 className={`text-2xl md:text-3xl lg:text-4xl font-medium transition-colors duration-300 ${isActive ? 'text-[#0454FF]' : 'text-[#0B0F19]'}`}>
+                      {item.title}
+                    </h3>
+                    <motion.div
+                      animate={{ rotate: isActive ? (isRtl ? -45 : 45) : 0 }}
+                      transition={{ duration: 0.3 }}
+                      className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center border transition-colors ${isActive ? 'bg-[#0454FF] text-white border-[#0454FF]' : 'bg-transparent text-slate-400 border-slate-200'}`}
+                    >
+                      <Plus size={20} />
+                    </motion.div>
+                  </div>
+                  
+                  <AnimatePresence initial={false}>
+                    {isActive && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                        animate={{ height: 'auto', opacity: 1, marginTop: 24 }}
+                        exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <div className="relative pl-6 rtl:pl-0 rtl:pr-6 border-l-2 rtl:border-l-0 rtl:border-r-2 border-[#0454FF]/30">
+                          <p className="text-lg text-slate-600 font-medium">
+                            {item.capabilities}
+                          </p>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-                <h3 className="text-base font-bold text-slate-100 mb-2">{c.title}</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">{c.description}</p>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
-
-        {/* Strategic Positioning Callout Banner */}
-        <div className="bg-gradient-to-r from-blue-950/70 via-slate-900 to-blue-950/70 border border-blue-800/60 rounded-3xl p-8 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
-          <div className="max-w-2xl">
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-400 block mb-2">
-              Our Strategic Role
-            </span>
-            <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
-              We Bridge the Gap Between Business Strategy & Technology Execution.
-            </h3>
-            <p className="text-slate-300 text-sm leading-relaxed">
-              We do not sell generic software licenses. We diagnose root operational friction and engineer bespoke, integrated technology architectures that solve your specific operational bottlenecks.
-            </p>
-          </div>
-          <Link
-            href="/about"
-            className="flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold text-xs transition-all flex items-center gap-2 group"
-          >
-            <span>Learn About Our Approach</span>
-            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
-
+        </motion.div>
       </div>
     </section>
   );

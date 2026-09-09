@@ -1,124 +1,193 @@
-import Link from "next/link";
-import { ArrowRight, ShoppingBag, Landmark, Building, Truck, Activity, Briefcase } from "lucide-react";
+"use client";
 
-const industries = [
-  {
-    id: "retail",
-    icon: ShoppingBag,
-    name: "Retail & E-Commerce",
-    challenge: "Managing high transaction volumes, multi-channel customer inquiries, and disjointed inventory syncs.",
-    solution: "Omnichannel communication hubs, real-time inventory and ERP sync, automated order state notifications.",
-  },
-  {
-    id: "fintech",
-    icon: Landmark,
-    name: "Financial Services & FinTech",
-    challenge: "Complex regulatory compliance, manual document validation, and fragmented client onboarding pipelines.",
-    solution: "Secure automated KYC/onboarding pipelines, audit-compliant data sync, and high-security API architectures.",
-  },
-  {
-    id: "real-estate",
-    icon: Building,
-    name: "Real Estate & PropTech",
-    challenge: "Delayed responses to high-value property inquiries, unstructured lead tracking, and manual tenant management.",
-    solution: "Instant automated lead routing, CRM integration, tenant portal systems, and automated maintenance workflows.",
-  },
-  {
-    id: "logistics",
-    icon: Truck,
-    name: "Logistics & Supply Chain",
-    challenge: "Operational blind spots across fleet dispatch, manual shipping status updates, and disconnected legacy software.",
-    solution: "Custom carrier integration middleware, automated shipment event tracking, and dispatch intelligence dashboards.",
-  },
-  {
-    id: "healthcare",
-    icon: Activity,
-    name: "Healthcare & Life Sciences",
-    challenge: "High administrative burden, patient appointment drop-offs, and disjointed medical communication channels.",
-    solution: "HIPAA-ready automated appointment booking, secure patient messaging flows, and integrated clinic operations.",
-  },
-  {
-    id: "b2b",
-    icon: Briefcase,
-    name: "B2B & Professional Services",
-    challenge: "Prolonged sales cycles, manual proposal tracking, and fragmented client communication across consulting teams.",
-    solution: "Custom client collaboration portals, automated billing integrations, and end-to-end project lifecycle systems.",
-  },
-];
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-export default function IndustriesSection() {
+interface IndustriesSectionProps {
+  locale: 'en' | 'ar';
+  dictionary: {
+    label: string;
+    headline: string;
+    items: {
+      name: string;
+      challenges: string[];
+      capabilities: string[];
+    }[];
+  };
+}
+
+export default function IndustriesSection({ locale, dictionary }: IndustriesSectionProps) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const isRTL = locale === 'ar';
+
   return (
-    <section className="py-20 md:py-28 bg-slate-50 border-t border-slate-200/80">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
-              Sector Expertise
-            </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-950 tracking-tight leading-tight">
-              Solutions Designed Around the Way Your Industry Works.
-            </h2>
-          </div>
-          <p className="text-slate-600 text-sm sm:text-base max-w-md">
-            We adapt our technology architectures to the operational realities, regulatory demands, and customer expectations of your specific industry.
-          </p>
+    <section className="py-24 bg-[#FAFAFA] relative overflow-hidden">
+      <div className="container mx-auto px-6 lg:px-12">
+        <div className="mb-16">
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-brand font-mono text-sm tracking-widest uppercase mb-4 block"
+          >
+            {dictionary.label}
+          </motion.span>
+          <motion.h2
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-4xl md:text-5xl font-display font-medium text-navy"
+          >
+            {dictionary.headline}
+          </motion.h2>
         </div>
 
-        {/* 6 Industry Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {industries.map((ind) => {
-            const Icon = ind.icon;
-            return (
-              <div
-                key={ind.id}
-                className="bg-white border border-slate-200/80 rounded-3xl p-7 shadow-2xs hover:shadow-md hover:border-blue-500/40 transition-all flex flex-col justify-between"
+        {/* Desktop View */}
+        <div className="hidden lg:grid grid-cols-12 gap-12">
+          {/* List Panel */}
+          <div className="col-span-5 flex flex-col gap-6">
+            {dictionary.items.map((item, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveIndex(idx)}
+                className={`text-start group flex items-center gap-6 transition-all duration-300 ${
+                  activeIndex === idx ? 'opacity-100' : 'opacity-40 hover:opacity-70'
+                }`}
               >
-                <div>
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6">
-                    <Icon size={24} />
+                <span
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    activeIndex === idx ? 'bg-brand scale-100' : 'bg-navy/50 scale-0 group-hover:scale-50'
+                  }`}
+                />
+                <h3 className={`text-3xl xl:text-4xl font-display font-medium transition-transform duration-300 ${
+                  activeIndex === idx ? (isRTL ? '-translate-x-4' : 'translate-x-4') : ''
+                }`}>
+                  {item.name}
+                </h3>
+              </button>
+            ))}
+          </div>
+
+          {/* Details Panel */}
+          <div className="col-span-7 bg-white rounded-3xl p-10 md:p-14 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative border border-navy/5 min-h-[400px] flex items-center">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeIndex}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="w-full"
+              >
+                <div className="grid grid-cols-2 gap-12">
+                  <div>
+                    <h4 className="text-brand font-mono text-xs tracking-widest uppercase mb-6">
+                      Challenges
+                    </h4>
+                    <ul className="space-y-4">
+                      {dictionary.items[activeIndex].challenges.map((challenge, cIdx) => (
+                        <li key={cIdx} className="flex items-start gap-3">
+                          <span className="w-1.5 h-1.5 rounded-full bg-navy/20 mt-2 flex-shrink-0" />
+                          <span className="text-navy/70 leading-relaxed text-sm md:text-base">
+                            {challenge}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-
-                  <h3 className="text-lg font-bold text-slate-950 mb-3">
-                    {ind.name}
-                  </h3>
-
-                  <div className="space-y-3 mb-6 text-xs sm:text-sm">
-                    <div>
-                      <span className="font-bold text-slate-800 block mb-0.5">The Challenge:</span>
-                      <p className="text-slate-600 leading-relaxed">{ind.challenge}</p>
-                    </div>
-                    <div>
-                      <span className="font-bold text-blue-700 block mb-0.5">Our Solution:</span>
-                      <p className="text-slate-600 leading-relaxed">{ind.solution}</p>
-                    </div>
+                  <div>
+                    <h4 className="text-brand font-mono text-xs tracking-widest uppercase mb-6">
+                      How We Help
+                    </h4>
+                    <ul className="space-y-4">
+                      {dictionary.items[activeIndex].capabilities.map((cap, capIdx) => (
+                        <li key={capIdx} className="flex items-start gap-3">
+                          <span className="w-1.5 h-1.5 rounded-full bg-brand mt-2 flex-shrink-0" />
+                          <span className="text-navy font-medium leading-relaxed text-sm md:text-base">
+                            {cap}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
 
-                <Link
-                  href={`/industries#${ind.id}`}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 group pt-4 border-t border-slate-100"
+        {/* Mobile View */}
+        <div className="lg:hidden flex flex-col gap-4">
+          {dictionary.items.map((item, idx) => (
+            <div
+              key={idx}
+              className="bg-white rounded-2xl border border-navy/5 shadow-sm overflow-hidden"
+            >
+              <button
+                onClick={() => setActiveIndex(activeIndex === idx ? -1 : idx)}
+                className="w-full text-start p-6 flex justify-between items-center"
+              >
+                <h3 className={`text-xl font-display font-medium ${activeIndex === idx ? 'text-brand' : 'text-navy'}`}>
+                  {item.name}
+                </h3>
+                <motion.div
+                  animate={{ rotate: activeIndex === idx ? 180 : 0 }}
+                  className="w-6 h-6 rounded-full border border-navy/10 flex items-center justify-center"
                 >
-                  <span>Learn More About {ind.name}</span>
-                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            );
-          })}
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m6 9 6 6 6-6"/>
+                  </svg>
+                </motion.div>
+              </button>
+              
+              <AnimatePresence>
+                {activeIndex === idx && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="px-6 pb-6"
+                  >
+                    <div className="w-full h-px bg-navy/5 mb-6" />
+                    <div className="flex flex-col gap-8">
+                      <div>
+                        <h4 className="text-brand font-mono text-xs tracking-widest uppercase mb-4">
+                          Challenges
+                        </h4>
+                        <ul className="space-y-3">
+                          {item.challenges.map((challenge, cIdx) => (
+                            <li key={cIdx} className="flex items-start gap-3">
+                              <span className="w-1.5 h-1.5 rounded-full bg-navy/20 mt-2 flex-shrink-0" />
+                              <span className="text-navy/70 text-sm">
+                                {challenge}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="text-brand font-mono text-xs tracking-widest uppercase mb-4">
+                          How We Help
+                        </h4>
+                        <ul className="space-y-3">
+                          {item.capabilities.map((cap, capIdx) => (
+                            <li key={capIdx} className="flex items-start gap-3">
+                              <span className="w-1.5 h-1.5 rounded-full bg-brand mt-2 flex-shrink-0" />
+                              <span className="text-navy font-medium text-sm">
+                                {cap}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ))}
         </div>
-
-        {/* Link to all Industries */}
-        <div className="text-center">
-          <Link
-            href="/industries"
-            className="inline-flex items-center gap-2 text-sm font-bold text-blue-600 hover:text-blue-700 hover:underline"
-          >
-            <span>Explore All Industry Solutions</span>
-            <ArrowRight size={16} />
-          </Link>
-        </div>
-
       </div>
     </section>
   );

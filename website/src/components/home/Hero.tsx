@@ -1,257 +1,207 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { ArrowRight, Sparkles, Server, Workflow, Database, Cpu, ShieldCheck, CheckCircle2, Layers, RefreshCw, Zap, Users } from "lucide-react";
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowRight, ChevronDown } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface HeroProps {
-  onOpenConsultation?: () => void;
+  locale: 'en' | 'ar';
+  dictionary: {
+    headline: string[];
+    sub: string;
+    cta: string;
+    scrollLabel: string;
+  };
 }
 
-export default function Hero({ onOpenConsultation }: HeroProps) {
-  const [activeNode, setActiveNode] = useState<number | null>(null);
+export default function Hero({ locale, dictionary }: HeroProps) {
+  const isRtl = locale === 'ar';
+  const prefersReducedMotion = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const headlineVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: i * 0.2 + 0.5,
+        duration: 0.8,
+        ease: [0.21, 0.47, 0.32, 0.98] as [number, number, number, number]
+      }
+    })
+  };
 
   const nodes = [
-    { id: 1, label: "Business Strategy", sub: "Operational Objectives", x: "12%", y: "20%", icon: Workflow, color: "#0454FF" },
-    { id: 2, label: "Data & Systems", sub: "ERP • CRM • Cloud", x: "78%", y: "18%", icon: Database, color: "#3B82F6" },
-    { id: 3, label: "Intelligent Engine", sub: "Automation & Logic", x: "48%", y: "50%", icon: Cpu, color: "#0454FF", primary: true },
-    { id: 4, label: "Customer Experience", sub: "Omnichannel Touchpoints", x: "18%", y: "80%", icon: Users, color: "#2563EB" },
-    { id: 5, label: "Scalable Growth", sub: "Measurable Impact", x: "80%", y: "78%", icon: Zap, color: "#1D4ED8" },
+    { id: 1, label: 'Strategy', cx: 20, cy: 30, color: '#0454FF' },
+    { id: 2, label: 'Brand', cx: 70, cy: 20, color: '#60A5FA' },
+    { id: 3, label: 'Marketing', cx: 80, cy: 70, color: '#0B0F19' },
+    { id: 4, label: 'Digital', cx: 30, cy: 80, color: '#0454FF' },
+    { id: 5, label: 'Technology', cx: 50, cy: 50, color: '#93C5FD' },
   ];
 
   return (
-    <section className="relative pt-32 pb-20 md:pt-44 md:pb-28 overflow-hidden bg-white">
-      {/* Subtle Technical Grid Background */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#0454FF08_1px,transparent_1px),linear-gradient(to_bottom,#0454FF08_1px,transparent_1px)] bg-[size:48px_48px] pointer-events-none" />
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-blue-500/8 blur-[140px] rounded-full pointer-events-none" />
+    <section className="relative min-h-screen w-full overflow-hidden bg-white flex items-center pt-24 pb-12">
+      {/* Background Visual System */}
+      <div className="absolute inset-0 pointer-events-none opacity-30 lg:opacity-100 overflow-hidden" aria-hidden="true">
+        <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice" viewBox="0 0 100 100">
+          <defs>
+            <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#0454FF" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#0B0F19" stopOpacity="0.6" />
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
+              <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          
-          {/* Left / Editorial Typography Area */}
-          <div className="lg:col-span-6 space-y-6">
-            
-            {/* Small Technical Label */}
-            <div className="inline-flex items-center gap-2 bg-blue-50/90 border border-blue-200/80 text-[#0454FF] px-3.5 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-[#0454FF] animate-pulse" />
-              <span>BUSINESS &amp; TECHNOLOGY SOLUTIONS</span>
-            </div>
+          {/* Connections */}
+          {mounted && nodes.map((node, i) => {
+            const nextNode = nodes[(i + 1) % nodes.length];
+            return (
+              <motion.path
+                key={`path-${i}`}
+                d={`M ${node.cx} ${node.cy} Q 50 50 ${nextNode.cx} ${nextNode.cy}`}
+                fill="none"
+                stroke="url(#line-gradient)"
+                strokeWidth="0.2"
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ 
+                  pathLength: 1, 
+                  opacity: 1,
+                  d: [
+                    `M ${node.cx} ${node.cy} Q 50 50 ${nextNode.cx} ${nextNode.cy}`,
+                    `M ${node.cx + (Math.random()*10 - 5)} ${node.cy + (Math.random()*10 - 5)} Q 50 50 ${nextNode.cx + (Math.random()*10 - 5)} ${nextNode.cy + (Math.random()*10 - 5)}`,
+                    `M ${node.cx} ${node.cy} Q 50 50 ${nextNode.cx} ${nextNode.cy}`,
+                  ]
+                }}
+                transition={{ 
+                  pathLength: { duration: 2, delay: i * 0.3 },
+                  opacity: { duration: 1, delay: i * 0.3 },
+                  d: { 
+                    duration: prefersReducedMotion ? 0 : 20 + i * 2, 
+                    repeat: Infinity, 
+                    repeatType: "reverse",
+                    ease: "easeInOut"
+                  }
+                }}
+              />
+            );
+          })}
 
-            {/* Massive Editorial Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-950 tracking-tight leading-[1.08]">
-              We Engineer{" "}
-              <span className="text-[#0454FF] underline decoration-blue-200 underline-offset-8">
-                Scalable Solutions
-              </span>{" "}
-              for Complex Business Challenges.
-            </h1>
-
-            {/* Supporting Headline */}
-            <p className="text-lg sm:text-xl font-bold text-slate-800 tracking-tight">
-              Technology Built Around Your Business — Not the Other Way Around.
-            </p>
-
-            {/* Subheadline Paragraph */}
-            <p className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-xl font-normal">
-              We help ambitious organizations modernize operations, automate complexity, integrate disconnected systems, and build digital capabilities that support sustainable growth.
-            </p>
-
-            {/* Action Buttons */}
-            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-              {onOpenConsultation ? (
-                <button
-                  onClick={onOpenConsultation}
-                  className="bg-[#0454FF] hover:bg-[#003ECC] text-white px-7 py-4 rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group cursor-pointer"
-                >
-                  <span>Talk to Our Team</span>
-                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                </button>
-              ) : (
-                <Link
-                  href="/contact"
-                  className="bg-[#0454FF] hover:bg-[#003ECC] text-white px-7 py-4 rounded-xl font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group"
-                >
-                  <span>Talk to Our Team</span>
-                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-              )}
-
-              <Link
-                href="/solutions"
-                className="bg-slate-50 hover:bg-slate-100 text-slate-900 border border-slate-200 px-6 py-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+          {/* Nodes */}
+          {mounted && nodes.map((node, i) => (
+            <motion.g 
+              key={`node-${node.id}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 + i * 0.2, duration: 1 }}
+            >
+              <motion.circle
+                cx={node.cx}
+                cy={node.cy}
+                r="1"
+                fill={node.color}
+                filter="url(#glow)"
+                animate={prefersReducedMotion ? {} : {
+                  cx: [node.cx, node.cx + (Math.random() * 8 - 4), node.cx],
+                  cy: [node.cy, node.cy + (Math.random() * 8 - 4), node.cy],
+                }}
+                transition={{
+                  duration: 15 + i * 3,
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  ease: "easeInOut"
+                }}
+              />
+              <motion.text
+                x={node.cx}
+                y={node.cy + 3}
+                fontSize="2"
+                fill="#0B0F19"
+                textAnchor="middle"
+                className="font-mono"
+                animate={prefersReducedMotion ? {} : {
+                  x: [node.cx, node.cx + (Math.random() * 8 - 4), node.cx],
+                  y: [node.cy + 3, node.cy + 3 + (Math.random() * 8 - 4), node.cy + 3],
+                }}
+                transition={{
+                  duration: 15 + i * 3,
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  ease: "easeInOut"
+                }}
               >
-                <span>Explore Our Solutions</span>
-              </Link>
-            </div>
-
-          </div>
-
-          {/* Right / Living Ecosystem Interactive Visual */}
-          <div className="lg:col-span-6 relative">
-            <div className="relative bg-[#0B0F19] text-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-800 overflow-hidden min-h-[440px] flex flex-col justify-between">
-              
-              {/* Subtle ambient glow */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#0454FF]/20 blur-[80px] rounded-full pointer-events-none" />
-
-              {/* Terminal / System Status Header */}
-              <div className="relative z-10 flex items-center justify-between pb-4 border-b border-slate-800 text-xs text-slate-400">
-                <div className="flex items-center gap-2 font-mono">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-slate-300 font-bold text-[11px]">ECOSYSTEM ARCHITECTURE</span>
-                </div>
-                <div className="text-[11px] font-mono text-blue-400 bg-blue-950/80 border border-blue-800 px-2.5 py-0.5 rounded-md">
-                  CONNECTED • LIVE
-                </div>
-              </div>
-
-              {/* Connected Interactive Blueprint Canvas */}
-              <div className="relative z-10 my-auto py-6">
-                
-                {/* SVG Connecting Flow Lines */}
-                <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-40">
-                  <line x1="20%" y1="20%" x2="50%" y2="50%" stroke="#0454FF" strokeWidth="1.5" strokeDasharray="4 4" className="animate-pulse" />
-                  <line x1="80%" y1="20%" x2="50%" y2="50%" stroke="#0454FF" strokeWidth="1.5" strokeDasharray="4 4" />
-                  <line x1="20%" y1="80%" x2="50%" y2="50%" stroke="#0454FF" strokeWidth="1.5" strokeDasharray="4 4" />
-                  <line x1="80%" y1="80%" x2="50%" y2="50%" stroke="#0454FF" strokeWidth="1.5" strokeDasharray="4 4" />
-                </svg>
-
-                {/* Nodes Stack */}
-                <div className="grid grid-cols-2 gap-4 relative z-10">
-                  
-                  {/* Strategy Node */}
-                  <div
-                    onMouseEnter={() => setActiveNode(1)}
-                    onMouseLeave={() => setActiveNode(null)}
-                    className="p-3.5 bg-slate-900/90 border border-slate-800 hover:border-[#0454FF] rounded-2xl transition-all cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-2.5 mb-1.5">
-                      <div className="w-7 h-7 rounded-lg bg-blue-950 text-[#0454FF] flex items-center justify-center group-hover:bg-[#0454FF] group-hover:text-white transition-colors">
-                        <Workflow size={14} />
-                      </div>
-                      <span className="text-xs font-bold text-slate-200">Business Model</span>
-                    </div>
-                    <p className="text-[10px] text-slate-400 font-mono">Process Mapping &amp; Logic</p>
-                  </div>
-
-                  {/* Systems Layer Node */}
-                  <div
-                    onMouseEnter={() => setActiveNode(2)}
-                    onMouseLeave={() => setActiveNode(null)}
-                    className="p-3.5 bg-slate-900/90 border border-slate-800 hover:border-[#0454FF] rounded-2xl transition-all cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-2.5 mb-1.5">
-                      <div className="w-7 h-7 rounded-lg bg-blue-950 text-blue-400 flex items-center justify-center group-hover:bg-[#0454FF] group-hover:text-white transition-colors">
-                        <Database size={14} />
-                      </div>
-                      <span className="text-xs font-bold text-slate-200">Unified Systems</span>
-                    </div>
-                    <p className="text-[10px] text-slate-400 font-mono">ERP • CRM • Custom APIs</p>
-                  </div>
-
-                  {/* Central Intelligent Core (Spans full width) */}
-                  <div
-                    onMouseEnter={() => setActiveNode(3)}
-                    onMouseLeave={() => setActiveNode(null)}
-                    className="col-span-2 p-4 bg-gradient-to-r from-blue-950/80 via-slate-900 to-blue-950/80 border border-[#0454FF]/60 rounded-2xl shadow-lg transition-all"
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-[#0454FF] text-white flex items-center justify-center shadow-sm animate-pulse">
-                          <Cpu size={18} />
-                        </div>
-                        <div>
-                          <span className="text-sm font-extrabold text-white block">
-                            Intelligent Automation &amp; Middleware Engine
-                          </span>
-                          <span className="text-[11px] text-blue-300 font-mono">
-                            Event-driven synchronization &amp; business rules
-                          </span>
-                        </div>
-                      </div>
-                      <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800 px-2 py-0.5 rounded">
-                        99.9% RELIABILITY
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Customer Experience Node */}
-                  <div
-                    onMouseEnter={() => setActiveNode(4)}
-                    onMouseLeave={() => setActiveNode(null)}
-                    className="p-3.5 bg-slate-900/90 border border-slate-800 hover:border-[#0454FF] rounded-2xl transition-all cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-2.5 mb-1.5">
-                      <div className="w-7 h-7 rounded-lg bg-blue-950 text-blue-400 flex items-center justify-center group-hover:bg-[#0454FF] group-hover:text-white transition-colors">
-                        <Users size={14} />
-                      </div>
-                      <span className="text-xs font-bold text-slate-200">Experience Layer</span>
-                    </div>
-                    <p className="text-[10px] text-slate-400 font-mono">Omnichannel &amp; Portals</p>
-                  </div>
-
-                  {/* Business Impact Node */}
-                  <div
-                    onMouseEnter={() => setActiveNode(5)}
-                    onMouseLeave={() => setActiveNode(null)}
-                    className="p-3.5 bg-slate-900/90 border border-slate-800 hover:border-[#0454FF] rounded-2xl transition-all cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-2.5 mb-1.5">
-                      <div className="w-7 h-7 rounded-lg bg-blue-950 text-blue-400 flex items-center justify-center group-hover:bg-[#0454FF] group-hover:text-white transition-colors">
-                        <Zap size={14} />
-                      </div>
-                      <span className="text-xs font-bold text-slate-200">Scalable Outcomes</span>
-                    </div>
-                    <p className="text-[10px] text-slate-400 font-mono">Reduced Friction &amp; Growth</p>
-                  </div>
-
-                </div>
-
-              </div>
-
-              {/* Bottom Architectural Summary */}
-              <div className="relative z-10 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-                <span className="text-[11px] font-mono text-slate-400">
-                  Business Challenge → Engineered Technology
-                </span>
-                <span className="text-[11px] font-mono text-[#0454FF] font-bold">
-                  Zero Technical Debt
-                </span>
-              </div>
-
-            </div>
-          </div>
-
-        </div>
-
-        {/* Hero Trust Statement Strip */}
-        <div className="mt-16 pt-8 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-6 text-xs text-slate-600 font-mono font-semibold uppercase tracking-wider">
-          <div className="flex items-center gap-2 text-slate-900 font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#0454FF]" />
-            <span>Strategy</span>
-          </div>
-          <span className="text-slate-300">•</span>
-          <div className="flex items-center gap-2 text-slate-900 font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#0454FF]" />
-            <span>Software Engineering</span>
-          </div>
-          <span className="text-slate-300">•</span>
-          <div className="flex items-center gap-2 text-slate-900 font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#0454FF]" />
-            <span>Intelligent Automation</span>
-          </div>
-          <span className="text-slate-300">•</span>
-          <div className="flex items-center gap-2 text-slate-900 font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#0454FF]" />
-            <span>Systems Integration</span>
-          </div>
-          <span className="text-slate-300">•</span>
-          <div className="flex items-center gap-2 text-slate-900 font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#0454FF]" />
-            <span>Customer Experience Architecture</span>
-          </div>
-        </div>
-
+                {node.label}
+              </motion.text>
+            </motion.g>
+          ))}
+        </svg>
       </div>
+
+      {/* Content */}
+      <div className="container mx-auto px-6 relative z-10">
+        <div className={`max-w-3xl ${isRtl ? 'mr-auto' : 'ml-auto lg:ml-0'}`}>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-[#0B0F19] mb-8 leading-[1.1]">
+            {dictionary.headline.map((word, i) => (
+              <motion.span
+                key={i}
+                custom={i}
+                variants={headlineVariants}
+                initial="hidden"
+                animate="visible"
+                className={`block ${i === dictionary.headline.length - 1 ? 'text-[#0454FF]' : ''}`}
+              >
+                {word}
+              </motion.span>
+            ))}
+          </h1>
+          
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2, duration: 0.8 }}
+            className="text-lg md:text-xl text-gray-600 mb-12 max-w-xl leading-relaxed"
+          >
+            {dictionary.sub}
+          </motion.p>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.4, duration: 0.8 }}
+          >
+            <button className="group flex items-center gap-3 bg-[#0454FF] text-white px-8 py-4 rounded-full font-medium transition-all hover:bg-[#0B0F19] hover:shadow-lg hover:shadow-blue-500/20">
+              <span>{dictionary.cta}</span>
+              <ArrowRight className={`w-5 h-5 transition-transform group-hover:translate-x-1 ${isRtl ? 'rotate-180 group-hover:-translate-x-1 group-hover:translate-x-0' : ''}`} />
+            </button>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Scroll Indicator */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2, duration: 1 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-gray-400"
+      >
+        <span className="text-sm font-mono uppercase tracking-widest">{dictionary.scrollLabel}</span>
+        <motion.div
+          animate={prefersReducedMotion ? {} : { y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <ChevronDown className="w-5 h-5" />
+        </motion.div>
+      </motion.div>
     </section>
   );
 }

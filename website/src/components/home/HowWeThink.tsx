@@ -1,124 +1,160 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Compass, Cpu, LineChart, CheckCircle2, ArrowRight } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const steps = [
-  {
-    num: "01",
-    name: "Understand",
-    icon: Search,
-    headline: "Diagnostic & Commercial Discovery",
-    desc: "We analyze your business model, revenue mechanics, operational bottlenecks, team workflows, and technical debt before recommending any technical architecture.",
-    deliverables: ["Operational Workflow Audit", "Bottleneck Root-Cause Analysis", "Commercial ROI Blueprint"],
-  },
-  {
-    num: "02",
-    name: "Architect",
-    icon: Compass,
-    headline: "System Design & Integration Roadmap",
-    desc: "We design the complete system blueprint, data models, API endpoints, security controls, and a phased execution roadmap that avoids operational disruption.",
-    deliverables: ["Enterprise System Architecture", "Data Flow & API Contracts", "Risk-Mitigated Roadmap"],
-  },
-  {
-    num: "03",
-    name: "Build",
-    icon: Cpu,
-    headline: "Agile Engineering & Integration",
-    desc: "Our senior engineering team develops resilient software, connects existing ERP/CRM systems, configures automated pipelines, and performs rigorous end-to-end testing.",
-    deliverables: ["Production-Grade Codebase", "Zero-Downtime Data Sync", "Automated QA & Security Audits"],
-  },
-  {
-    num: "04",
-    name: "Evolve",
-    icon: LineChart,
-    headline: "Continuous Optimization & Scale",
-    desc: "We monitor production latency, optimize workflows based on user feedback, and iterate capabilities to ensure your digital ecosystem effortlessly scales with growth.",
-    deliverables: ["Production Performance Telemetry", "User Adoption Support", "Quarterly Scaling Reviews"],
-  },
-];
+interface HowWeThinkProps {
+  locale: 'en' | 'ar';
+  dictionary: {
+    label: string;
+    headline: string;
+    steps: { title: string; description: string }[];
+  };
+}
 
-export default function HowWeThink() {
-  const [activeTab, setActiveTab] = useState(0);
+export default function HowWeThink({ locale, dictionary }: HowWeThinkProps) {
+  const [activeStep, setActiveStep] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const isRtl = locale === 'ar';
+
+  useEffect(() => {
+    if (isHovered) return;
+    
+    const interval = setInterval(() => {
+      setActiveStep((prev) => (prev + 1) % dictionary.steps.length);
+    }, 4000);
+    
+    return () => clearInterval(interval);
+  }, [dictionary.steps.length, isHovered]);
 
   return (
-    <section className="py-24 md:py-32 bg-[#F8FAFC] border-y border-slate-200/80 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Section Header */}
-        <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 bg-blue-50 text-[#0454FF] border border-blue-100 px-3.5 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider mb-4">
-            <span>OUR METHODOLOGY</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-950 tracking-tight leading-tight mb-6">
-            We Start With the Business.{" "}
-            <span className="text-[#0454FF]">Then We Build the Technology.</span>
-          </h2>
-          <p className="text-slate-600 text-base sm:text-lg leading-relaxed">
-            Successful digital solutions fail when technology is built in isolation. Our structured four-stage framework ensures every engineering decision directly supports your commercial objectives.
-          </p>
+    <section className="py-24 bg-[#F8FAFC] overflow-hidden" dir={isRtl ? 'rtl' : 'ltr'}>
+      <div className="container mx-auto px-6 md:px-12">
+        <div className="mb-16 md:mb-24">
+          <motion.span 
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-[var(--color-brand)] font-mono text-sm tracking-widest uppercase mb-4 block"
+          >
+            {dictionary.label}
+          </motion.span>
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-3xl md:text-5xl lg:text-6xl font-medium text-[#0B0F19] tracking-tight max-w-4xl"
+          >
+            {dictionary.headline}
+          </motion.h2>
         </div>
 
-        {/* Process Stepper Bar */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-10">
-          {steps.map((s, idx) => {
-            const Icon = s.icon;
-            const isActive = activeTab === idx;
+        {/* Desktop View */}
+        <div 
+          className="hidden md:flex flex-row items-start justify-between relative min-h-[250px]"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          {dictionary.steps.map((step, index) => {
+            const isActive = activeStep === index;
+            const isPast = activeStep > index;
+            
             return (
-              <button
-                key={s.num}
-                onClick={() => setActiveTab(idx)}
-                className={`p-5 rounded-2xl border text-left transition-all cursor-pointer ${
-                  isActive
-                    ? "bg-[#0454FF] text-white border-[#0454FF] shadow-lg shadow-[#0454FF]/20"
-                    : "bg-white text-slate-700 border-slate-200/80 hover:bg-slate-50"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <span className={`text-xs font-mono font-bold ${isActive ? "text-blue-200" : "text-slate-400"}`}>
-                    STAGE {s.num}
-                  </span>
-                  <Icon size={18} className={isActive ? "text-white" : "text-[#0454FF]"} />
+              <div key={index} className="relative flex flex-col items-center flex-1 z-10 px-4">
+                <button
+                  onClick={() => setActiveStep(index)}
+                  className={`w-14 h-14 rounded-full flex items-center justify-center text-lg font-mono transition-all duration-300 relative z-20 outline-none
+                    ${isActive ? 'bg-[var(--color-brand)] text-white shadow-xl scale-110' : 
+                      isPast ? 'bg-[#0B0F19] text-white' : 'bg-white text-gray-400 border border-gray-200'}`}
+                >
+                  0{index + 1}
+                </button>
+                
+                <div className="mt-8 text-center h-32 flex flex-col items-center">
+                  <h3 className={`text-xl font-medium mb-3 transition-colors duration-300 ${isActive ? 'text-[var(--color-brand)]' : 'text-[#0B0F19]'}`}>
+                    {step.title}
+                  </h3>
+                  
+                  <AnimatePresence mode="wait">
+                    {isActive && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -10, height: 0 }}
+                        animate={{ opacity: 1, y: 0, height: 'auto' }}
+                        exit={{ opacity: 0, y: -10, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="text-gray-600 text-sm max-w-[200px]"
+                      >
+                        {step.description}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
                 </div>
-                <h3 className={`text-base font-extrabold ${isActive ? "text-white" : "text-slate-950"}`}>
-                  {s.name}
-                </h3>
-              </button>
+              </div>
+            );
+          })}
+          
+          {/* Connection Lines (Desktop) */}
+          <div className="absolute top-7 left-0 right-0 h-[2px] bg-gray-200 z-0 flex" style={{ width: 'calc(100% - 3.5rem)', margin: '0 1.75rem' }}>
+            <motion.div 
+              className="h-full bg-[var(--color-brand)]"
+              initial={{ width: '0%' }}
+              animate={{ width: `${(activeStep / (dictionary.steps.length - 1)) * 100}%` }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              style={{ transformOrigin: isRtl ? 'right' : 'left' }}
+            />
+          </div>
+        </div>
+
+        {/* Mobile View */}
+        <div className="flex flex-col md:hidden space-y-6 relative before:absolute before:inset-0 before:start-7 before:-translate-x-1/2 rtl:before:translate-x-1/2 before:w-[2px] before:bg-gray-200 before:z-0">
+          <motion.div 
+            className="absolute top-0 bottom-0 start-7 -translate-x-1/2 rtl:translate-x-1/2 w-[2px] bg-[var(--color-brand)] z-0"
+            initial={{ height: '0%' }}
+            animate={{ height: `${((activeStep + 1) / dictionary.steps.length) * 100}%` }}
+            transition={{ duration: 0.5 }}
+            style={{ originY: 0 }}
+          />
+          
+          {dictionary.steps.map((step, index) => {
+            const isActive = activeStep === index;
+            const isPast = activeStep >= index;
+            
+            return (
+              <div key={index} className="relative z-10 flex flex-row items-start gap-6">
+                <button
+                  onClick={() => setActiveStep(index)}
+                  className={`w-14 h-14 shrink-0 rounded-full flex items-center justify-center text-lg font-mono transition-all duration-300 outline-none
+                    ${isActive ? 'bg-[var(--color-brand)] text-white shadow-lg' : 
+                      isPast ? 'bg-[#0B0F19] text-white' : 'bg-white text-gray-400 border border-gray-200'}`}
+                >
+                  0{index + 1}
+                </button>
+                
+                <div className="flex flex-col pt-3 pb-8">
+                  <h3 className={`text-xl font-medium mb-2 transition-colors duration-300 ${isActive ? 'text-[var(--color-brand)]' : 'text-[#0B0F19]'}`}>
+                    {step.title}
+                  </h3>
+                  
+                  <AnimatePresence>
+                    {isActive && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <p className="text-gray-600 text-sm">
+                          {step.description}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
             );
           })}
         </div>
-
-        {/* Dynamic Detail Card */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-8 sm:p-12 shadow-sm">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
-            <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-[#0454FF]">
-                <span>PHASE {steps[activeTab].num} • {steps[activeTab].name}</span>
-              </div>
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight">
-                {steps[activeTab].headline}
-              </h3>
-              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-                {steps[activeTab].desc}
-              </p>
-            </div>
-
-            <div className="lg:col-span-5 bg-slate-50 border border-slate-200/80 rounded-2xl p-6 space-y-3">
-              <div className="text-xs font-mono font-bold uppercase text-slate-500 tracking-wider mb-2">
-                Key Phase Deliverables:
-              </div>
-              {steps[activeTab].deliverables.map((item, i) => (
-                <div key={i} className="flex items-start gap-2.5 text-xs sm:text-sm font-semibold text-slate-800">
-                  <CheckCircle2 size={16} className="text-[#0454FF] flex-shrink-0 mt-0.5" />
-                  <span>{item}</span>
-                </div>
-              ))}
-            </div>
-
-          </div>
-        </div>
-
       </div>
     </section>
   );

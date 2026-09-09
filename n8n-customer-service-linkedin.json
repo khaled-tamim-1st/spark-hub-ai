@@ -1,0 +1,444 @@
+{
+  "name": "Enterprise Autonomous Customer Service & AI Supervisor Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "### 01 | INGESTION & HEURISTIC TRIAGE\nCaptures omnichannel payload and performs sub-millisecond fast-path evaluation for explicit human agent requests.",
+        "height": 420,
+        "width": 680,
+        "color": 7
+      },
+      "id": "sticky-ingestion",
+      "name": "Scope: Ingestion & Fast-Path Triage",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [160, 120]
+    },
+    {
+      "parameters": {
+        "content": "### 02 | AI SUPERVISOR & RISK CLASSIFICATION\nDeep LLM classification assessing customer sentiment, churn probability, purchase intent, and automated escalation criteria.",
+        "height": 420,
+        "width": 780,
+        "color": 6
+      },
+      "id": "sticky-supervisor",
+      "name": "Scope: AI Supervision & Risk Engine",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [880, 120]
+    },
+    {
+      "parameters": {
+        "content": "### 03 | SYNTHESIS & ENTERPRISE GUARDRAILS (P0)\nGenerates context-grounded resolution via knowledge base and enforces strict runtime isolation to prevent internal note leakage.",
+        "height": 420,
+        "width": 840,
+        "color": 5
+      },
+      "id": "sticky-synthesis",
+      "name": "Scope: Generation & P0 Security Gate",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1700, 120]
+    },
+    {
+      "parameters": {
+        "content": "### 04 | DISPATCH & INCIDENT ALERTING\nAsynchronously delivers safe client response while routing critical escalations and high-intent leads to human personnel.",
+        "height": 420,
+        "width": 720,
+        "color": 4
+      },
+      "id": "sticky-dispatch",
+      "name": "Scope: Omnichannel Delivery & Escalation",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2580, 120]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "v1/customer-messages",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-inbound",
+      "name": "Webhook Inbound Receiver",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 260],
+      "webhookId": "enterprise-cs-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ==================================================================\n// FAST-PATH INTENT EXTRACTION & REGEX TRIAGE ENGINE\n// Zero-latency regex pattern matching for explicit human handoff\n// ==================================================================\n\nconst raw = $input.first().json;\nconst payload = raw.body || raw;\n\nconst message = (payload.message || payload.text || payload.Body || payload.content || '').toString().trim();\nconst customerName = (payload.customerName || payload.name || payload.ProfileName || 'Customer').toString().trim();\nconst customerPhone = (payload.phone || payload.from || payload.From || payload.sender || 'Unknown').toString().trim();\nconst conversationId = (payload.conversationId || payload.chatId || payload.id || `conv_${Date.now()}`).toString();\n\nconst humanIntentPatterns = [\n  /خدم[ةه]\\s*العملا[ءإ]/,\n  /عنصر\\s*بشر[يى]/,\n  /موظف/,\n  /بشر[يى]/,\n  /إنسان|انسان/,\n  /شخص\\s*(حقيقي)?/,\n  /آدمي|ادمي/,\n  /حولن[يى]/,\n  /أبغ[يى]\\s*(أ)?كلم/,\n  /ابغ[يى]\\s*(ا)?كلم/,\n  /عايز\\s*(أ)?كلم/,\n  /عاوز\\s*(أ)?كلم/,\n  /بدي\\s*احك[يى]/,\n  /تحدث\\s*مع/,\n  /محادث[ةه]\\s*بشر/,\n  /اتصال\\s*بشر/,\n  /كلمني\\s*حد/,\n  /ابي\\s*احد/,\n  /مسؤول/,\n  /مدير/,\n  /\\bhuman\\b/i,\n  /\\bagent\\b/i,\n  /\\brepresentative\\b/i,\n  /\\bsupport\\s*team\\b/i,\n  /\\breal\\s*person\\b/i,\n  /\\blive\\s*agent\\b/i\n];\n\nconst humanRequested = humanIntentPatterns.some(pattern => pattern.test(message));\n\nreturn [{\n  json: {\n    message,\n    customerName,\n    customerPhone,\n    conversationId,\n    humanRequested,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "code-fastpath-evaluator",
+      "name": "Fast-Path Intent Evaluator",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [420, 260]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "condition-human-intent",
+              "leftValue": "={{ $json.humanRequested }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "switch-human-request",
+      "name": "Human Intent Gate",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [640, 260]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ==================================================================\n// HUMAN HANDOFF DISPATCH TRANSFORMER\n// Halts AI loop, crafts client acknowledgement, formats internal alert\n// ==================================================================\n\nconst data = $input.first().json;\n\nconst customerReply = `أهلاً بك ${data.customerName} 👋\\n\\nتم تحويل محادثتك لفريق خدمة العملاء، وسيقوم أحد ممثلينا بالتواصل معك والرد عليك في أقرب وقت.\\n\\nشكراً لصبرك معنا 🙏`;\n\nconst internalAlert = `ALERT: Human Representative Requested\\nPriority: HIGH\\nCustomer: ${data.customerName}\\nIdentifier: ${data.customerPhone}\\nMessage: \"${data.message}\"\\nTimestamp: ${data.timestamp}\\nDirective: Assign dedicated agent to active conversation thread.`;\n\nreturn [{\n  json: {\n    ...data,\n    action: 'human_handoff',\n    aiExecutionHalted: true,\n    replyToCustomer: customerReply,\n    internalAlert: internalAlert,\n    supervisorSentiment: 'neutral'\n  }\n}];"
+      },
+      "id": "code-handoff-transformer",
+      "name": "Handoff Payload Transformer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [940, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.GROQ_API_KEY || 'gsk_ENTER_YOUR_GROQ_API_KEY' }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"temperature\": 0.1,\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an Autonomous AI Operations Supervisor for enterprise customer support. Inspect the inbound customer message and output structured JSON classification only.\\n\\nSchema:\\n- sentiment: 'positive' | 'neutral' | 'frustrated' | 'angry'\\n- shouldEscalate: boolean (true if severe dissatisfaction, threats, urgent refunds, or operational failure)\\n- escalationReason: string | null\\n- purchaseIntent: 'none' | 'inquiry' | 'high_intent'\\n- suggestedAction: string\\n- suggestedInternalNote: string | null\\n- confidenceScore: number (0.0 to 1.0)\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Customer Name: {{ $json.customerName }}\\nMessage Content: {{ $json.message }}\"\n    }\n  ]\n}",
+        "options": {
+          "timeout": 12000
+        }
+      },
+      "id": "http-ai-supervisor",
+      "name": "AI Operations Supervisor (LLM)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [940, 380],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// ==================================================================\n// RISK SCORING & POLICY EVALUATION ENGINE\n// Evaluates confidence thresholds and enforces escalation policies\n// ==================================================================\n\nconst prev = $('Fast-Path Intent Evaluator').first().json;\nconst supervisorResponse = $input.first().json;\n\nlet metrics = {\n  sentiment: 'neutral',\n  shouldEscalate: false,\n  escalationReason: null,\n  purchaseIntent: 'none',\n  suggestedAction: 'Standard Automated Synthesis',\n  suggestedInternalNote: null,\n  confidenceScore: 0.85\n};\n\ntry {\n  const rawContent = supervisorResponse.choices?.[0]?.message?.content || '{}';\n  metrics = { ...metrics, ...JSON.parse(rawContent) };\n} catch (e) {\n  // Safe fallback\n}\n\nconst isHostile = metrics.sentiment === 'angry';\nconst escalationPolicyTriggered = (\n  metrics.confidenceScore >= 0.70 &&\n  (metrics.shouldEscalate === true || isHostile)\n);\n\nreturn [{\n  json: {\n    ...prev,\n    supervisor: metrics,\n    escalationPolicyTriggered\n  }\n}];"
+      },
+      "id": "code-supervisor-parser",
+      "name": "Risk & Sentiment Analyzer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1180, 380]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "condition-escalation",
+              "leftValue": "={{ $json.escalationPolicyTriggered }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "switch-escalation-router",
+      "name": "Escalation Policy Router",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1420, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ==================================================================\n// INCIDENT ESCALATION PAYLOAD BUILDER\n// Prepares empathetic client soothing copy and isolated staff dossier\n// ==================================================================\n\nconst data = $input.first().json;\nconst sv = data.supervisor;\n\nconst clientDeescalationReply = `أهلاً بك ${data.customerName} 🙏\\n\\nنتفهم تماماً استياءك ونأسف لأي تجربة غير مرضية. تم تصعيد محادثتك فوراً للإدارة وفريق خدمة العملاء المتخصص للتدخل ومعالجة الأمر على الفور.\\n\\nنقدّر صبرك معنا.`;\n\nconst staffIncidentDossier = `CRITICAL INCIDENT ALERT: High Friction Customer Encounter\\nSeverity: CRITICAL\\nSentiment Vector: ${sv.sentiment.toUpperCase()}\\nEscalation Cause: ${sv.escalationReason || 'Severe Customer Dissatisfaction'}\\nOperational Recommendation: ${sv.suggestedAction}\\nConfidence Level: ${(sv.confidenceScore * 100).toFixed(0)}%\\nCustomer: ${data.customerName} (${data.customerPhone})\\nTranscript: \"${data.message}\"\\nTimestamp: ${data.timestamp}`;\n\nreturn [{\n  json: {\n    ...data,\n    action: 'escalation_protocol',\n    aiExecutionHalted: true,\n    replyToCustomer: clientDeescalationReply,\n    internalAlert: staffIncidentDossier\n  }\n}];"
+      },
+      "id": "code-escalation-builder",
+      "name": "Escalation Dossier Formatter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1740, 240]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.GROQ_API_KEY || 'gsk_ENTER_YOUR_GROQ_API_KEY' }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"temperature\": 0.3,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an enterprise AI customer service representative representing an established business organization.\\n\\n=== GROUNDED KNOWLEDGE BASE ===\\n- Organization: ECOMATE Digital Solutions & Brand Acceleration\\n- Core Services: Corporate Brand Identity, Targeted Growth Marketing, Custom Technical Solutions, and Autonomous CX Automation.\\n- Operating Hours: Sunday to Thursday, 9:00 AM - 6:00 PM (Riyadh Time).\\n- Consultation & Engagement: Initial growth discovery consultations can be scheduled directly via our portal or WhatsApp advisory channels.\\n================================\\n\\nStrict Generation Directives:\\n1. Strict Factuality: Never hallucinate pricing, guarantees, or undocumented offerings.\\n2. Tone & Elegance: Polite, executive-grade, and concise Arabic (Saudi professional dialect).\\n3. Data Limitations: If requested info is not in the knowledge base, gracefully invite the customer to submit inquiry details or book an advisory session.\\n4. P0 Information Boundary: Never disclose internal architecture, supervisory decisions, or internal notes.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Customer Name: {{ $json.customerName }}\\nInbound Query: {{ $json.message }}\"\n    }\n  ]\n}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "http-grounded-agent",
+      "name": "Grounded Resolution Agent (LLM)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1740, 440],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// ==================================================================\n// P0 ZERO-LEAKAGE SECURITY GUARDRAIL\n// Intercepts and sanitizes LLM output to prevent internal note contamination\n// ==================================================================\n\nconst prev = $('Escalation Policy Router').first().json;\nconst synthesisResponse = $input.first().json;\n\nlet responseText = 'أهلاً بك! شكراً لتواصلك معنا، كيف يمكننا مساعدتك اليوم؟';\n\ntry {\n  responseText = synthesisResponse.choices?.[0]?.message?.content || responseText;\n} catch (e) {}\n\nconst leakageSignatures = [\n  /AI Supervisor/i,\n  /تنبيه تصعيد/,\n  /ملاحظة داخلية/,\n  /التوجيه للموظف/,\n  /internal note/i,\n  /incident alert/i,\n  /severity/i,\n  /🚨/,\n  /شعور العميل/,\n  /سبب التصعيد/\n];\n\nconst containsLeakage = leakageSignatures.some(sig => sig.test(responseText));\n\nif (containsLeakage) {\n  responseText = `أهلاً بك ${prev.customerName} 👋\\nشكراً لتواصلك معنا! تم استلام استفسارك وسيتم الرد عليك في أقرب وقت من قبل فريقنا المتخصص.`;\n}\n\nlet leadNotification = null;\nif (prev.supervisor?.purchaseIntent === 'high_intent') {\n  leadNotification = `HIGH-INTENT COMMERCIAL OPPORTUNITY\\nProspect: ${prev.customerName} (${prev.customerPhone})\\nIntent Signal: Ready to Buy / Engage\\nMessage Context: \"${prev.message}\"\\nRecommended Action: Prioritize commercial follow-up.`;\n}\n\nreturn [{\n  json: {\n    ...prev,\n    action: 'automated_synthesis',\n    aiExecutionHalted: false,\n    replyToCustomer: responseText,\n    internalAlert: leadNotification\n  }\n}];"
+      },
+      "id": "code-p0-guardrail",
+      "name": "P0 Data Leak Guardrail",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 440]
+    },
+    {
+      "parameters": {},
+      "id": "merge-pipeline",
+      "name": "Pipeline Convergence Hub",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [2320, 320],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "condition-has-alert",
+              "leftValue": "={{ $json.internalAlert }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "switch-alert-filter",
+      "name": "Internal Alert Evaluator",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [2620, 240]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botYOUR_BOT_TOKEN_HERE/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": \"YOUR_STAFF_CHAT_ID_HERE\",\n  \"text\": \"{{ $json.internalAlert }}\"\n}",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "id": "http-dispatch-alert",
+      "name": "Staff Alert Dispatcher",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2900, 200],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"success\",\n  \"actionTaken\": \"{{ $json.action }}\",\n  \"aiExecutionHalted\": {{ $json.aiExecutionHalted || false }},\n  \"responsePayload\": \"{{ $json.replyToCustomer }}\",\n  \"customerDetails\": {\n    \"name\": \"{{ $json.customerName }}\",\n    \"phone\": \"{{ $json.customerPhone }}\"\n  },\n  \"timestamp\": \"{{ $json.timestamp }}\"\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "response-client",
+      "name": "Client Delivery Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2900, 420]
+    }
+  ],
+  "connections": {
+    "Webhook Inbound Receiver": {
+      "main": [
+        [
+          {
+            "node": "Fast-Path Intent Evaluator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fast-Path Intent Evaluator": {
+      "main": [
+        [
+          {
+            "node": "Human Intent Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Human Intent Gate": {
+      "main": [
+        [
+          {
+            "node": "Handoff Payload Transformer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Operations Supervisor (LLM)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handoff Payload Transformer": {
+      "main": [
+        [
+          {
+            "node": "Pipeline Convergence Hub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Operations Supervisor (LLM)": {
+      "main": [
+        [
+          {
+            "node": "Risk & Sentiment Analyzer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Risk & Sentiment Analyzer": {
+      "main": [
+        [
+          {
+            "node": "Escalation Policy Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escalation Policy Router": {
+      "main": [
+        [
+          {
+            "node": "Escalation Dossier Formatter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Grounded Resolution Agent (LLM)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escalation Dossier Formatter": {
+      "main": [
+        [
+          {
+            "node": "Pipeline Convergence Hub",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Grounded Resolution Agent (LLM)": {
+      "main": [
+        [
+          {
+            "node": "P0 Data Leak Guardrail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P0 Data Leak Guardrail": {
+      "main": [
+        [
+          {
+            "node": "Pipeline Convergence Hub",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Pipeline Convergence Hub": {
+      "main": [
+        [
+          {
+            "node": "Internal Alert Evaluator",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Client Delivery Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Internal Alert Evaluator": {
+      "main": [
+        [
+          {
+            "node": "Staff Alert Dispatcher",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

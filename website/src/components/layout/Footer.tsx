@@ -1,115 +1,136 @@
 "use client";
 
+import React from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { Layers, ArrowRight, ExternalLink, ShieldCheck } from "lucide-react";
+import { ArrowRight, ExternalLink } from "lucide-react";
 
-const footerNavigation = {
-  solutions: [
-    { name: "Digital Transformation", href: "/solutions#transformation" },
-    { name: "Custom Software & Platforms", href: "/solutions#custom-software" },
-    { name: "Intelligent Automation & AI", href: "/solutions#automation" },
-    { name: "Systems Integration", href: "/solutions#integration" },
-    { name: "Customer Experience (CX)", href: "/solutions#cx" },
-    { name: "Technology Advisory", href: "/solutions#advisory" },
-  ],
-  industries: [
-    { name: "Retail & E-Commerce", href: "/industries#retail" },
-    { name: "Financial Services & FinTech", href: "/industries#fintech" },
-    { name: "Real Estate & PropTech", href: "/industries#real-estate" },
-    { name: "Logistics & Supply Chain", href: "/industries#logistics" },
-    { name: "Healthcare & Life Sciences", href: "/industries#healthcare" },
-    { name: "B2B & Professional Services", href: "/industries#b2b" },
-  ],
-  company: [
-    { name: "About Us", href: "/about" },
-    { name: "Our Methodology", href: "/about#approach" },
-    { name: "Case Studies / Impact", href: "/case-studies" },
-    { name: "Contact Our Team", href: "/contact" },
-  ],
-  legal: [
-    { name: "Privacy Policy", href: "#" },
-    { name: "Terms of Engagement", href: "#" },
-    { name: "Information Security", href: "#" },
-  ],
-};
+interface FooterProps {
+  locale: "en" | "ar";
+  dictionary: {
+    tagline: string;
+    statement: string;
+    cta: string;
+    description: string;
+    ecoCxLabel: string;
+    ecoCxCta: string;
+    solutionsTitle: string;
+    industriesTitle: string;
+    companyTitle: string;
+    copyright: string;
+    privacy: string;
+    terms: string;
+  };
+}
 
-export default function Footer() {
+export default function Footer({ locale, dictionary }: FooterProps) {
+  const isRtl = locale === "ar";
+  
+  const solutions = [
+    "Strategy & Business Solutions",
+    "Branding & Creative",
+    "Marketing & Growth",
+    "Digital Experiences",
+    "Technology & Software"
+  ];
+  
+  const industries = [
+    "Retail",
+    "Real Estate",
+    "Financial Services",
+    "Healthcare",
+    "Logistics",
+    "Hospitality"
+  ];
+  
+  const company = isRtl ? [
+    { label: "من نحن", href: `/${locale}/about` },
+    { label: "منهجيتنا", href: `/${locale}/about#approach` },
+    { label: "أعمالنا", href: `/${locale}/work` },
+    { label: "تواصل معنا", href: `/${locale}/contact` }
+  ] : [
+    { label: "About", href: `/${locale}/about` },
+    { label: "Our Approach", href: `/${locale}/about#approach` },
+    { label: "Work", href: `/${locale}/work` },
+    { label: "Contact", href: `/${locale}/contact` }
+  ];
+
   return (
-    <footer className="bg-[#0B0F19] border-t border-slate-800 text-slate-300 pt-20 pb-12 font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer 
+      className="bg-[#0B0F19] text-white pt-24 pb-8 overflow-hidden selection:bg-[#0454FF] selection:text-white"
+      dir={isRtl ? "rtl" : "ltr"}
+    >
+      <div className="container mx-auto px-4 md:px-8 max-w-7xl">
         
-        {/* Large Signature Statement */}
-        <div className="pb-16 border-b border-slate-800 mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#0454FF] block mb-3">
-              BUSINESS &amp; TECHNOLOGY SOLUTIONS
+        {/* Top: Large Signature Statement */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-24 border-b border-white/10 pb-16">
+          <div className="max-w-3xl">
+            <span className="font-mono text-sm tracking-widest text-[#0454FF] uppercase mb-6 block">
+              {dictionary.tagline}
             </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight">
-              Business challenges. <span className="text-[#0454FF]">Engineered solutions.</span>
+            <h2 className="text-5xl md:text-7xl font-bold tracking-tight text-white leading-tight">
+              {dictionary.statement.replace(/\.$/, '')}<span className="text-[#0454FF]">.</span>
             </h2>
           </div>
           <Link
-            href="/contact"
-            className="inline-flex items-center gap-2 bg-[#0454FF] hover:bg-[#003ECC] text-white px-6 py-3.5 rounded-xl font-bold text-xs transition-all self-start md:self-auto group"
+            href={`/${locale}/contact`}
+            className="group flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-[#0B0F19] px-8 py-4 rounded-full text-base font-bold transition-all shrink-0"
           >
-            <span>Talk to Our Team</span>
-            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+            {dictionary.cta}
+            <div className="bg-[#0454FF] rounded-full p-1.5 group-hover:scale-110 transition-transform">
+              <ArrowRight className="w-4 h-4 text-white rtl:-scale-x-100" />
+            </div>
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 mb-16">
+        {/* Middle Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 mb-20">
           
-          {/* Brand Info & Summary */}
-          <div className="md:col-span-4 space-y-6">
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-[#0454FF] text-white flex items-center justify-center font-bold text-lg shadow-sm">
-                <Layers size={20} className="text-white" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-white font-extrabold text-lg tracking-tight flex items-center gap-1">
-                  <span>ECOMATE</span>
-                  <span className="text-[#0454FF]">.</span>
-                </span>
-                <span className="text-[10px] text-slate-400 font-mono font-semibold uppercase tracking-wider">
-                  Solutions &amp; Technology Partner
-                </span>
-              </div>
+          {/* Brand Column */}
+          <div className="lg:col-span-4 flex flex-col gap-8">
+            <Link href={`/${locale}`} className="flex items-center gap-3 group">
+              <Image
+                src="/logo.png"
+                alt="ECOMATE"
+                width={48}
+                height={48}
+                className="w-12 h-12 object-contain brightness-0 invert"
+              />
+              <span className="font-bold text-2xl tracking-tight group-hover:text-slate-300 transition-colors">ECOMATE</span>
             </Link>
-
             <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
-              We engineer scalable business solutions that help ambitious companies modernize operations, automate complexity, and build digital capabilities for sustainable growth.
+              {dictionary.description}
             </p>
-
-            {/* ECO CX Dedicated Reference */}
-            <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl">
-              <div className="text-[11px] font-mono text-slate-400 font-bold uppercase mb-1">
-                Proprietary Platform
+            
+            {/* ECO CX Card */}
+            <div className="mt-4 bg-slate-800/50 border border-slate-700/50 rounded-2xl p-5 backdrop-blur-sm max-w-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-2 h-2 rounded-full bg-[#0454FF] animate-pulse"></div>
+                <span className="text-xs font-mono tracking-wider text-slate-300 uppercase">
+                  {dictionary.ecoCxLabel}
+                </span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-white">ECO CX Customer Suite</span>
-                <a
-                  href="https://ecocx.ai"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-[#0454FF] hover:text-blue-400 font-bold flex items-center gap-1"
-                >
-                  <span>Explore Product</span>
-                  <ExternalLink size={12} />
-                </a>
-              </div>
+              <Link 
+                href={`/${locale}/products/eco-cx`}
+                className="flex items-center justify-between group"
+              >
+                <span className="font-semibold text-lg group-hover:text-[#0454FF] transition-colors">
+                  {dictionary.ecoCxCta}
+                </span>
+                <ExternalLink className="w-5 h-5 text-slate-500 group-hover:text-[#0454FF] transition-colors rtl:-scale-x-100" />
+              </Link>
             </div>
           </div>
 
           {/* Solutions Column */}
-          <div className="md:col-span-3">
-            <h4 className="text-white font-mono font-bold text-xs uppercase tracking-wider mb-4">
-              Solutions
-            </h4>
-            <ul className="space-y-2.5 text-xs text-slate-400 font-medium">
-              {footerNavigation.solutions.map((link) => (
-                <li key={link.name}>
-                  <Link href={link.href} className="hover:text-white transition-colors">
-                    {link.name}
+          <div className="lg:col-span-3 lg:col-start-6 flex flex-col gap-6">
+            <h3 className="text-lg font-semibold">{dictionary.solutionsTitle}</h3>
+            <ul className="flex flex-col gap-4">
+              {solutions.map((item, idx) => (
+                <li key={idx}>
+                  <Link href={`/${locale}/solutions`} className="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2 group">
+                    <span className="w-0 overflow-hidden group-hover:w-2 h-px bg-[#0454FF] transition-all duration-300"></span>
+                    {item}
                   </Link>
                 </li>
               ))}
@@ -117,15 +138,14 @@ export default function Footer() {
           </div>
 
           {/* Industries Column */}
-          <div className="md:col-span-3">
-            <h4 className="text-white font-mono font-bold text-xs uppercase tracking-wider mb-4">
-              Industries
-            </h4>
-            <ul className="space-y-2.5 text-xs text-slate-400 font-medium">
-              {footerNavigation.industries.map((link) => (
-                <li key={link.name}>
-                  <Link href={link.href} className="hover:text-white transition-colors">
-                    {link.name}
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            <h3 className="text-lg font-semibold">{dictionary.industriesTitle}</h3>
+            <ul className="flex flex-col gap-4">
+              {industries.map((item, idx) => (
+                <li key={idx}>
+                  <Link href={`/${locale}/industries`} className="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2 group">
+                    <span className="w-0 overflow-hidden group-hover:w-2 h-px bg-[#0454FF] transition-all duration-300"></span>
+                    {item}
                   </Link>
                 </li>
               ))}
@@ -133,32 +153,31 @@ export default function Footer() {
           </div>
 
           {/* Company Column */}
-          <div className="md:col-span-2">
-            <h4 className="text-white font-mono font-bold text-xs uppercase tracking-wider mb-4">
-              Company
-            </h4>
-            <ul className="space-y-2.5 text-xs text-slate-400 font-medium">
-              {footerNavigation.company.map((link) => (
-                <li key={link.name}>
-                  <Link href={link.href} className="hover:text-white transition-colors">
-                    {link.name}
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            <h3 className="text-lg font-semibold">{dictionary.companyTitle}</h3>
+            <ul className="flex flex-col gap-4">
+              {company.map((item, idx) => (
+                <li key={idx}>
+                  <Link href={item.href} className="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-2 group">
+                    <span className="w-0 overflow-hidden group-hover:w-2 h-px bg-[#0454FF] transition-all duration-300"></span>
+                    {item.label}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
-
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-mono">
-          <p>© {new Date().getFullYear()} ECOMATE Solutions. All rights reserved.</p>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-white/10 text-xs text-slate-500">
+          <p>© {new Date().getFullYear()} ECOMATE. {dictionary.copyright}</p>
           <div className="flex items-center gap-6">
-            {footerNavigation.legal.map((item) => (
-              <a key={item.name} href={item.href} className="hover:text-slate-400 transition-colors">
-                {item.name}
-              </a>
-            ))}
+            <Link href={`/${locale}/privacy`} className="hover:text-white transition-colors">
+              {dictionary.privacy}
+            </Link>
+            <Link href={`/${locale}/terms`} className="hover:text-white transition-colors">
+              {dictionary.terms}
+            </Link>
           </div>
         </div>
 

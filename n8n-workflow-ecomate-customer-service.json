@@ -1,0 +1,447 @@
+{
+  "name": "ECOMATE - Customer Service AI Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "customer-message",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "📩 رسالة واردة من العميل",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "customer-message-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================\n// 🔍 كشف طلب العنصر البشري\n// Human Request Detection (Arabic + English)\n// ========================================\n\nconst body = $input.first().json.body || $input.first().json;\nconst message = (body.message || body.text || body.Body || '').toString().trim();\nconst customerName = body.customerName || body.ProfileName || body.name || 'العميل';\nconst customerPhone = body.phone || body.From || body.from || '';\nconst conversationId = body.conversationId || body.chatId || '';\nconst channelType = body.channelType || body.channel || 'whatsapp';\n\n// Arabic + English patterns for human agent request\nconst humanPatterns = [\n  /خدم[ةه]\\s*العملا[ءإ]/,\n  /عنصر\\s*بشر[يى]/,\n  /موظف/,\n  /بشر[يى]/,\n  /إنسان|انسان/,\n  /شخص\\s*(حقيقي)?/,\n  /آدمي|ادمي/,\n  /حولن[يى]/,\n  /أبغ[يى]\\s*(أ)?كلم/,\n  /ابغ[يى]\\s*(ا)?كلم/,\n  /عايز\\s*(أ)?كلم/,\n  /عاوز\\s*(أ)?كلم/,\n  /بدي\\s*احك[يى]/,\n  /تحدث\\s*مع/,\n  /محادث[ةه]\\s*بشر/,\n  /اتصال\\s*بشر/,\n  /كلمني\\s*حد/,\n  /ابي\\s*احد/,\n  /\\bhuman\\b/i,\n  /\\bagent\\b/i,\n  /\\brepresentative\\b/i,\n  /\\bsupport\\s*team\\b/i,\n  /\\breal\\s*person\\b/i\n];\n\nconst humanRequested = humanPatterns.some(p => p.test(message));\n\n// Detect if message contains an order number (e.g. #12345 or 12345)\nconst orderMatch = message.match(/#?(\\d{4,10})/);\nconst hasOrderNumber = !!orderMatch;\nconst orderNumber = orderMatch ? orderMatch[1] : null;\n\nreturn [{\n  json: {\n    message,\n    customerName,\n    customerPhone,\n    conversationId,\n    channelType,\n    humanRequested,\n    hasOrderNumber,\n    orderNumber,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "detect-human-request",
+      "name": "🔍 كشف طلب بشري + تحليل الرسالة",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "human-check",
+              "leftValue": "={{ $json.humanRequested }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-human-requested",
+      "name": "❓ هل طلب عنصر بشري؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [750, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================\n// 🛑 إيقاف AI + إعداد رد التحويل للعنصر البشري\n// ========================================\n\nconst data = $input.first().json;\n\nconst humanHandoffReply = `أهلاً بك ${data.customerName} 👋\\n\\nتم استلام طلبك وسيتواصل معك أحد أعضاء فريقنا في أقرب وقت ممكن.\\n\\nنقدّر صبرك ونشكرك على تواصلك معنا 🙏`;\n\nconst internalNote = `🚨 تنبيه: طلب عنصر بشري\\n━━━━━━━━━━━━━━━━━\\n👤 العميل: ${data.customerName}\\n📱 الرقم: ${data.customerPhone}\\n💬 الرسالة: ${data.message}\\n⏰ الوقت: ${data.timestamp}\\n\\n📋 الإجراء المطلوب:\\nالتواصل مع العميل فوراً والرد على استفساره.`;\n\nreturn [{\n  json: {\n    ...data,\n    aiStopped: true,\n    replyToCustomer: humanHandoffReply,\n    internalNote: internalNote,\n    action: 'human_handoff'\n  }\n}];"
+      },
+      "id": "prepare-human-handoff",
+      "name": "🛑 إيقاف AI + تجهيز رد التحويل",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 150]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "order-check",
+              "leftValue": "={{ $json.hasOrderNumber }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-has-order",
+      "name": "❓ هل فيه رقم طلب؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1000, 450]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.salla.dev/admin/v2/orders/{{ $json.orderNumber }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $credentials.sallaApiToken }}" },
+            { "name": "Accept", "value": "application/json" }
+          ]
+        },
+        "options": {
+          "response": { "response": { "responseFormat": "json" } },
+          "timeout": 10000
+        }
+      },
+      "id": "salla-order-lookup",
+      "name": "🛒 استعلام طلب من سلة",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 350],
+      "continueOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": { "id": "salla-auth", "name": "Salla API Token" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================\n// 📦 تجهيز بيانات الطلب من سلة\n// ========================================\n\nconst prev = $('🔍 كشف طلب بشري + تحليل الرسالة').first().json;\nconst sallaResponse = $input.first().json;\n\nlet orderContext = '';\n\nif (sallaResponse && sallaResponse.data) {\n  const order = sallaResponse.data;\n  const statusMap = {\n    'created': 'تم الإنشاء',\n    'pending': 'قيد المعالجة',\n    'processing': 'جاري التجهيز',\n    'completed': 'مكتمل',\n    'shipped': 'تم الشحن',\n    'delivered': 'تم التوصيل',\n    'cancelled': 'ملغي',\n    'refunded': 'مسترجع'\n  };\n  const status = statusMap[order.status?.slug] || order.status?.name || order.status?.slug || 'غير معروف';\n  const items = (order.items || []).map(i => `• ${i.name} (الكمية: ${i.quantity})`).join('\\n');\n  const total = order.amounts?.total?.amount || order.total || 'غير محدد';\n  const currency = order.amounts?.total?.currency || order.currency || 'SAR';\n  const shipping = order.shipping?.company || 'غير محدد';\n  const tracking = order.shipping?.tracking_link || '';\n\n  orderContext = `\\n=== بيانات الطلب #${prev.orderNumber} ===\\nالحالة: ${status}\\nالمنتجات:\\n${items}\\nالإجمالي: ${total} ${currency}\\nشركة الشحن: ${shipping}${tracking ? '\\nرابط التتبع: ' + tracking : ''}\\n===========================\\n`;\n} else {\n  orderContext = `\\n[ملاحظة: لم يتم العثور على الطلب #${prev.orderNumber} في سلة]\\n`;\n}\n\nreturn [{\n  json: {\n    ...prev,\n    orderContext\n  }\n}];"
+      },
+      "id": "format-salla-order",
+      "name": "📦 تنسيق بيانات الطلب",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 350]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================\n// تمرير بدون بيانات طلب\n// ========================================\n\nconst prev = $('🔍 كشف طلب بشري + تحليل الرسالة').first().json;\n\nreturn [{\n  json: {\n    ...prev,\n    orderContext: ''\n  }\n}];"
+      },
+      "id": "no-order-passthrough",
+      "name": "⏩ تمرير بدون طلب",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 550]
+    },
+    {
+      "parameters": {},
+      "id": "merge-order-path",
+      "name": "🔀 دمج المسارات",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1750, 450],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $credentials.groqApiKey }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-oss-120b\",\n  \"temperature\": 0.1,\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"أنت مشرف ذكي (AI Supervisor) لخدمة عملاء متجر إلكتروني. حلل الرسالة التالية وأعد تقييماً بصيغة JSON فقط.\\n\\nالحقول المطلوبة:\\n- sentiment: 'positive' | 'neutral' | 'frustrated' | 'angry'\\n- humanRequested: true | false\\n- shouldEscalate: true | false\\n- escalationReason: string | null\\n- purchaseIntent: 'none' | 'inquiry' | 'consideration' | 'high_intent' | 'ready_to_buy'\\n- suggestedAction: string (وصف مختصر للإجراء المقترح)\\n- suggestedInternalNote: string | null (ملاحظة للموظف إن لزم)\\n- confidence: number (0.0 to 1.0)\\n\\nأجب بـ JSON فقط بدون أي نص إضافي.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"اسم العميل: {{ $json.customerName }}\\nالرسالة: {{ $json.message }}\"\n    }\n  ]\n}",
+        "options": {
+          "response": { "response": { "responseFormat": "json" } },
+          "timeout": 15000
+        }
+      },
+      "id": "ai-supervisor-analysis",
+      "name": "🧠 AI Supervisor - تحليل المشاعر والتصعيد",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2000, 450],
+      "continueOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": { "id": "groq-auth", "name": "Groq API Key" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================\n// 🧠 تحليل نتيجة AI Supervisor\n// ========================================\n\nconst prev = $('🔀 دمج المسارات').first().json;\nconst supervisorRaw = $input.first().json;\n\nlet analysis = {\n  sentiment: 'neutral',\n  humanRequested: false,\n  shouldEscalate: false,\n  escalationReason: null,\n  purchaseIntent: 'none',\n  suggestedAction: 'رد طبيعي',\n  suggestedInternalNote: null,\n  confidence: 0.5\n};\n\ntry {\n  const content = supervisorRaw?.choices?.[0]?.message?.content || '{}';\n  const parsed = JSON.parse(content);\n  analysis = { ...analysis, ...parsed };\n} catch (e) {\n  // Supervisor parse failed, use defaults\n}\n\n// Business Rules: Escalation Gate\nconst needsEscalation = (\n  analysis.confidence >= 0.70 &&\n  (analysis.humanRequested === true ||\n   analysis.sentiment === 'angry' ||\n   analysis.shouldEscalate === true)\n);\n\nreturn [{\n  json: {\n    ...prev,\n    supervisor: analysis,\n    needsEscalation,\n    action: needsEscalation ? 'escalate' : 'ai_reply'\n  }\n}];"
+      },
+      "id": "parse-supervisor-result",
+      "name": "📊 تحليل نتيجة المشرف الذكي",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2250, 450]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "escalation-check",
+              "leftValue": "={{ $json.needsEscalation }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-needs-escalation",
+      "name": "❓ هل يحتاج تصعيد؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [2500, 450]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================\n// 🚨 تجهيز تنبيه التصعيد الداخلي\n// ========================================\n\nconst data = $input.first().json;\nconst sv = data.supervisor;\n\nconst sentimentEmoji = {\n  'positive': '😊',\n  'neutral': '😐',\n  'frustrated': '😤',\n  'angry': '😡'\n};\n\nconst escalationReply = `أهلاً ${data.customerName} 👋\\n\\nنقدّر تواصلك معنا ونتفهم موقفك تماماً. تم تحويل محادثتك لأحد أعضاء فريقنا المتخصصين وسيتواصل معك في أقرب وقت.\\n\\nنعتذر عن أي إزعاج ونشكرك على صبرك 🙏`;\n\nconst internalNote = `🚨 تنبيه تصعيد ذكي - AI Supervisor\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n${sentimentEmoji[sv.sentiment] || '😐'} شعور العميل: ${sv.sentiment}\\n📋 سبب التصعيد: ${sv.escalationReason || 'تم الكشف تلقائياً'}\\n🎯 نية الشراء: ${sv.purchaseIntent}\\n💡 الإجراء المقترح: ${sv.suggestedAction}\\n${sv.suggestedInternalNote ? '📝 ملاحظة: ' + sv.suggestedInternalNote : ''}\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n👤 العميل: ${data.customerName}\\n📱 الرقم: ${data.customerPhone}\\n💬 الرسالة الأصلية: ${data.message}\\n⏰ الوقت: ${data.timestamp}\\n🔒 الثقة: ${(sv.confidence * 100).toFixed(0)}%`;\n\nreturn [{\n  json: {\n    ...data,\n    aiStopped: true,\n    replyToCustomer: escalationReply,\n    internalNote: internalNote,\n    action: 'escalation'\n  }\n}];"
+      },
+      "id": "prepare-escalation",
+      "name": "🚨 تجهيز تنبيه التصعيد",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2750, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $credentials.groqApiKey }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-oss-120b\",\n  \"temperature\": 0.3,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"أنت مساعد ذكي ومتخصص لخدمة عملاء المتجر. أجب دائماً بأسلوب مهذب ومحترف وودود وساعد العميل بناءً على بيانات المتجر فقط.\\n\\n=== قاعدة معرفة المتجر (Knowledge Base) ===\\n{{ $credentials.knowledgeBase || 'لا توجد قاعدة معرفة محددة. أجب بشكل عام ومهذب.' }}\\n=============================================\\n\\n{{ $json.orderContext || '' }}\\n\\nقواعد صارمة:\\n1. الصدق التام: ممنوع اختراع منتجات أو أسعار أو سياسات غير موجودة في قاعدة المعرفة.\\n2. الالتزام بقاعدة المعرفة: جميع المعلومات يجب أن تكون مطابقة 100% لما هو مذكور أعلاه.\\n3. إذا لم تجد الإجابة: وجّه العميل بلباقة لمراجعة المتجر أو التواصل مع فريق الدعم.\\n4. الأسلوب: تحدث بأسلوب سعودي/عربي ودود وراقٍ وموجز. خاطب العميل باحترام.\\n5. لا ترسل أي ملاحظات داخلية أو تحليلات المشرف الذكي أبداً.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"اسم العميل: {{ $json.customerName }}\\nرسالة العميل: {{ $json.message }}\"\n    }\n  ]\n}",
+        "options": {
+          "response": { "response": { "responseFormat": "json" } },
+          "timeout": 20000
+        }
+      },
+      "id": "ai-generate-reply",
+      "name": "🤖 توليد رد ذكي (AI Reply)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2750, 600],
+      "credentials": {
+        "httpHeaderAuth": { "id": "groq-auth", "name": "Groq API Key" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========================================\n// ✅ تجهيز الرد النهائي من الذكاء الاصطناعي\n// ========================================\n\nconst prev = $('📊 تحليل نتيجة المشرف الذكي').first().json;\nconst aiResponse = $input.first().json;\n\nlet reply = 'عذراً، لم أتمكن من معالجة طلبك الآن. يرجى المحاولة مرة أخرى أو التواصل مع فريق الدعم.';\n\ntry {\n  reply = aiResponse?.choices?.[0]?.message?.content || reply;\n} catch (e) {\n  // Use fallback reply\n}\n\n// ===== بوابة الأمان: منع تسريب ملاحظات داخلية =====\nconst dangerPatterns = [\n  /AI Supervisor/i,\n  /تنبيه تصعيد/,\n  /ملاحظة داخلية/,\n  /التوجيه للموظف/,\n  /internal note/i,\n  /🚨.*تنبيه/,\n  /شعور العميل.*غاضب/,\n  /سبب التصعيد/\n];\n\nconst isUnsafe = dangerPatterns.some(p => p.test(reply));\n\nif (isUnsafe) {\n  reply = `أهلاً ${prev.customerName} 👋\\nشكراً لتواصلك معنا! سيتم مراجعة استفسارك والرد عليك في أقرب وقت من فريقنا المتخصص.`;\n}\n\nreturn [{\n  json: {\n    ...prev,\n    aiStopped: false,\n    replyToCustomer: reply,\n    internalNote: null,\n    action: 'ai_reply',\n    supervisorSummary: `${prev.supervisor?.sentiment || 'neutral'} | نية الشراء: ${prev.supervisor?.purchaseIntent || 'none'} | الثقة: ${((prev.supervisor?.confidence || 0) * 100).toFixed(0)}%`\n  }\n}];"
+      },
+      "id": "prepare-ai-reply",
+      "name": "✅ تجهيز الرد النهائي + بوابة الأمان",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3050, 600]
+    },
+    {
+      "parameters": {},
+      "id": "merge-final-paths",
+      "name": "🔀 دمج كل المسارات النهائية",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [3350, 400],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v19.0/{{ $credentials.whatsappPhoneNumberId }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $credentials.whatsappToken }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"{{ $json.customerPhone }}\",\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": \"{{ $json.replyToCustomer }}\"\n  }\n}",
+        "options": {
+          "response": { "response": { "responseFormat": "json" } },
+          "timeout": 10000
+        }
+      },
+      "id": "send-whatsapp-reply",
+      "name": "📤 إرسال الرد عبر واتساب",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3600, 300],
+      "continueOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": { "id": "whatsapp-auth", "name": "WhatsApp Cloud API Token" }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "has-internal-note",
+              "leftValue": "={{ $json.internalNote }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-has-internal-note",
+      "name": "❓ هل فيه ملاحظة داخلية؟",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [3600, 550]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $credentials.slackWebhookUrl || 'https://hooks.slack.com/services/YOUR/WEBHOOK/URL' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"text\": \"{{ $json.internalNote }}\",\n  \"username\": \"ECOMATE AI Supervisor\",\n  \"icon_emoji\": \":rotating_light:\"\n}",
+        "options": { "timeout": 5000 }
+      },
+      "id": "send-internal-notification",
+      "name": "🔔 إرسال تنبيه داخلي (Slack/Teams/Email)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3900, 450],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"ok\",\n  \"action\": \"{{ $json.action }}\",\n  \"aiStopped\": {{ $json.aiStopped || false }},\n  \"timestamp\": \"{{ $json.timestamp }}\"\n}",
+        "options": { "responseCode": 200 }
+      },
+      "id": "respond-webhook",
+      "name": "📨 رد على Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [4150, 300]
+    }
+  ],
+  "connections": {
+    "📩 رسالة واردة من العميل": {
+      "main": [
+        [{ "node": "🔍 كشف طلب بشري + تحليل الرسالة", "type": "main", "index": 0 }]
+      ]
+    },
+    "🔍 كشف طلب بشري + تحليل الرسالة": {
+      "main": [
+        [{ "node": "❓ هل طلب عنصر بشري؟", "type": "main", "index": 0 }]
+      ]
+    },
+    "❓ هل طلب عنصر بشري؟": {
+      "main": [
+        [{ "node": "🛑 إيقاف AI + تجهيز رد التحويل", "type": "main", "index": 0 }],
+        [{ "node": "❓ هل فيه رقم طلب؟", "type": "main", "index": 0 }]
+      ]
+    },
+    "🛑 إيقاف AI + تجهيز رد التحويل": {
+      "main": [
+        [{ "node": "🔀 دمج كل المسارات النهائية", "type": "main", "index": 0 }]
+      ]
+    },
+    "❓ هل فيه رقم طلب؟": {
+      "main": [
+        [{ "node": "🛒 استعلام طلب من سلة", "type": "main", "index": 0 }],
+        [{ "node": "⏩ تمرير بدون طلب", "type": "main", "index": 0 }]
+      ]
+    },
+    "🛒 استعلام طلب من سلة": {
+      "main": [
+        [{ "node": "📦 تنسيق بيانات الطلب", "type": "main", "index": 0 }]
+      ]
+    },
+    "📦 تنسيق بيانات الطلب": {
+      "main": [
+        [{ "node": "🔀 دمج المسارات", "type": "main", "index": 0 }]
+      ]
+    },
+    "⏩ تمرير بدون طلب": {
+      "main": [
+        [{ "node": "🔀 دمج المسارات", "type": "main", "index": 1 }]
+      ]
+    },
+    "🔀 دمج المسارات": {
+      "main": [
+        [{ "node": "🧠 AI Supervisor - تحليل المشاعر والتصعيد", "type": "main", "index": 0 }]
+      ]
+    },
+    "🧠 AI Supervisor - تحليل المشاعر والتصعيد": {
+      "main": [
+        [{ "node": "📊 تحليل نتيجة المشرف الذكي", "type": "main", "index": 0 }]
+      ]
+    },
+    "📊 تحليل نتيجة المشرف الذكي": {
+      "main": [
+        [{ "node": "❓ هل يحتاج تصعيد؟", "type": "main", "index": 0 }]
+      ]
+    },
+    "❓ هل يحتاج تصعيد؟": {
+      "main": [
+        [{ "node": "🚨 تجهيز تنبيه التصعيد", "type": "main", "index": 0 }],
+        [{ "node": "🤖 توليد رد ذكي (AI Reply)", "type": "main", "index": 0 }]
+      ]
+    },
+    "🚨 تجهيز تنبيه التصعيد": {
+      "main": [
+        [{ "node": "🔀 دمج كل المسارات النهائية", "type": "main", "index": 1 }]
+      ]
+    },
+    "🤖 توليد رد ذكي (AI Reply)": {
+      "main": [
+        [{ "node": "✅ تجهيز الرد النهائي + بوابة الأمان", "type": "main", "index": 0 }]
+      ]
+    },
+    "✅ تجهيز الرد النهائي + بوابة الأمان": {
+      "main": [
+        [{ "node": "🔀 دمج كل المسارات النهائية", "type": "main", "index": 2 }]
+      ]
+    },
+    "🔀 دمج كل المسارات النهائية": {
+      "main": [
+        [
+          { "node": "📤 إرسال الرد عبر واتساب", "type": "main", "index": 0 },
+          { "node": "❓ هل فيه ملاحظة داخلية؟", "type": "main", "index": 0 },
+          { "node": "📨 رد على Webhook", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "❓ هل فيه ملاحظة داخلية؟": {
+      "main": [
+        [{ "node": "🔔 إرسال تنبيه داخلي (Slack/Teams/Email)", "type": "main", "index": 0 }],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "ecomate-customer-service-automation"
+  },
+  "tags": [
+    { "name": "ECOMATE", "createdAt": "2024-01-01T00:00:00.000Z", "updatedAt": "2024-01-01T00:00:00.000Z" },
+    { "name": "Customer Service", "createdAt": "2024-01-01T00:00:00.000Z", "updatedAt": "2024-01-01T00:00:00.000Z" },
+    { "name": "AI Automation", "createdAt": "2024-01-01T00:00:00.000Z", "updatedAt": "2024-01-01T00:00:00.000Z" }
+  ]
+}

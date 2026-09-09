@@ -1,118 +1,135 @@
-import Link from "next/link";
-import { MessageSquare, ExternalLink, Cpu, Layers, CheckCircle2, ArrowRight } from "lucide-react";
+"use client";
 
-export default function DigitalProductsSection() {
+import React from 'react';
+import { motion } from 'framer-motion';
+
+interface DigitalProductsSectionProps {
+  locale: 'en' | 'ar';
+  dictionary: {
+    label: string;
+    headline: string;
+    ecoCx: {
+      name: string;
+      description: string;
+      cta: string;
+    };
+  };
+}
+
+export default function DigitalProductsSection({ locale, dictionary }: DigitalProductsSectionProps) {
+  const isRTL = locale === 'ar';
+
   return (
-    <section className="py-20 md:py-28 bg-white text-slate-900 border-t border-slate-200/80">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Section Header */}
-        <div className="max-w-3xl mb-16">
-          <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
-            Proprietary Products & Labs
-          </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-950 tracking-tight leading-tight mb-6">
-            Proprietary Technology Built From Real Business Needs.
-          </h2>
-          <p className="text-slate-600 text-base sm:text-lg leading-relaxed">
-            Alongside our client-focused solutions, we develop proprietary digital products that address recurring business and operational challenges.
-          </p>
+    <section className="py-24 bg-[#0B0F19] relative overflow-hidden text-white">
+      {/* Background ambient glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[400px] bg-brand/10 blur-[120px] rounded-full pointer-events-none" />
+
+      <div className="container mx-auto px-6 lg:px-12 relative z-10">
+        <div className="text-center max-w-3xl mx-auto mb-16 md:mb-20">
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-brand font-mono text-sm tracking-widest uppercase mb-4 block"
+          >
+            {dictionary.label}
+          </motion.span>
+          <motion.h2
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-3xl md:text-5xl font-display font-medium leading-tight"
+          >
+            {dictionary.headline}
+          </motion.h2>
         </div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-          
-          {/* Featured Product: ECO CX */}
-          <div className="lg:col-span-8 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white rounded-3xl p-8 sm:p-10 border border-slate-800 shadow-xl flex flex-col justify-between relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/10 blur-[100px] pointer-events-none" />
-
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-6">
-                <div className="inline-flex items-center gap-2 bg-blue-900/60 border border-blue-700/80 text-blue-300 px-3 py-1 rounded-full text-xs font-bold font-mono">
-                  PROPRIETARY PLATFORM
-                </div>
-                <span className="text-xs text-slate-400 font-mono">Product Lab 01</span>
+        <div className="max-w-5xl mx-auto relative">
+          {/* ECO CX Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 backdrop-blur-sm relative overflow-hidden flex flex-col lg:flex-row items-center gap-12"
+          >
+            {/* Content Side */}
+            <div className="flex-1 space-y-6 relative z-10 text-center lg:text-start">
+              <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm font-mono">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                Live Product
               </div>
-
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm">
-                  <MessageSquare size={20} />
-                </div>
-                <div>
-                  <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">ECO CX</h3>
-                  <p className="text-xs sm:text-sm font-semibold text-blue-400">
-                    Enterprise Customer Experience & Communication Platform
-                  </p>
-                </div>
-              </div>
-
-              <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-8 max-w-2xl">
-                A unified omnichannel communication suite engineered for high-volume enterprises. Centralizes customer conversations, automates support pipelines, and connects directly into enterprise CRM and order databases.
-              </p>
-
-              {/* Feature Highlights */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 text-xs text-slate-300">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 size={16} className="text-blue-400 flex-shrink-0" />
-                  <span>Omnichannel Inbox</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 size={16} className="text-blue-400 flex-shrink-0" />
-                  <span>Automated Routing</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 size={16} className="text-blue-400 flex-shrink-0" />
-                  <span>Direct CRM / ERP Sync</span>
-                </div>
-              </div>
-            </div>
-
-            {/* CTA to Dedicated ECO CX website */}
-            <div className="relative z-10 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <span className="text-xs text-slate-400">
-                ECO CX is maintained as an independent platform product.
-              </span>
-              <a
-                href="https://ecocx.ai"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 shadow-sm group"
-              >
-                <span>Explore ECO CX</span>
-                <ExternalLink size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-              </a>
-            </div>
-          </div>
-
-          {/* Complementary Card: Proprietary Accelerators */}
-          <div className="lg:col-span-4 bg-slate-50 border border-slate-200/80 rounded-3xl p-8 flex flex-col justify-between">
-            <div>
-              <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 text-blue-600 flex items-center justify-center mb-6 shadow-2xs">
-                <Cpu size={24} />
-              </div>
-
-              <div className="inline-flex items-center gap-2 text-xs font-bold font-mono text-slate-500 uppercase tracking-wider mb-2">
-                Internal Accelerators
-              </div>
-              <h3 className="text-xl font-bold text-slate-950 mb-3">
-                Enterprise Middleware & Connectors
+              <h3 className="text-4xl md:text-5xl font-display font-medium text-white">
+                {dictionary.ecoCx.name}
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6">
-                Modular data connectors, automated orchestration pipelines, and security adapters built by our team to accelerate client deployments with verified architectural reliability.
+              <p className="text-white/70 text-lg leading-relaxed max-w-lg mx-auto lg:mx-0">
+                {dictionary.ecoCx.description}
               </p>
+              <div className="pt-4">
+                <a 
+                  href="https://ecocx.ai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-brand text-white font-medium hover:bg-brand/90 transition-colors"
+                >
+                  {dictionary.ecoCx.cta}
+                </a>
+              </div>
             </div>
 
-            <Link
-              href="/digital-products"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 pt-4 border-t border-slate-200 group"
-            >
-              <span>View All Digital Products & Accelerators</span>
-              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
+            {/* Visual Side: Abstract UI Mockup */}
+            <div className="flex-1 w-full relative h-[250px] sm:h-[300px] flex items-center justify-center">
+              <div className="absolute inset-0 bg-gradient-to-tr from-brand/20 to-transparent rounded-2xl border border-white/10 overflow-hidden">
+                {/* Floating UI Elements */}
+                <motion.div
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute top-1/4 start-1/4 w-32 p-3 bg-white/10 backdrop-blur-md rounded-lg border border-white/10 shadow-lg"
+                >
+                  <div className="w-8 h-2 bg-white/20 rounded-full mb-3" />
+                  <div className="space-y-2">
+                    <div className="w-full h-1.5 bg-white/10 rounded-full" />
+                    <div className="w-4/5 h-1.5 bg-white/10 rounded-full" />
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  animate={{ y: [0, 15, 0] }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                  className="absolute bottom-1/4 end-1/4 w-40 p-4 bg-[#0B0F19]/80 backdrop-blur-md rounded-xl border border-brand/30 shadow-2xl"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-6 h-6 rounded-full bg-brand/50 flex items-center justify-center">
+                      <div className="w-3 h-3 rounded-full bg-white" />
+                    </div>
+                    <div className="w-16 h-2 bg-white/30 rounded-full" />
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="h-8 bg-white/5 rounded" />
+                    <div className="h-8 bg-brand/20 rounded border border-brand/30" />
+                    <div className="h-8 bg-white/5 rounded" />
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-brand/30 rounded-full blur-3xl"
+                />
+              </div>
+            </div>
+          </motion.div>
+
+          {/* More coming soon indicator */}
+          <div className="mt-8 flex justify-center">
+            <span className="text-white/30 font-mono text-sm tracking-wide uppercase flex items-center gap-3">
+              <span className="w-8 h-px bg-white/20" />
+              + More Coming Soon
+              <span className="w-8 h-px bg-white/20" />
+            </span>
           </div>
-
         </div>
-
       </div>
     </section>
   );

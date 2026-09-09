@@ -1,96 +1,122 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowRight, Sparkles, Clock, ShieldCheck, CheckCircle2 } from "lucide-react";
+import React from 'react';
+import { motion } from 'framer-motion';
 
 interface FinalCTAProps {
-  onOpenConsultation?: () => void;
+  locale: 'en' | 'ar';
+  dictionary: {
+    headline: string;
+    sub: string;
+    cta: string;
+  };
 }
 
-export default function FinalCTA({ onOpenConsultation }: FinalCTAProps) {
+export default function FinalCTA({ locale, dictionary }: FinalCTAProps) {
+  const isRTL = locale === 'ar';
+
   return (
-    <section className="py-24 md:py-32 bg-white text-slate-900 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="relative overflow-hidden bg-brand py-32 md:py-48 flex items-center justify-center text-center">
+      {/* Dynamic Background */}
+      <div className="absolute inset-0 z-0">
+        <motion.div
+          animate={{
+            backgroundPosition: ['0% 0%', '100% 100%'],
+            scale: [1, 1.05, 1],
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage: 'radial-gradient(circle at center, #ffffff 1px, transparent 1px)',
+            backgroundSize: '40px 40px',
+          }}
+        />
         
-        {/* Culmination Canvas Box */}
-        <div className="relative bg-[#0454FF] text-white rounded-3xl p-8 sm:p-14 lg:p-16 shadow-2xl overflow-hidden">
-          
-          {/* Subtle Dynamic Ambient Circles */}
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/10 blur-[120px] rounded-full pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-black/20 blur-[100px] rounded-full pointer-events-none" />
+        {/* Animated Orbs */}
+        <motion.div
+          animate={{
+            x: [0, 50, -50, 0],
+            y: [0, -50, 50, 0],
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-white/10 rounded-full blur-[100px]"
+        />
+        <motion.div
+          animate={{
+            x: [0, -70, 70, 0],
+            y: [0, 70, -70, 0],
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-navy/20 rounded-full blur-[120px]"
+        />
 
-          {/* SVG Flowing Path Line (Challenge -> Solution -> Growth) */}
-          <svg className="absolute top-0 right-0 w-full h-full pointer-events-none opacity-20 hidden md:block">
-            <path
-              d="M 100,300 C 300,100 600,400 900,200 S 1200,350 1400,150"
-              fill="none"
-              stroke="#FFFFFF"
-              strokeWidth="2.5"
-              strokeDasharray="6 6"
-            />
-            <circle cx="100" cy="300" r="6" fill="#FFFFFF" />
-            <circle cx="900" cy="200" r="6" fill="#FFFFFF" />
-            <circle cx="1400" cy="150" r="6" fill="#FFFFFF" />
-          </svg>
+        {/* Connecting Lines SVG */}
+        <svg className="absolute inset-0 w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg">
+          <motion.path
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 1 }}
+            transition={{ duration: 3, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
+            d="M-100,200 C300,300 500,-100 1200,400"
+            fill="none"
+            stroke="white"
+            strokeWidth="1"
+            className="hidden md:block"
+          />
+          <motion.path
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 1 }}
+            transition={{ duration: 4, repeat: Infinity, repeatType: "reverse", ease: "easeInOut", delay: 1 }}
+            d="M-200,500 C400,100 800,600 1500,200"
+            fill="none"
+            stroke="white"
+            strokeWidth="1"
+            strokeDasharray="4 8"
+          />
+        </svg>
+      </div>
 
-          <div className="relative z-10 max-w-3xl">
-            
-            <div className="inline-flex items-center gap-2 bg-white/15 border border-white/25 text-white px-3.5 py-1.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider mb-6">
-              <Sparkles size={13} />
-              <span>START THE CONVERSATION</span>
-            </div>
+      <div className="container mx-auto px-6 lg:px-12 relative z-10 max-w-4xl">
+        <motion.h2
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-5xl md:text-7xl lg:text-8xl font-display font-medium text-white mb-8 leading-tight tracking-tight"
+        >
+          {dictionary.headline}
+        </motion.h2>
+        
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          className="text-xl md:text-2xl text-white/90 font-light mb-12 max-w-2xl mx-auto leading-relaxed"
+        >
+          {dictionary.sub}
+        </motion.p>
 
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.08] mb-6 text-white">
-              Let&apos;s Build What&apos;s Next.
-            </h2>
-
-            <p className="text-blue-100 text-base sm:text-lg leading-relaxed mb-10 max-w-2xl font-normal">
-              Tell us what you&apos;re trying to improve, automate, connect, or build. We&apos;ll help you find the right path forward and engineer a scalable technology roadmap tailored to your business goals.
-            </p>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-10">
-              {onOpenConsultation ? (
-                <button
-                  onClick={onOpenConsultation}
-                  className="bg-[#0B0F19] hover:bg-slate-900 text-white px-8 py-4 rounded-xl font-bold text-sm shadow-xl transition-all flex items-center justify-center gap-2 group cursor-pointer"
-                >
-                  <span>Talk to Our Team</span>
-                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                </button>
-              ) : (
-                <Link
-                  href="/contact"
-                  className="bg-[#0B0F19] hover:bg-slate-900 text-white px-8 py-4 rounded-xl font-bold text-sm shadow-xl transition-all flex items-center justify-center gap-2 group"
-                >
-                  <span>Talk to Our Team</span>
-                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-              )}
-
-              <Link
-                href="/solutions"
-                className="bg-white/15 hover:bg-white/25 text-white border border-white/20 px-7 py-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 backdrop-blur-xs"
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <button className="group relative inline-flex items-center justify-center px-8 py-4 bg-[#0B0F19] text-white rounded-full overflow-hidden transition-transform hover:scale-105 active:scale-95 shadow-xl shadow-navy/20">
+            <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
+            <span className="relative font-medium text-lg flex items-center gap-3">
+              {dictionary.cta}
+              <motion.svg
+                animate={{ x: isRTL ? [-5, 0, -5] : [0, 5, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                className={isRTL ? "rotate-180" : ""}
               >
-                <span>Explore Solutions</span>
-              </Link>
-            </div>
-
-            {/* Trust Assurance */}
-            <div className="pt-6 border-t border-white/20 flex flex-wrap items-center gap-6 text-xs text-blue-100 font-medium">
-              <div className="flex items-center gap-2">
-                <Clock size={16} className="text-white" />
-                <span>30-minute executive discovery call</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <ShieldCheck size={16} className="text-white" />
-                <span>Confidential diagnostic with senior architects</span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </motion.svg>
+            </span>
+          </button>
+        </motion.div>
       </div>
     </section>
   );

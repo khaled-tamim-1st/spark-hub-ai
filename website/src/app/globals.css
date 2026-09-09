@@ -2,8 +2,10 @@
 
 @theme {
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-arabic: 'Cairo', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
 
-  /* Enterprise Brand Colors */
+  /* Brand Colors — BLUE + WHITE */
   --color-brand: #0454FF;
   --color-brand-dark: #003ECC;
   --color-brand-navy: #0B0F19;
@@ -12,11 +14,16 @@
   --color-brand-subtle: #F0F5FF;
   --color-brand-surface: #F8FAFC;
 
+  /* Text System */
   --color-text-dark: #0B0F19;
   --color-text-navy: #111827;
   --color-text-muted: #4B5563;
   --color-text-subtle: #9CA3AF;
 }
+
+/* ═══════════════════════════════════════════
+   BASE STYLES
+   ═══════════════════════════════════════════ */
 
 * {
   box-sizing: border-box;
@@ -35,84 +42,127 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom Scrollbar */
+/* Arabic font override */
+.font-arabic {
+  font-family: var(--font-arabic);
+}
+
+/* ═══════════════════════════════════════════
+   SCROLLBAR
+   ═══════════════════════════════════════════ */
+
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F8FAFC;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: #CBD5E1;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
 }
 
-/* Glassmorphism Light */
-.glass-card-light {
+/* ═══════════════════════════════════════════
+   GLASS EFFECTS
+   ═══════════════════════════════════════════ */
+
+.glass-card {
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(4, 84, 255, 0.12);
-  box-shadow: 0 10px 30px -10px rgba(4, 84, 255, 0.07);
+  border: 1px solid rgba(4, 84, 255, 0.08);
+  box-shadow: 0 8px 32px -8px rgba(4, 84, 255, 0.06);
 }
 
-.glass-card-light-hover {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.glass-card-light-hover:hover {
-  background: #FFFFFF;
-  border-color: rgba(4, 84, 255, 0.3);
-  box-shadow: 0 15px 35px -10px rgba(4, 84, 255, 0.14);
-  transform: translateY(-3px);
+.glass-card-dark {
+  background: rgba(11, 15, 25, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(4, 84, 255, 0.15);
 }
 
-/* Ecomate Glow — Electric Blue */
-.ecomate-glow {
-  box-shadow: 0 0 50px rgba(4, 84, 255, 0.22), 0 0 100px rgba(91, 142, 255, 0.10);
-}
-.ecomate-glow-sm {
-  box-shadow: 0 0 25px rgba(4, 84, 255, 0.18);
+/* ═══════════════════════════════════════════
+   "EVERYTHING CONNECTS" VISUAL SYSTEM
+   ═══════════════════════════════════════════ */
+
+/* Connection node pulse */
+@keyframes node-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.15); opacity: 1; }
 }
 
-/* Pulse Glow */
-@keyframes pulse-glow {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.75; transform: scale(1.04); }
-}
-.animate-pulse-glow {
-  animation: pulse-glow 5s ease-in-out infinite;
+.node-pulse {
+  animation: node-pulse 4s ease-in-out infinite;
 }
 
-/* Marquee */
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-.marquee-track {
-  animation: marquee 25s linear infinite;
-}
-.marquee-track:hover {
-  animation-play-state: paused;
+/* Slow orbital float */
+@keyframes orbital-float {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(8px, -12px) rotate(2deg); }
+  50% { transform: translate(-4px, -8px) rotate(-1deg); }
+  75% { transform: translate(-10px, 4px) rotate(1deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
 }
 
-/* Subtle Grid Pattern */
-.bg-grid-light {
-  background-image: linear-gradient(to right, rgba(4, 84, 255, 0.05) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(4, 84, 255, 0.05) 1px, transparent 1px);
-  background-size: 36px 36px;
-  mask-image: radial-gradient(ellipse 65% 55% at 50% 50%, #000 70%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 65% 55% at 50% 50%, #000 70%, transparent 100%);
+.animate-orbital {
+  animation: orbital-float 20s ease-in-out infinite;
 }
 
-/* Hero Background — matches logo's soft royal blue aura */
-.hero-ecomate-bg {
-  background: radial-gradient(ellipse at 50% -5%, rgba(190, 215, 255, 0.35) 0%, rgba(240, 245, 255, 0.3) 40%, #FFFFFF 80%);
+.animate-orbital-reverse {
+  animation: orbital-float 18s ease-in-out infinite reverse;
 }
 
-/* Gradient text matching logo gradient */
+/* Line drawing */
+@keyframes line-draw {
+  0% { stroke-dashoffset: 1000; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.animate-line-draw {
+  stroke-dasharray: 1000;
+  animation: line-draw 3s ease-out forwards;
+}
+
+/* Gradient shift — subtle ambient */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 12s ease-in-out infinite;
+}
+
+/* Subtle breathing for glow elements */
+@keyframes glow-breathe {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+.animate-glow-breathe {
+  animation: glow-breathe 6s ease-in-out infinite;
+}
+
+/* Slow spin */
+@keyframes slow-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-slow-spin {
+  animation: slow-spin 30s linear infinite;
+}
+
+/* ═══════════════════════════════════════════
+   BRAND VISUAL ELEMENTS
+   ═══════════════════════════════════════════ */
+
+/* Ecomate gradient text */
 .ecomate-gradient-text {
   background: linear-gradient(135deg, #0D0E1F 0%, #0454FF 55%, #5B8EFF 100%);
   -webkit-background-clip: text;
@@ -120,7 +170,113 @@ body {
   background-clip: text;
 }
 
-/* Monospace utility */
-.font-mono {
-  font-family: 'Space Mono', monospace;
+/* Subtle dot grid — structural background */
+.bg-dot-grid {
+  background-image: radial-gradient(circle, rgba(4, 84, 255, 0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Fine line grid */
+.bg-grid-fine {
+  background-image: linear-gradient(to right, rgba(4, 84, 255, 0.04) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(4, 84, 255, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Hero ambient glow */
+.hero-glow {
+  background: radial-gradient(ellipse at 50% 0%, rgba(4, 84, 255, 0.12) 0%, transparent 60%);
+}
+
+/* Section connectors — gradient fade between sections */
+.section-connector {
+  background: linear-gradient(to bottom, transparent 0%, rgba(4, 84, 255, 0.03) 50%, transparent 100%);
+}
+
+/* ═══════════════════════════════════════════
+   RTL SUPPORT
+   ═══════════════════════════════════════════ */
+
+[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .rtl-mirror {
+  direction: rtl;
+}
+
+/* ═══════════════════════════════════════════
+   REDUCED MOTION
+   ═══════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .node-pulse,
+  .animate-orbital,
+  .animate-orbital-reverse,
+  .animate-line-draw,
+  .animate-gradient,
+  .animate-glow-breathe,
+  .animate-slow-spin {
+    animation: none !important;
+  }
+
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   TYPOGRAPHY UTILITIES
+   ═══════════════════════════════════════════ */
+
+.text-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.font-mono-accent {
+  font-family: 'Space Grotesk', monospace;
+}
+
+/* ═══════════════════════════════════════════
+   INTERACTIVE STATES
+   ═══════════════════════════════════════════ */
+
+.interactive-card {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.interactive-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px -12px rgba(4, 84, 255, 0.15);
+}
+
+/* Focus states */
+.focus-ring:focus-visible {
+  outline: 2px solid #0454FF;
+  outline-offset: 2px;
+}
+
+/* ═══════════════════════════════════════════
+   MARQUEE
+   ═══════════════════════════════════════════ */
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-rtl {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(50%); }
+}
+
+.marquee-track {
+  animation: marquee 30s linear infinite;
+}
+
+[dir="rtl"] .marquee-track {
+  animation: marquee-rtl 30s linear infinite;
 }
