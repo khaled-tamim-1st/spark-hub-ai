@@ -13,6 +13,7 @@ import {
   ChevronDown,
   Layers,
   Activity,
+  CheckCircle2,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -93,6 +94,197 @@ export default function Hero({ locale, dictionary, onOpenConsultation }: HeroPro
     },
   ];
 
+  const arabicPillars = [
+    {
+      id: 1,
+      name: "الاستراتيجية وحلول الأعمال",
+      tag: "وضوح الرؤية والنمو",
+      icon: Compass,
+    },
+    {
+      id: 2,
+      name: "العلامة التجارية والإبداع",
+      tag: "هوية بصرية ترسخ في الذهن",
+      icon: Palette,
+    },
+    {
+      id: 3,
+      name: "التسويق والأداء",
+      tag: "وصول موجه ونتائج ملموسة",
+      icon: TrendingUp,
+    },
+    {
+      id: 4,
+      name: "التجارب الرقمية",
+      tag: "منصات ومواقع سلسة",
+      icon: Globe,
+    },
+    {
+      id: 5,
+      name: "التكنولوجيا والبرمجيات",
+      tag: "أنظمة وأتمتة تخدم البزنس",
+      icon: Cpu,
+    },
+  ];
+
+  /* ══════════════════════════════════════════════════════════════
+     ARABIC HERO (Dominant headline, no competing side-card,
+     clean supporting ecosystem underneath)
+     ══════════════════════════════════════════════════════════════ */
+  if (isRtl) {
+    return (
+      <section className="relative min-h-[92vh] w-full overflow-hidden bg-gradient-to-b from-blue-50/40 via-white to-white flex flex-col justify-between pt-28 pb-12">
+        {/* Ambient subtle background aura */}
+        <div className="absolute inset-0 bg-dot-grid opacity-50 pointer-events-none" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-blue-500/8 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl relative z-10 my-auto text-center flex flex-col items-center">
+          
+          {/* Strategic Tag Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-200/70 text-[#0454FF] text-xs sm:text-sm font-bold tracking-wide mb-8 shadow-xs"
+          >
+            <Sparkles size={14} className="text-[#0454FF]" />
+            <span>شريك نمو الأعمال والحلول المتكاملة</span>
+          </motion.div>
+
+          {/* Huge Dominant Arabic Headline */}
+          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tight text-slate-950 leading-[1.12] mb-8 max-w-5xl">
+            {dictionary.headline.map((word, i) => (
+              <motion.span
+                key={i}
+                custom={i}
+                variants={headlineVariants}
+                initial="hidden"
+                animate="visible"
+                className={`inline-block mx-2 sm:mx-3 ${
+                  i === dictionary.headline.length - 1
+                    ? "text-[#0454FF]"
+                    : "text-slate-950"
+                }`}
+              >
+                {word}
+              </motion.span>
+            ))}
+          </h1>
+
+          {/* Subheadline Description */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.7 }}
+            className="text-lg sm:text-xl md:text-2xl text-slate-600 mb-10 max-w-3xl leading-relaxed font-normal"
+          >
+            {dictionary.sub}
+          </motion.p>
+
+          {/* Action CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.7 }}
+            className="flex flex-wrap items-center justify-center gap-4 mb-16"
+          >
+            {onOpenConsultation ? (
+              <button
+                onClick={onOpenConsultation}
+                className="group inline-flex items-center gap-2.5 bg-[#0454FF] hover:bg-[#003ECC] text-white px-8 py-4 rounded-xl text-base font-bold transition-all shadow-lg hover:shadow-blue-500/25 hover:-translate-y-0.5 cursor-pointer"
+              >
+                <span>{dictionary.cta}</span>
+                <ArrowRight
+                  size={18}
+                  className="rotate-180 transition-transform group-hover:-translate-x-1"
+                />
+              </button>
+            ) : (
+              <Link
+                href={`/${locale}/contact`}
+                className="group inline-flex items-center gap-2.5 bg-[#0454FF] hover:bg-[#003ECC] text-white px-8 py-4 rounded-xl text-base font-bold transition-all shadow-lg hover:shadow-blue-500/25 hover:-translate-y-0.5"
+              >
+                <span>{dictionary.cta}</span>
+                <ArrowRight
+                  size={18}
+                  className="rotate-180 transition-transform group-hover:-translate-x-1"
+                />
+              </Link>
+            )}
+
+            <Link
+              href={`/${locale}/solutions`}
+              className="inline-flex items-center gap-2 text-slate-700 hover:text-[#0454FF] bg-white hover:bg-slate-50 border border-slate-200 px-7 py-4 rounded-xl text-base font-bold transition-all shadow-2xs"
+            >
+              <span>استكشف قدراتنا</span>
+            </Link>
+          </motion.div>
+
+          {/* Integrated Supporting Pillars (Ecosystem Strip) */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.0, duration: 0.8 }}
+            className="w-full max-w-5xl"
+          >
+            {/* Header strip */}
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-200/80 text-xs font-mono text-slate-500">
+              <span className="flex items-center gap-2 font-bold text-slate-700">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                منظومة عمل متكاملة بدون جزر منعزلة
+              </span>
+              <span className="text-[#0454FF] font-bold">
+                كل شيء متصل • Everything Connects
+              </span>
+            </div>
+
+            {/* 5 Pillars Horizontal Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              {arabicPillars.map((pillar) => {
+                const Icon = pillar.icon;
+                return (
+                  <div
+                    key={pillar.id}
+                    className="p-3.5 bg-white/90 backdrop-blur-xs border border-slate-200/80 hover:border-[#0454FF]/40 rounded-2xl transition-all hover:shadow-md hover:-translate-y-0.5 group text-start flex flex-col justify-between"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#0454FF] flex items-center justify-center mb-2.5 group-hover:bg-[#0454FF] group-hover:text-white transition-colors">
+                      <Icon size={16} />
+                    </div>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#0454FF] transition-colors leading-tight mb-1">
+                        {pillar.name}
+                      </h4>
+                      <p className="text-[11px] text-slate-500 font-normal leading-tight">
+                        {pillar.tag}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+
+        </div>
+
+        {/* Bottom Scroll Indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.4, duration: 1 }}
+          className="mt-6 flex flex-col items-center gap-1 text-slate-400"
+        >
+          <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400">
+            {dictionary.scrollLabel}
+          </span>
+          <ChevronDown size={14} className="animate-bounce text-slate-400" />
+        </motion.div>
+      </section>
+    );
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     ENGLISH HERO (PRESERVED REFERENCE DESIGN — DO NOT ALTER)
+     ══════════════════════════════════════════════════════════════ */
   return (
     <section className="relative min-h-[92vh] w-full overflow-hidden bg-gradient-to-b from-blue-50/40 via-white to-white flex items-center pt-28 pb-16">
       {/* Ambient background glow & fine grid */}
@@ -113,11 +305,7 @@ export default function Hero({ locale, dictionary, onOpenConsultation }: HeroPro
               className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200/60 text-[#0454FF] text-xs font-semibold tracking-wide uppercase mb-6 self-start shadow-xs"
             >
               <Sparkles size={13} className="text-[#0454FF]" />
-              <span>
-                {isRtl
-                  ? "شريك نمو الأعمال والحلول المتكاملة"
-                  : "Business Growth & Solutions Partner"}
-              </span>
+              <span>Business Growth & Solutions Partner</span>
             </motion.div>
 
             {/* Main Headline */}
@@ -165,9 +353,7 @@ export default function Hero({ locale, dictionary, onOpenConsultation }: HeroPro
                   <span>{dictionary.cta}</span>
                   <ArrowRight
                     size={16}
-                    className={`transition-transform group-hover:translate-x-1 ${
-                      isRtl ? "rotate-180 group-hover:-translate-x-1 group-hover:translate-x-0" : ""
-                    }`}
+                    className="transition-transform group-hover:translate-x-1"
                   />
                 </button>
               ) : (
@@ -178,9 +364,7 @@ export default function Hero({ locale, dictionary, onOpenConsultation }: HeroPro
                   <span>{dictionary.cta}</span>
                   <ArrowRight
                     size={16}
-                    className={`transition-transform group-hover:translate-x-1 ${
-                      isRtl ? "rotate-180 group-hover:-translate-x-1 group-hover:translate-x-0" : ""
-                    }`}
+                    className="transition-transform group-hover:translate-x-1"
                   />
                 </Link>
               )}
@@ -189,7 +373,7 @@ export default function Hero({ locale, dictionary, onOpenConsultation }: HeroPro
                 href={`/${locale}/solutions`}
                 className="inline-flex items-center gap-2 text-slate-700 hover:text-[#0454FF] bg-white hover:bg-slate-50 border border-slate-200 px-6 py-3.5 rounded-xl text-sm font-semibold transition-all shadow-2xs"
               >
-                <span>{isRtl ? "استكشف الحلول" : "Explore Capabilities"}</span>
+                <span>Explore Capabilities</span>
               </Link>
             </motion.div>
 
@@ -202,27 +386,27 @@ export default function Hero({ locale, dictionary, onOpenConsultation }: HeroPro
             >
               <span className="text-slate-900 font-bold flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#0454FF]" />
-                {isRtl ? "استراتيجية" : "Strategy"}
+                Strategy
               </span>
               <span className="text-slate-300">•</span>
               <span className="text-slate-900 font-bold flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#0454FF]" />
-                {isRtl ? "علامة تجارية" : "Branding"}
+                Branding
               </span>
               <span className="text-slate-300">•</span>
               <span className="text-slate-900 font-bold flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#0454FF]" />
-                {isRtl ? "تسويق" : "Marketing"}
+                Marketing
               </span>
               <span className="text-slate-300">•</span>
               <span className="text-slate-900 font-bold flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#0454FF]" />
-                {isRtl ? "تجارب رقمية" : "Digital"}
+                Digital
               </span>
               <span className="text-slate-300">•</span>
               <span className="text-slate-900 font-bold flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#0454FF]" />
-                {isRtl ? "تكنولوجيا" : "Technology"}
+                Technology
               </span>
             </motion.div>
 
@@ -248,11 +432,11 @@ export default function Hero({ locale, dictionary, onOpenConsultation }: HeroPro
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                   <span className="text-[11px] font-mono font-bold tracking-wider uppercase text-slate-300">
-                    {isRtl ? "منظومة النمو المتصلة" : "Connected Ecosystem"}
+                    Connected Ecosystem
                   </span>
                 </div>
                 <span className="text-[10px] font-mono uppercase tracking-widest text-[#60A5FA] bg-blue-950/80 px-2 py-0.5 rounded-full border border-blue-800/60">
-                  {isRtl ? "كل شيء متصل" : "Everything Connects"}
+                  Everything Connects
                 </span>
               </div>
 
@@ -301,10 +485,10 @@ export default function Hero({ locale, dictionary, onOpenConsultation }: HeroPro
                         </div>
                         <div className="flex flex-col text-start">
                           <span className="text-[11px] font-bold text-white whitespace-nowrap">
-                            {isRtl ? item.nameAr : item.nameEn}
+                            {item.nameEn}
                           </span>
                           <span className="text-[9px] font-mono text-slate-400 whitespace-nowrap">
-                            {isRtl ? item.tagAr : item.tagEn}
+                            {item.tagEn}
                           </span>
                         </div>
                       </div>
@@ -327,7 +511,7 @@ export default function Hero({ locale, dictionary, onOpenConsultation }: HeroPro
                   >
                     <Cpu size={12} className="text-[#60A5FA]" />
                     <span className="text-[10px] font-bold text-white whitespace-nowrap">
-                      {isRtl ? "التكنولوجيا والبرمجيات" : "Technology & Software"}
+                      Technology & Software
                     </span>
                   </div>
                 </div>
@@ -339,18 +523,10 @@ export default function Hero({ locale, dictionary, onOpenConsultation }: HeroPro
                 <span className="flex items-center gap-1.5 text-slate-300">
                   <Activity size={12} className="text-[#60A5FA]" />
                   <span>
-                    {activeNode
-                      ? isRtl
-                        ? "تكامل نشط وفوري"
-                        : "Active Discipline Synergy"
-                      : isRtl
-                      ? "تكامل تام عبر ٥ ركائز"
-                      : "05 Integrated Disciplines"}
+                    {activeNode ? "Active Discipline Synergy" : "05 Integrated Disciplines"}
                   </span>
                 </span>
-                <span className="text-[#60A5FA] font-bold">
-                  {isRtl ? "بدون جزر منعزلة" : "Zero Silos"}
-                </span>
+                <span className="text-[#60A5FA] font-bold">Zero Silos</span>
               </div>
 
             </motion.div>

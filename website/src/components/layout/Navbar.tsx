@@ -82,7 +82,7 @@ export default function Navbar({ locale, dictionary }: NavbarProps) {
                 ECOMATE
               </span>
               <span className="text-[10px] uppercase tracking-wider text-slate-500 font-mono hidden sm:block">
-                Business Growth & Solutions
+                {locale === "ar" ? "شريك نمو الأعمال والحلول" : "Business Growth & Solutions"}
               </span>
             </div>
           </Link>

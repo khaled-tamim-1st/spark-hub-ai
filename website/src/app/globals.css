@@ -42,9 +42,38 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Arabic font override */
-.font-arabic {
+/* Arabic font override - strictly scoped to RTL */
+.font-arabic,
+[dir="rtl"],
+[dir="rtl"] body {
   font-family: var(--font-arabic);
+}
+
+[dir="rtl"] h1 {
+  font-family: var(--font-arabic);
+  font-weight: 800;
+  line-height: 1.18;
+}
+
+[dir="rtl"] h2 {
+  font-family: var(--font-arabic);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+[dir="rtl"] h3 {
+  font-family: var(--font-arabic);
+  font-weight: 700;
+  line-height: 1.32;
+}
+
+[dir="rtl"] p {
+  line-height: 1.75;
+}
+
+[dir="rtl"] button,
+[dir="rtl"] a {
+  letter-spacing: 0;
 }
 
 /* ═══════════════════════════════════════════

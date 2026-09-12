@@ -26,7 +26,13 @@ interface FooterProps {
 export default function Footer({ locale, dictionary }: FooterProps) {
   const isRtl = locale === "ar";
   
-  const solutions = [
+  const solutions = isRtl ? [
+    "الاستراتيجية وحلول الأعمال",
+    "العلامة التجارية والإبداع",
+    "التسويق والنمو",
+    "التجارب الرقمية",
+    "التكنولوجيا والبرمجيات"
+  ] : [
     "Strategy & Business Solutions",
     "Branding & Creative",
     "Marketing & Growth",
@@ -34,7 +40,14 @@ export default function Footer({ locale, dictionary }: FooterProps) {
     "Technology & Software"
   ];
   
-  const industries = [
+  const industries = isRtl ? [
+    "التجزئة والتجارة الإلكترونية",
+    "العقارات",
+    "الخدمات المالية",
+    "الرعاية الصحية",
+    "اللوجستيات",
+    "الضيافة"
+  ] : [
     "Retail",
     "Real Estate",
     "Financial Services",
