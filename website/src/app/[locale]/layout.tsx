@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { locales, localeDirection, getDictionary, type Locale } from "@/lib/i18n";
+import Preloader from "@/components/ui/Preloader";
 
 export async function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -80,6 +81,7 @@ export default async function LocaleLayout({
           locale === "ar" ? "font-arabic" : "font-sans"
         }`}
       >
+        <Preloader locale={locale} />
         {children}
       </body>
     </html>
