@@ -54,7 +54,7 @@ export default function BigStatement({ locale, dictionary }: BigStatementProps) 
             className="mb-12"
           >
             <span className="inline-block font-mono text-sm uppercase tracking-[0.2em] text-[#0454FF] font-semibold">
-              Everything Connects
+              {isRtl ? "كل شيء متصل" : "Everything Connects"}
             </span>
           </motion.div>
 
@@ -63,10 +63,10 @@ export default function BigStatement({ locale, dictionary }: BigStatementProps) 
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
-            className="text-5xl md:text-7xl lg:text-8xl font-bold text-[#0B0F19] tracking-tight leading-[1.1] mb-12 flex flex-wrap justify-center gap-x-4 gap-y-2 md:gap-x-6 md:gap-y-4"
+            className="text-5xl md:text-7xl lg:text-8xl font-bold text-[#0B0F19] tracking-tight leading-[1.15] mb-12 flex flex-wrap justify-center gap-x-4 gap-y-2 md:gap-x-6 md:gap-y-4"
           >
             {words.map((word, index) => {
-              const isSilo = word.toLowerCase().includes('silo');
+              const isSilo = word.toLowerCase().includes('silo') || word.includes('منعزلة') || word.includes('جُزُر');
               return (
                 <motion.span
                   key={index}
